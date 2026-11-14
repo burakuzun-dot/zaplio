@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="906" height="260" viewBox="0 0 906 260">
+<g transform="translate(0,0) scale(3.4210526315789473) translate(-20.5,-12)">
+<defs>
+  <mask id="mL" maskUnits="userSpaceOnUse" x="-50" y="-50" width="200" height="200">
+    <rect x="-50" y="-50" width="200" height="200" fill="#fff"/>
+    <path d="M55 25 L37 54 H48 L44 75 L64 44 H53 L58 25 Z" fill="#000" stroke="#000" stroke-width="5" stroke-linejoin="round"/>
+  </mask>
+</defs>
+<g mask="url(#mL)">
+  <path d="M30 20 L30 80 L82 50 Z" fill="#7B61FF" stroke="#7B61FF" stroke-width="12" stroke-linejoin="round"/>
+</g>
+<path d="M55 25 L37 54 H48 L44 75 L64 44 H53 L58 25 Z" fill="#FFC83D"/></g>
+<text x="308" y="130.0" dominant-baseline="central" font-family="Poppins" font-weight="700"
+ font-size="200" letter-spacing="-8.0" fill="#FFFFFF">Zaplio</text></svg>

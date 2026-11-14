@@ -1,0 +1,14 @@
+# Normalise line endings so Windows and CI produce identical files.
+* text=auto eol=lf
+
+*.ps1   text eol=lf
+*.sln   text eol=crlf
+*.slnx  text eol=lf
+
+# Binary files
+*.png   binary
+*.ico   binary
+*.gif   binary
+*.mp4   binary
+*.ttf   binary
+*.dll   binary

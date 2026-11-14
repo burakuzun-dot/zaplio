@@ -1,0 +1,41 @@
+Zaplio 0.10.0 — Açık kaynak lisansları
+
+Arayüz
+
+Inter 4.1 — SIL Open Font License 1.1
+Telif bildirimi ve lisans: Inter.OFL.txt
+Kaynak: https://github.com/rsms/inter/releases/tag/v4.1
+
+Microsoft Fluent System Icons 1.1.344 — MIT
+Telif bildirimi ve lisans: FluentSystemIcons.LICENSE.txt
+Kaynak: https://github.com/microsoft/fluentui-system-icons/tree/1.1.344
+
+Oynatma
+
+LibVLCSharp ve LibVLCSharp.WPF 3.10.2 — LGPL-2.1-or-later
+Lisans: VideoLAN.LGPL-2.1.txt
+Paketlerin kaynak kodu:
+https://code.videolan.org/videolan/LibVLCSharp/-/tree/3082c09ca955131c705fc4767fde03e9c4a14999
+
+VideoLAN.LibVLC.Windows 3.0.24 — LGPL-2.1-or-later
+Lisans: VideoLAN.LGPL-2.1.txt
+Kaynak arşivi ve sürüm dosyaları: https://download.videolan.org/pub/videolan/vlc/3.0.24/
+Paketleme betikleri: https://github.com/mfkl/libvlc-nuget
+LibVLC ve .NET bağlayıcısı, Zaplio'nun yanındaki ayrı DLL'lerden yüklenir.
+Bu bileşenlerin değişikliklerini ayıklamak için tersine mühendislik LGPL koşullarında izinlidir.
+Paketi yeniden dağıtırken LGPL kapsamındaki bileşenlerin karşılık gelen kaynak kodunu
+lisansın gerektirdiği biçimde alıcılara sunun.
+
+Windows çalışma zamanı
+
+Bu kendi kendine yeterli paketin .NET ve WPF 10.0.15 çalışma zamanları MIT
+lisanslıdır ve aşağıdaki üçüncü taraf bildirimlerini içerir.
+
+.NET: DotNet.LICENSE.txt ve DotNet.THIRD-PARTY-NOTICES.txt
+Kaynak: https://github.com/dotnet/runtime/tree/v10.0.15
+
+WPF: WPF.LICENSE.txt ve WPF.THIRD-PARTY-NOTICES.txt
+Kaynak: https://github.com/dotnet/wpf/tree/v10.0.15
+
+M3U ve Xtream yayınlarının kullanım hakları, ilgili yayın sağlayıcılarının
+koşullarına tabidir.

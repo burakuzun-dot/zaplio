@@ -1,0 +1,48 @@
+<Window x:Class="Zaplio.GuideSourceWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Zaplio"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="XMLTV kaynağı · Zaplio" Width="570" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner" WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False"
+        Background="{StaticResource Panel}" Foreground="{StaticResource Text}" FontFamily="{StaticResource UiFont}" UseLayoutRounding="True">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" CornerRadius="0" ResizeBorderThickness="0" GlassFrameThickness="0" />
+    </shell:WindowChrome.WindowChrome>
+    <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1">
+        <StackPanel>
+            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleMouseDown">
+                <Grid Height="65" Margin="23,0,13,0">
+                    <TextBlock Text="XMLTV kaynağı" FontSize="23" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Button Style="{StaticResource WindowButton}" HorizontalAlignment="Right" Click="OnClose"
+                            ToolTip="Kapat" AutomationProperties.Name="Kapat">
+                        <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Close}" FontSize="17" />
+                    </Button>
+                </Grid>
+            </Border>
+            <StackPanel Margin="23,19,23,21">
+                <TextBlock x:Name="SourceName" FontSize="15" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                <TextBlock x:Name="SourceHint" Style="{StaticResource MutedText}" TextWrapping="Wrap" FontSize="13" Margin="0,4,0,17" />
+                <TextBlock Text="XMLTV bağlantısı veya dosya yolu" Style="{StaticResource MutedText}" FontSize="12" Margin="0,0,0,5" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="AddressInput" AutomationProperties.Name="XMLTV bağlantısı veya dosya yolu" />
+                    <Button Grid.Column="1" Content="Dosya seç" Margin="8,0,0,0" Click="OnBrowse" />
+                </Grid>
+                <TextBlock x:Name="SourceError" Foreground="{StaticResource Error}" FontSize="12" TextWrapping="Wrap" Margin="0,8,0,0" />
+                <Grid Margin="0,10,0,0">
+                    <Button x:Name="AutoButton" HorizontalAlignment="Left" Content="Özel kaynağı temizle" Click="OnUseAutomatic" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Vazgeç" Click="OnClose" IsCancel="True" Margin="0,0,8,0" />
+                        <Button Style="{StaticResource Primary}" Click="OnSave" IsDefault="True">
+                            <TextBlock Text="Kaydet" Foreground="{StaticResource Ink}" />
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

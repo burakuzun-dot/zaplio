@@ -1,0 +1,62 @@
+name: Hata bildirimi
+description: Zaplio'da bir şey beklendiği gibi çalışmıyor
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Teşekkürler! Lütfen **kullanıcı adı, şifre ya da liste adresi paylaşma**. Zaplio içerik sağlamaz; kanal veya liste
+        bulma talepleri kapatılır.
+  - type: input
+    id: version
+    attributes:
+      label: Zaplio sürümü
+      description: Günlük dosyasındaki "Zaplio … başlatıldı" satırında ya da indirdiğin dosyanın adında yazar.
+      placeholder: "0.10.1"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Hangi bölümde?
+      options:
+        - Canlı TV
+        - Yayın rehberi / arşiv
+        - Filmler / diziler
+        - Oynatma (görüntü, ses, altyazı)
+        - Kaynak ekleme / yükleme
+        - Kurulum / açılış
+        - Diğer
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: Kaynak türü
+      options:
+        - M3U dosyası
+        - M3U bağlantısı
+        - Xtream API
+        - Fark etmiyor
+  - type: textarea
+    id: steps
+    attributes:
+      label: Ne yaptın, ne oldu?
+      description: Adım adım yaz; beklediğin ile gördüğünü belirt.
+      placeholder: |
+        1. Rehberi açtım
+        2. Dünkü bir programa çift tıkladım
+        3. "Yayın açılamadı" yazdı
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Günlük
+      description: Ayarlar → Günlük klasörünü aç. O günün .log dosyasından ilgili satırları yapıştır (şifreler zaten gizlenmiştir).
+      render: text
+  - type: input
+    id: windows
+    attributes:
+      label: Windows sürümü
+      placeholder: "Windows 11 24H2"

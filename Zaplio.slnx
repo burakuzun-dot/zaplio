@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Zaplio/Zaplio.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Zaplio.Tests/Zaplio.Tests.csproj" />
+  </Folder>
+</Solution>

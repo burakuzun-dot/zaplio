@@ -1,0 +1,155 @@
+<Window x:Class="Zaplio.SourcesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Zaplio"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="Yayın kaynakları · Zaplio" Width="635" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner" WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False"
+        Background="{StaticResource Panel}" Foreground="{StaticResource Text}" FontFamily="{StaticResource UiFont}" UseLayoutRounding="True">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" CornerRadius="0" ResizeBorderThickness="0" GlassFrameThickness="0" />
+    </shell:WindowChrome.WindowChrome>
+    <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleMouseDown">
+                <Grid Height="72" Margin="25,0,15,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="37" Height="37" Background="{StaticResource Active}" BorderBrush="{StaticResource ActiveLine}"
+                                BorderThickness="1" CornerRadius="10" Margin="0,0,11,0">
+                            <TextBlock Text="{x:Static local:IconGlyphs.Server}" FontFamily="{StaticResource GlyphFont}"
+                                       FontSize="21" Foreground="{StaticResource Accent}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <TextBlock Text="Yayın kaynakları" FontSize="23" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <Button Style="{StaticResource WindowButton}" HorizontalAlignment="Right" Click="OnCancel"
+                            ToolTip="Kapat" AutomationProperties.Name="Kapat">
+                        <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Close}" FontSize="17" />
+                    </Button>
+                </Grid>
+            </Border>
+            <StackPanel Grid.Row="1" Margin="25,20,25,22">
+                <Grid x:Name="ExistingSection" Margin="0,0,0,20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="KAYITLI KAYNAKLAR" Style="{StaticResource SectionLabel}" VerticalAlignment="Center" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="EditButton" Content="Düzenle" Click="OnEdit" IsEnabled="False" Margin="0,0,8,0" />
+                        <Button x:Name="RemoveButton" Content="Kaldır" Click="OnRemove" IsEnabled="False" />
+                    </StackPanel>
+                    <Border Grid.Row="1" Background="{StaticResource Canvas}" BorderBrush="{StaticResource Line}" BorderThickness="1"
+                            CornerRadius="10" Margin="0,8,0,0" Padding="5">
+                        <ListBox x:Name="SavedSources" MaxHeight="112" SelectionChanged="OnSourceSelectionChanged"
+                                 AutomationProperties.Name="Kayıtlı kaynaklar">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                                    <Setter Property="AutomationProperties.Name" Value="{Binding Name}" />
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="28" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Icon}" FontFamily="{StaticResource GlyphFont}" FontSize="17"
+                                                   Foreground="{StaticResource Accent}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="2" Text="{Binding TypeLabel}" Style="{StaticResource MutedText}" FontSize="12"
+                                                   Margin="12,0,0,0" VerticalAlignment="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                </Grid>
+
+                <TextBlock Text="YENİ KAYNAK" Style="{StaticResource SectionLabel}" Margin="0,0,0,10" />
+                <Grid x:Name="TypeSelector" Margin="0,0,0,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <RadioButton x:Name="UrlType" GroupName="SourceType" IsChecked="True" AutomationProperties.Name="M3U bağlantısı"
+                                 Style="{StaticResource SourceOption}" Checked="OnTypeChanged">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{x:Static local:IconGlyphs.Link}" Style="{StaticResource Glyph}" Margin="0,0,6,0" />
+                            <TextBlock Text="M3U bağlantısı" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton Grid.Column="1" x:Name="FileType" GroupName="SourceType" AutomationProperties.Name="M3U dosyası"
+                                 Style="{StaticResource SourceOption}" Checked="OnTypeChanged">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{x:Static local:IconGlyphs.Document}" Style="{StaticResource Glyph}" Margin="0,0,6,0" />
+                            <TextBlock Text="M3U dosyası" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton Grid.Column="2" x:Name="XtreamType" GroupName="SourceType" AutomationProperties.Name="Xtream API"
+                                 Style="{StaticResource SourceOption}" Checked="OnTypeChanged">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{x:Static local:IconGlyphs.Plug}" Style="{StaticResource Glyph}" Margin="0,0,6,0" />
+                            <TextBlock Text="Xtream API" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </RadioButton>
+                </Grid>
+                <StackPanel x:Name="Fields">
+                    <StackPanel x:Name="FileFields" Visibility="Collapsed">
+                        <TextBlock Text="Liste dosyası" Style="{StaticResource MutedText}" FontSize="12" Margin="0,0,0,5" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="FileInput" IsReadOnly="True" AutomationProperties.Name="Liste dosyası" />
+                            <Button Grid.Column="1" Content="Dosya seç" Margin="8,0,0,0" Click="OnBrowse" />
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel x:Name="UrlFields">
+                        <TextBlock Text="M3U bağlantısı" Style="{StaticResource MutedText}" FontSize="12" Margin="0,0,0,5" />
+                        <TextBox x:Name="UrlInput" AutomationProperties.Name="M3U bağlantısı" />
+                    </StackPanel>
+
+                    <StackPanel x:Name="XtreamFields" Visibility="Collapsed">
+                        <TextBlock Text="Sunucu adresi" Style="{StaticResource MutedText}" FontSize="12" Margin="0,0,0,5" />
+                        <TextBox x:Name="ServerInput" AutomationProperties.Name="Sunucu adresi" Margin="0,0,0,11" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Kullanıcı adı" Style="{StaticResource MutedText}" FontSize="12" Margin="0,0,0,5" />
+                                <TextBox x:Name="UserInput" AutomationProperties.Name="Xtream kullanıcı adı" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Şifre" Style="{StaticResource MutedText}" FontSize="12" Margin="0,0,0,5" />
+                                <PasswordBox x:Name="PasswordInput" AutomationProperties.Name="Xtream şifresi" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                    <TextBlock Text="Kaynak adı (isteğe bağlı)" Style="{StaticResource MutedText}" FontSize="12" Margin="0,13,0,5" />
+                    <TextBox x:Name="NameInput" AutomationProperties.Name="Kaynak adı" />
+                </StackPanel>
+                <TextBlock x:Name="Message" TextWrapping="Wrap" MinHeight="21" Margin="0,12,0,5" FontSize="12"
+                           AutomationProperties.LiveSetting="Polite" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Kapat" Click="OnCancel" IsCancel="True" Margin="0,0,8,0" />
+                    <Button x:Name="AddButton" Style="{StaticResource Primary}" Click="OnAdd" IsDefault="True">
+                        <TextBlock Text="Bağla ve ekle" Foreground="{StaticResource Ink}" />
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

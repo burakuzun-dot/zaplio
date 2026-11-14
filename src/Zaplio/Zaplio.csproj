@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Version>0.10.1</Version>
+    <ApplicationIcon>Assets\Zaplio.ico</ApplicationIcon>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PlatformTarget>x64</PlatformTarget>
+    <VlcWindowsX86Enabled>false</VlcWindowsX86Enabled>
+    <VlcWindowsArm64Enabled>false</VlcWindowsArm64Enabled>
+    <ZaplioRepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..'))</ZaplioRepoRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="LibVLCSharp.WPF" Version="3.10.2" />
+    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.24" />
+    <!-- Only downloaded (not referenced) so tools\Sign-Zaplio.ps1 (repository root) has signtool.exe without a Windows SDK install. -->
+    <PackageDownload Include="Microsoft.Windows.SDK.BuildTools" Version="[10.0.26100.1742]" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Assets\Fonts\*.ttf;Assets\Zaplio.ico;Assets\Brand\*.png;Assets\Splash.png;Assets\Intro.mp4" />
+    <Resource Include="Assets\Fonts\*.ttf;Assets\Zaplio.ico;Assets\Brand\*.png;Assets\Splash.png" />
+    <!-- MediaElement plays from disk, not from resources. -->
+    <Content Include="Assets\Intro.mp4" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <InternalsVisibleTo Include="Zaplio.Tests" />
+    <None Include="$(ZaplioRepoRoot)\LICENSE" Link="Licenses\Zaplio.LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Update="Licenses\*.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!--
+    Code signing. Off by default; turn on with -p:ZaplioSign=true or the environment variable ZAPLIO_SIGN=1.
+    Signing runs before the VLC plugin cache step; VLC's own DLLs are already signed and are not touched.
+  -->
+  <PropertyGroup>
+    <ZaplioSign Condition="'$(ZaplioSign)' == '' And '$(ZAPLIO_SIGN)' == '1'">true</ZaplioSign>
+  </PropertyGroup>
+  <Target Name="SignZaplioOutput" AfterTargets="Build" BeforeTargets="GenerateVlcPluginCache"
+          Condition="'$(ZaplioSign)' == 'true' And '$(OS)' == 'Windows_NT'">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(ZaplioRepoRoot)\tools\Sign-Zaplio.ps1&quot; -Path &quot;$([System.IO.Path]::GetFullPath('$(OutDir)'))&quot;" />
+  </Target>
+  <Target Name="SignZaplioPublish" AfterTargets="Publish" BeforeTargets="GenerateVlcPluginCacheOnPublish"
+          Condition="'$(ZaplioSign)' == 'true' And '$(OS)' == 'Windows_NT'">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(ZaplioRepoRoot)\tools\Sign-Zaplio.ps1&quot; -Path &quot;$([System.IO.Path]::GetFullPath('$(PublishDir)'))&quot;" />
+  </Target>
+
+  <!-- VLC's plugin cache lets LibVLC skip loading all ~320 plugin DLLs at start-up (≈35 s on freshly copied files). -->
+  <Target Name="GenerateVlcPluginCache" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
+    <PropertyGroup>
+      <_ZaplioVlcDir>$([System.IO.Path]::GetFullPath('$(OutDir)libvlc\win-x64'))</_ZaplioVlcDir>
+    </PropertyGroup>
+    <Exec Condition="Exists('$(_ZaplioVlcDir)\libvlc.dll') And !Exists('$(_ZaplioVlcDir)\plugins\plugins.dat')"
+          Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(ZaplioRepoRoot)\tools\GenerateVlcPluginCache.ps1&quot; -VlcDir &quot;$(_ZaplioVlcDir)&quot;"
+          ContinueOnError="true" />
+  </Target>
+  <Target Name="GenerateVlcPluginCacheOnPublish" AfterTargets="Publish" Condition="'$(OS)' == 'Windows_NT'">
+    <PropertyGroup>
+      <_ZaplioPublishVlcDir>$([System.IO.Path]::GetFullPath('$(PublishDir)libvlc\win-x64'))</_ZaplioPublishVlcDir>
+    </PropertyGroup>
+    <Exec Condition="Exists('$(_ZaplioPublishVlcDir)\libvlc.dll') And !Exists('$(_ZaplioPublishVlcDir)\plugins\plugins.dat')"
+          Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(ZaplioRepoRoot)\tools\GenerateVlcPluginCache.ps1&quot; -VlcDir &quot;$(_ZaplioPublishVlcDir)&quot;"
+          ContinueOnError="true" />
+  </Target>
+</Project>

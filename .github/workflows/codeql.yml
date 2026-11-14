@@ -1,0 +1,36 @@
+name: CodeQL
+
+# Static security analysis of the C# code. Results appear under Security → Code scanning.
+# On a private repository this needs GitHub Advanced Security; the job is skipped there to keep CI green.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 4 * * 1"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    if: ${{ !github.event.repository.private }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "10.0.x"
+
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: csharp
+          build-mode: manual
+
+      - name: Build
+        run: dotnet build src/Zaplio/Zaplio.csproj -c Release
+
+      - uses: github/codeql-action/analyze@v4

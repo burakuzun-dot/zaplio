@@ -1,0 +1,72 @@
+name: Release
+
+# Add a '## <version>' section to CHANGELOG.md (it becomes the release notes), then push a tag like v0.10.0 to build, test and publish a GitHub release:
+#   git tag v0.10.0 && git push origin v0.10.0
+# The in-app update check reads the latest non-prerelease release, so the tag must be "v" + version.
+# Builds made here are NOT code-signed; sign locally if Smart App Control matters to your users.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      DOTNET_NOLOGO: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Read version from tag
+        id: version
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Tag must look like v1.2.3, got ${{ github.ref_name }}" }
+          "value=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Test
+        run: dotnet test tests/Zaplio.Tests -c Release
+
+      - name: Publish self-contained build
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.value }}"
+          dotnet publish src/Zaplio/Zaplio.csproj -c Release -r win-x64 --self-contained true -p:Version=$version -o "artifacts/Zaplio-$version-win-x64"
+          Compress-Archive -Path "artifacts/Zaplio-$version-win-x64/*" -DestinationPath "artifacts/Zaplio-$version-win-x64.zip"
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $iscc = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress; $iscc = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe' }
+          & $iscc "/DAppVersion=${{ steps.version.outputs.value }}" installer/Zaplio.iss
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with $LASTEXITCODE" }
+
+      - name: Create GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = "${{ steps.version.outputs.value }}"
+          # Release notes = this version's section of CHANGELOG.md ("## 1.2.3 ..." up to the next "## ").
+          [string[]]$lines = Get-Content CHANGELOG.md -Encoding utf8
+          $start = [Array]::FindIndex($lines, [Predicate[string]]{ param($l) $l -match "^## $([regex]::Escape($version))(\s|$)" })
+          if ($start -lt 0) { throw "CHANGELOG.md has no '## $version' section; rename the unreleased heading before tagging." }
+          $end = [Array]::FindIndex($lines, $start + 1, [Predicate[string]]{ param($l) $l -match '^## ' })
+          if ($end -lt 0) { $end = $lines.Length }
+          $notes = ($lines[($start + 1)..($end - 1)] -join "`n").Trim()
+          $notes += "`n`n---`nWindows 10 / 11 (64 bit): kurulum için ``Zaplio-$version-setup.exe``, kurulumsuz kullanım için ``Zaplio-$version-win-x64.zip``."
+          Set-Content artifacts/notes.md $notes -Encoding utf8
+          gh release create "${{ github.ref_name }}" `
+            "artifacts/Zaplio-$version-setup.exe" `
+            "artifacts/Zaplio-$version-win-x64.zip" `
+            --title "Zaplio $version" --notes-file artifacts/notes.md

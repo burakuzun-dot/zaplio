@@ -1,0 +1,25 @@
+name: Özellik önerisi
+description: Zaplio'ya bir fikir öner
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Hangi sorunu çözüyor?
+      description: Bugün neyi yapamıyorsun ya da ne zor geliyor?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Önerin
+      description: Nasıl çalışmasını hayal ediyorsun? Varsa başka bir uygulamadaki örneği de yaz.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Kontrol
+      options:
+        - label: Açık önerilerde aynısı olmadığına baktım.
+          required: true

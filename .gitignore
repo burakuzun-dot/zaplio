@@ -1,0 +1,26 @@
+bin/
+obj/
+.vs/
+artifacts/
+TestResults/
+
+# Yerel çalışma notları — depoya girmez
+.plans/
+
+# Ham marka kiti (kullanılan dosyalar src/Zaplio/Assets/, docs/images/ altında)
+Zaplio-Gorseller/
+
+# Kişisel / gizli dosyalar asla commit edilmez
+*.user
+*.suo
+.env
+.env.*
+*.log
+*.pfx
+*.p12
+*.snk
+*.key
+*.pem
+*.cer
+*.m3u
+*.m3u8
