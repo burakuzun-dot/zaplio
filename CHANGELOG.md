@@ -5,6 +5,9 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 
 ## Yayınlanmamış
 
+### Düzeltilenler
+- İkinci ekranda oynatırken ana pencere küçültülünce video penceresi de kayboluyordu; artık ikinci ekran bağımsız kalır.
+
 ## 0.10.1 — 2026-11-14
 
 ### Eklenenler

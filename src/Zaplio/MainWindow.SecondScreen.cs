@@ -40,7 +40,7 @@ public partial class MainWindow
         if (_fullscreen) ToggleFullscreen();
         if (_pip) TogglePip();
 
-        var window = new SecondScreenWindow { Owner = this };
+        var window = new SecondScreenWindow(); // no Owner: an owned window would minimize together with the main window
         window.ReturnRequested += () => _ = CloseSecondScreenAsync(returnVideo: true);
         window.KeyForwarded += OnWindowKeyDown;
         window.Show();
