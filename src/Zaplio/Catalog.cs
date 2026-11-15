@@ -34,7 +34,7 @@ internal sealed record Channel(string Id, Guid SourceId, string Name, string Gro
     bool IsOnDemand = false, long SeriesId = 0, long EpisodeId = 0, string? Logo = null, int CatchupDays = 0, string? Badge = null)
 {
     public string[] Categories { get; } = Group.Split(';', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-    public string GroupLabel => string.Join(" · ", Categories);
+    public string GroupLabel => string.Join(" · ", Categories.Select(DisplayText.CleanLabel));
     public int BadgeTone => Id[^1] % 4;
     public string Initial => string.IsNullOrWhiteSpace(Name) ? "•" : StringInfo.GetNextTextElement(Name).ToUpper(CultureInfo.CurrentCulture);
     public override string ToString() => Name;

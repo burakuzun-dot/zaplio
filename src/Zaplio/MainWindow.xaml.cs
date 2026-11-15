@@ -102,6 +102,8 @@ public partial class MainWindow : Window
         _guideClock.Start();
         InitializeNetworkStatus();
         InitializeStateScreens();
+        Motion.TrackSelection(LibraryTabsPanel, LibraryIndicator);
+        Motion.TrackSelection(VodListTabsPanel, VodListIndicator);
         UpdateMuteIcon();
         UpdateSourcePicker();
         ApplyLibraryLayout();
@@ -125,20 +127,24 @@ public partial class MainWindow : Window
 
     private async void OnRefresh(object sender, RoutedEventArgs e) => await LoadActiveSectionAsync(refresh: true);
 
-    private void OnSources(object sender, RoutedEventArgs e)
+    private void OnSources(object sender, RoutedEventArgs e) => ManageSources(this);
+
+    /// <summary>Opens the sources window over <paramref name="owner"/> (the main window or the settings window).</summary>
+    private void ManageSources(Window owner)
     {
-        if (!ConfirmLegalNotice()) return;
-        var dialog = new SourcesWindow(_state.Sources, AddSourceAsync, RemoveSourceAsync, _librarySection != LibrarySection.Live) { Owner = this };
+        if (!ConfirmLegalNotice(owner)) return;
+        var dialog = new SourcesWindow(_state.Sources, AddSourceAsync, RemoveSourceAsync, _librarySection != LibrarySection.Live) { Owner = owner };
         dialog.ShowDialog();
     }
 
     private void OnSettings(object sender, RoutedEventArgs e)
     {
-        var dialog = new SettingsWindow(_state.Settings, _state.Volume) { Owner = this };
+        var dialog = new SettingsWindow(_state.Settings, _state.Volume, () => _state.Sources.ToArray(), ManageSources) { Owner = this };
         if (dialog.ShowDialog() != true) return;
         var previousSettings = _state.Settings;
         var previousVolume = _state.Volume;
-        _state.Settings = dialog.Settings;
+        // The legal notice may have been accepted from the sources page while the settings window was open; keep that.
+        _state.Settings = dialog.Settings with { LegalNoticeAccepted = dialog.Settings.LegalNoticeAccepted || previousSettings.LegalNoticeAccepted };
         _state.Volume = dialog.Volume;
         try { SaveState(); }
         catch (SourceException exception)
@@ -163,6 +169,7 @@ public partial class MainWindow : Window
             UpdateCatalog();
         }
         UpdateVodRows();
+        UpdateAmbientLightVisibility();
         SetFooter("Ayarlar kaydedildi.");
     }
 
@@ -290,6 +297,8 @@ public partial class MainWindow : Window
         var hiddenGroups = _state.HiddenGroups.Where(key => key.StartsWith(prefix, StringComparison.Ordinal)).ToArray();
         var channelNames = _state.ChannelNames.Where(item => item.Key.StartsWith(prefix, StringComparison.Ordinal)).ToArray();
         var favoriteOrder = _state.FavoriteOrder.ToArray();
+        var vodFavorites = _state.VodFavorites.Where(key => key.StartsWith(prefix, StringComparison.Ordinal)).ToArray();
+        var vodWatchlist = _state.VodWatchlist.Where(key => key.StartsWith(prefix, StringComparison.Ordinal)).ToArray();
         _state.Sources.RemoveAt(index);
         if (_state.LastSourceId == source.Id) _state.LastSourceId = _state.Sources.FirstOrDefault()?.Id;
         _state.Favorites.ExceptWith(favorites);
@@ -298,12 +307,16 @@ public partial class MainWindow : Window
         _state.HiddenGroups.ExceptWith(hiddenGroups);
         foreach (var item in channelNames) _state.ChannelNames.Remove(item.Key);
         _state.FavoriteOrder.RemoveAll(id => id.StartsWith(prefix, StringComparison.Ordinal));
+        _state.VodFavorites.ExceptWith(vodFavorites);
+        _state.VodWatchlist.ExceptWith(vodWatchlist);
         try
         {
             SaveState();
         }
         catch
         {
+            _state.VodFavorites.UnionWith(vodFavorites);
+            _state.VodWatchlist.UnionWith(vodWatchlist);
             _state.Sources.Insert(index, source);
             _state.LastSourceId = previousLastSource;
             _state.Favorites.UnionWith(favorites);
@@ -370,9 +383,11 @@ public partial class MainWindow : Window
         var results = visible.ToList();
         ChannelList.ItemsSource = results;
         ChannelList.SelectedItem = results.FirstOrDefault(channel => channel.Id == previous);
-        ChannelHeading.Text = group.Label;
+        ChannelHeading.Text = DisplayText.CleanLabel(group.Label);
         ChannelCount.Text = results.Count.ToString(Turkish);
-        NoChannels.Visibility = results.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        var loading = _refreshing && results.Count == 0 && query.Length == 0;
+        ChannelSkeleton.Visibility = loading ? Visibility.Visible : Visibility.Collapsed;
+        NoChannels.Visibility = results.Count == 0 && !loading ? Visibility.Visible : Visibility.Collapsed;
         NoChannels.Text = _refreshing ? "Kanallar yükleniyor…" : query.Length > 0 ? "Aramana uyan kanal yok." :
             group.Key == "favorites" ? "Favori kanalın burada görünür." : "Henüz kanal yok.";
         UpdateSelection();
@@ -389,7 +404,9 @@ public partial class MainWindow : Window
 
     private void OnGroupChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (!_updatingGroups) UpdateChannelList();
+        if (_updatingGroups) return;
+        UpdateChannelList();
+        Motion.StaggerRows(ChannelList);
     }
 
     // Filtering 10k+ channels on every key press makes typing stutter; wait until the user pauses.
@@ -452,8 +469,8 @@ public partial class MainWindow : Window
         FavoriteButton.IsEnabled = favoriteChannel is not null;
         var favorite = favoriteChannel is not null && IsFavorite(favoriteChannel);
         FavoriteIcon.Foreground = (Brush)FindResource(favorite ? "Accent" : "Muted");
-        FavoriteButton.Background = (Brush)FindResource(favorite ? "Active" : "Canvas");
-        FavoriteButton.BorderBrush = (Brush)FindResource(favorite ? "ActiveLine" : "Canvas");
+        FavoriteButton.Background = (Brush)FindResource(favorite ? "Active" : "Surface");
+        FavoriteButton.BorderBrush = (Brush)FindResource(favorite ? "ActiveLine" : "Line");
         var favoriteLabel = favorite ? "Favorilerden çıkar" : "Favorilere ekle";
         FavoriteButton.ToolTip = favoriteLabel;
         System.Windows.Automation.AutomationProperties.SetName(FavoriteButton, favoriteLabel);

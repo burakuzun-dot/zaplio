@@ -73,7 +73,9 @@ public static class LogoLoader
             return;
         }
         Remember(url, source);
-        if (GetUrl(image) == url) image.Source = source;
+        if (GetUrl(image) != url) return;
+        image.Source = source;
+        Motion.FadeIn(image); // arrived from the network: ease in instead of popping
     }
 
     private static bool IsWebAddress(string url) =>

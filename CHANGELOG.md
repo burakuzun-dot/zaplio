@@ -9,6 +9,13 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 - Film, dizi ve bölümleri seçince afişi ve mevcut detayları oynatma alanında görünür. Oynatmayı karttaki düğmeyle başlatabilirsin.
 - Canlı kanal geçişlerine kısa karıncalanma, pencere kapanışına eski televizyonlardaki gibi sönme efekti eklendi.
 - Oynayan videodan alınan renkler pencerenin zeminine hafifçe yansıyor. Efekti Seçenekler menüsünden kapatabilirsin.
+- **Filmler ve dizilerde favoriler ve "Sonra izle":** listenin üstünde *Tümü · Favorilerim · İzleme listem* sekmeleri var. Satırlarda kanallardaki
+  gibi şimşek düğmesi (kıvılcım animasyonuyla) ve afişin köşesinde favori rozeti; seçilen içerikte "Oynat"ın yanında şimşek ve *Sonra izle*,
+  sağ tık menüsünde de aynı seçenekler.
+- **Animasyonlar ve canlı arka plan:** oynatma alanı boşken yavaşça kayan mor-lacivert ışıklar ve süzülen kıvılcımlar; Canlı TV / Filmler / Diziler
+  arasında panel kayarak beliriyor, grup ya da kategori değişince satırlar sırayla geliyor, afiş ve logolar yüklenince yumuşakça beliriyor.
+  Düğmeler basınca hafifçe içeri çöküyor, ana düğmeler üzerine gelince parlıyor, sekmelerde seçili işaret kayarak yer değiştiriyor.
+  Listeler yüklenirken boş ekran yerine parıldayan iskelet satırlar ve atan bir şimşek görünüyor. Windows'ta animasyonlar kapalıysa hiçbiri oynamaz.
 - Kanal satırlarında favori şimşek düğmesi ve logonun köşesinde favori rozeti; favoriye eklerken kıvılcım animasyonu oynar.
 - **Kanal uykuda** ekranı: yayın açılamayınca gösterilir; "Kanalı uyandır" ve "Sonraki kanal" düğmeleri vardır. Sağlayıcıyı yormamak için
   kendiliğinden en çok iki kez yeniden dener, sonra seni bekler.
@@ -16,6 +23,13 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 - İlk liste ekranı: hiç kaynak yokken "İlk M3U listeni ekle" ekranı gösterilir.
 
 ### Değişenler
+- **Ayarlar yenilendi:** solda bölümler (Kaynaklar, Oynatma, Görünüm, Genel, Hakkında), her ayarın altında kısa bir açıklama.
+  **Kaynak ekleme ayarlara taşındı;** başlık çubuğundaki *Kaynaklar* düğmesi kaldırıldı. Ortam ışığı da Ayarlar › Görünüm'den açılıp kapanabiliyor.
+- Oynatma çubuğundaki ve başlıktaki düğmeler tek bir stile geçti: ses, ayarlar, mini pencere, 2. ekran ve tam ekran tek kapsülde,
+  üzerine gelince yumuşakça doluyor. Rehber ve favori düğmeleri aynı boyutta.
+- Kanal satırlarındaki favori şimşeği yalnızca üzerine gelince, satır seçiliyken ya da favoriyse görünür.
+- Sağlayıcının kategori adlarının başındaki ▶, ★ gibi süslemeler listede gösterilmiyor (gruplama etkilenmez).
+- Başlık biraz küçüldü, alt bilgi satırı büyüdü. Ortam ışığı paneller üzerinde daha hafif.
 - **Ortam ışığı** yenilendi: ışık artık dört kenardan (üst, alt, sol, sağ) içeri doğru yayılıyor, renkler daha canlı, geçişler daha
   akıcı; sahne kesilince ışık sıçramıyor. Video duraklayınca ışık kısılıyor.
 - Açılış animasyonu şeffaf bir pencerede gösteriliyor. Animasyonlar kapalıysa şeffaf son kare kullanılıyor.

@@ -9,7 +9,7 @@ public partial class MainWindow
 {
     private sealed record VodFilter(string? Category, string Label);
 
-    private sealed record VodRow(VodItem Item, string Caption, string Tile)
+    private sealed record VodRow(VodItem Item, string Caption, string Tile, bool IsFavorite = false, bool CanFavorite = false)
     {
         public string Title => Item.Title;
         public override string ToString() => Title;
@@ -62,6 +62,7 @@ public partial class MainWindow
         System.Windows.Automation.AutomationProperties.SetName(VodPreviewPlayButton, preview.Action);
         VodPreviewError.Text = _vodPreviewError;
         VodPreviewError.Visibility = _vodPreviewError is null ? Visibility.Collapsed : Visibility.Visible;
+        UpdateVodListButtons();
     }
 
     private async void OnVodPreviewPlay(object sender, RoutedEventArgs e)
@@ -82,6 +83,7 @@ public partial class MainWindow
         _librarySection = sender == MoviesTab ? LibrarySection.Movies : sender == SeriesTab ? LibrarySection.Series : LibrarySection.Live;
         if (_guideOpen) SetGuideOpen(false);
         ApplyLibraryLayout();
+        Motion.Reveal(_librarySection == LibrarySection.Live ? ChannelPane : VodPane, offset: 12);
         if (_librarySection == LibrarySection.Live)
         {
             CancelVodRequest();
@@ -92,6 +94,8 @@ public partial class MainWindow
             _selectedSeries = null;
             _seriesFilters = null;
             VodSearchBox.Clear();
+            _vodListKind = VodListKind.All;
+            VodAllTab.IsChecked = true;
         }
         await LoadActiveSectionAsync();
     }
@@ -220,7 +224,9 @@ public partial class MainWindow
 
     private void OnVodFilterChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (!_changingVodFilters) UpdateVodRows();
+        if (_changingVodFilters) return;
+        UpdateVodRows();
+        Motion.StaggerRows(VodList);
     }
 
     private readonly System.Windows.Threading.DispatcherTimer _vodSearchDelay = new() { Interval = TimeSpan.FromMilliseconds(200) };
@@ -236,32 +242,45 @@ public partial class MainWindow
     {
         if (!_isReady || _librarySection == LibrarySection.Live || _closing) return;
         var category = (VodCategoryPicker.SelectedItem as VodFilter)?.Category;
+        var listKind = _selectedSeries is null ? _vodListKind : VodListKind.All;
         var query = SearchKey(VodSearchBox.Text.Trim());
         var selectedId = (VodList.SelectedItem as VodRow)?.Item.ProviderId;
         var rows = _vodItems.Where(item => (category is null || CategoryComparer.Equals(item.Category, category)) &&
+                (listKind != VodListKind.Favorites || IsVodFavorite(item)) && (listKind != VodListKind.Watchlist || IsOnVodWatchlist(item)) &&
                 (query.Length == 0 || Matches(item.Title, query) || Matches(item.Category, query) || Matches(item.Detail, query)))
             .Select(item =>
             {
                 var resume = item.Playable is not null && _state.Settings.ResumeOnDemand ? _state.WatchPositions.GetValueOrDefault(item.Playable.Id) : 0;
                 var completed = item.Playable is not null && _state.CompletedItems.Contains(item.Playable.Id);
-                var parts = new[] { item.Category, item.Detail, resume > 0 ? $"Devam et · {PlaybackTime.Format(resume)}" : completed ? "İzlendi" : "" };
+                var parts = new[]
+                {
+                    item.Category, item.Detail, resume > 0 ? $"Devam et · {PlaybackTime.Format(resume)}" : completed ? "İzlendi" : "",
+                    _selectedSeries is null && IsOnVodWatchlist(item) ? "İzleme listemde" : ""
+                };
                 return new VodRow(item, string.Join(" · ", parts.Where(part => part.Length > 0).Distinct()),
-                    _librarySection == LibrarySection.Movies ? IconGlyphs.Movie : IconGlyphs.Series);
+                    _librarySection == LibrarySection.Movies ? IconGlyphs.Movie : IconGlyphs.Series,
+                    _selectedSeries is null && IsVodFavorite(item), _selectedSeries is null);
             }).ToArray();
         VodList.ItemsSource = rows;
         VodList.SelectedItem = rows.FirstOrDefault(row => row.Item.ProviderId == selectedId);
         VodBack.Visibility = _selectedSeries is null ? Visibility.Collapsed : Visibility.Visible;
+        VodListTabs.Visibility = _selectedSeries is null ? Visibility.Visible : Visibility.Collapsed;
         VodHeading.Text = _selectedSeries?.Title ?? (_librarySection == LibrarySection.Movies ? "Filmler" : "Diziler");
         VodCount.Text = rows.Length.ToString("N0", Turkish);
         var needsXtream = ActiveSource?.Kind != SourceKind.Xtream;
         var canSwitch = _state.Sources.Any(source => source.Kind == SourceKind.Xtream);
-        VodEmpty.Visibility = rows.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        var loadingVod = rows.Length == 0 && _vodRequest is not null && !needsXtream;
+        VodSkeleton.Visibility = loadingVod ? Visibility.Visible : Visibility.Collapsed;
+        VodEmpty.Visibility = rows.Length == 0 && !loadingVod ? Visibility.Visible : Visibility.Collapsed;
         VodConnect.Visibility = needsXtream && !canSwitch ? Visibility.Visible : Visibility.Collapsed;
         VodRetry.Visibility = _vodError is null ? Visibility.Collapsed : Visibility.Visible;
         VodMessage.Text = needsXtream ? (canSwitch ? "Üst menüdeki Aktif Kaynak listesinden bir Xtream kaynağı seç."
                 : "Film ve dizileri görmek için bir Xtream kaynağı ekle.")
             : _vodRequest is not null ? "İçerikler yükleniyor…"
-            : _vodError ?? (query.Length > 0 ? "Aramana uyan içerik bulunamadı." : "Bu listede içerik bulunamadı.");
+            : _vodError ?? (query.Length > 0 ? "Aramana uyan içerik bulunamadı."
+                : listKind == VodListKind.Favorites ? "Henüz favorin yok. Bir içeriğin yanındaki şimşeğe bas."
+                : listKind == VodListKind.Watchlist ? "İzleme listen boş. Bir içerik seçip “Sonra izle”ye bas."
+                : "Bu listede içerik bulunamadı.");
         VodCategoryPicker.IsEnabled = _vodItems.Count > 0;
         UpdateRefreshButton();
         UpdateSelection();

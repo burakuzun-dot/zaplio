@@ -6,17 +6,27 @@ using System.Windows.Input;
 
 namespace Zaplio;
 
+internal enum SettingsPage { Sources, Playback, Look, General, About }
+
 public partial class SettingsWindow : Window
 {
     private sealed record StartupChoice(LibrarySection Section, string Label);
     private sealed record QualityChoice(QualityMode Mode, string Label);
 
     private readonly PlaybackSettings _original;
+    private readonly Func<IReadOnlyList<Source>> _sources;
+    private readonly Action<Window> _manageSources;
 
-    internal SettingsWindow(PlaybackSettings settings, int volume)
+    /// <param name="sources">Current sources; read again after the sources window closes.</param>
+    /// <param name="manageSources">Opens the sources window over this one (changes apply at once, not on Kaydet).</param>
+    internal SettingsWindow(PlaybackSettings settings, int volume, Func<IReadOnlyList<Source>> sources, Action<Window> manageSources,
+        SettingsPage page = SettingsPage.Sources)
     {
         InitializeComponent();
         _original = settings; // keeps values the window does not show (e.g. the accepted legal notice)
+        _sources = sources;
+        _manageSources = manageSources;
+
         StartupChoice[] choices = [new(LibrarySection.Live, "Canlı TV"), new(LibrarySection.Movies, "Filmler"), new(LibrarySection.Series, "Diziler")];
         StartupPicker.ItemsSource = choices;
         StartupPicker.SelectedItem = choices.FirstOrDefault(choice => choice.Section == settings.StartupSection) ?? choices[0];
@@ -27,13 +37,24 @@ public partial class SettingsWindow : Window
         CheckForUpdates.IsChecked = settings.CheckForUpdates;
         ShowLogos.IsChecked = settings.ShowLogos;
         ShowIntro.IsChecked = settings.ShowIntro;
+        AmbientLight.IsChecked = settings.AmbientLight;
         MergeQualities.IsChecked = settings.MergeQualities;
         QualityChoice[] qualities =
-            [new(QualityMode.Auto, "Otomatik (bağlantıya göre)"), new(QualityMode.Highest, "En yüksek"), new(QualityMode.Saver, "Veri tasarrufu")];
+            [new(QualityMode.Auto, "Otomatik"), new(QualityMode.Highest, "En yüksek"), new(QualityMode.Saver, "Veri tasarrufu")];
         QualityPicker.ItemsSource = qualities;
         QualityPicker.SelectedItem = qualities.FirstOrDefault(choice => choice.Mode == settings.QualityMode) ?? qualities[0];
         SoundSlider.Value = Math.Clamp(volume, 0, 100);
         VersionText.Text = $"Zaplio {UpdateChecker.CurrentVersion}";
+        UpdateSources();
+
+        (page switch
+        {
+            SettingsPage.Playback => PlaybackNav,
+            SettingsPage.Look => LookNav,
+            SettingsPage.General => GeneralNav,
+            SettingsPage.About => AboutNav,
+            _ => SourcesNav
+        }).IsChecked = true;
     }
 
     internal PlaybackSettings Settings => _original with
@@ -46,11 +67,37 @@ public partial class SettingsWindow : Window
         CheckForUpdates = CheckForUpdates.IsChecked == true,
         ShowLogos = ShowLogos.IsChecked == true,
         ShowIntro = ShowIntro.IsChecked == true,
+        AmbientLight = AmbientLight.IsChecked == true,
         MergeQualities = MergeQualities.IsChecked == true,
         QualityMode = ((QualityChoice)QualityPicker.SelectedItem).Mode
     };
 
     internal int Volume => (int)SoundSlider.Value;
+
+    private void OnPageChanged(object sender, RoutedEventArgs e)
+    {
+        if (SourcesPage is null) return; // InitializeComponent is still running
+        SourcesPage.Visibility = sender == SourcesNav ? Visibility.Visible : Visibility.Collapsed;
+        PlaybackPage.Visibility = sender == PlaybackNav ? Visibility.Visible : Visibility.Collapsed;
+        LookPage.Visibility = sender == LookNav ? Visibility.Visible : Visibility.Collapsed;
+        GeneralPage.Visibility = sender == GeneralNav ? Visibility.Visible : Visibility.Collapsed;
+        AboutPage.Visibility = sender == AboutNav ? Visibility.Visible : Visibility.Collapsed;
+        PageScroller.ScrollToTop();
+    }
+
+    private void UpdateSources()
+    {
+        var sources = _sources();
+        SourceList.ItemsSource = sources;
+        NoSources.Visibility = sources.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        EditSourcesButton.Visibility = sources.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    private void OnManageSources(object sender, RoutedEventArgs e)
+    {
+        _manageSources(this);
+        UpdateSources();
+    }
 
     private void OnClearCache(object sender, RoutedEventArgs e)
     {

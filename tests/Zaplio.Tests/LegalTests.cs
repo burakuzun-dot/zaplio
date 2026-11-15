@@ -57,10 +57,12 @@ public sealed class LegalTests
         Assert.True(offenders.Count == 0, "Gerçek yayıncı/marka adı geçen dosyalar: " + string.Join(", ", offenders));
     }
 
-    private static string FindRepositoryRoot()
+    private static string FindRepositoryRoot([System.Runtime.CompilerServices.CallerFilePath] string sourceFile = "")
     {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
-            if (File.Exists(Path.Combine(directory.FullName, "Zaplio.slnx"))) return directory.FullName;
+        // Start from this source file as well as the test output, so the scan also works when the tests are built elsewhere.
+        foreach (var start in new[] { Path.GetDirectoryName(sourceFile), AppContext.BaseDirectory })
+            for (var directory = string.IsNullOrEmpty(start) ? null : new DirectoryInfo(start); directory is not null; directory = directory.Parent)
+                if (File.Exists(Path.Combine(directory.FullName, "Zaplio.slnx"))) return directory.FullName;
         throw new InvalidOperationException("Zaplio.slnx bulunamadı.");
     }
 }

@@ -8,6 +8,10 @@ internal sealed class LocalState
 {
     public List<Source> Sources { get; init; } = [];
     public HashSet<string> Favorites { get; init; } = [];
+    /// <summary>Favourite movies and series, keyed "{sourceId:N}:{m|s}:{providerId}" (see <see cref="VodLists"/>).</summary>
+    public HashSet<string> VodFavorites { get; init; } = [];
+    /// <summary>Movies and series saved to watch later, same key format.</summary>
+    public HashSet<string> VodWatchlist { get; init; } = [];
     public Dictionary<string, long> WatchPositions { get; init; } = [];
     public List<WatchEntry> WatchHistory { get; init; } = [];
     public HashSet<string> CompletedItems { get; init; } = [];

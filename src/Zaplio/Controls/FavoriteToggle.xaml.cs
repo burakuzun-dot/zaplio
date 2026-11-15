@@ -16,6 +16,17 @@ public partial class FavoriteToggle : System.Windows.Controls.UserControl
         new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
             (d, _) => ((FavoriteToggle)d).UpdateState()));
 
+    /// <summary>False for movies and series: the screen reader label then names the title without the word "kanal".</summary>
+    public static readonly DependencyProperty IsChannelProperty = DependencyProperty.Register(
+        nameof(IsChannel), typeof(bool), typeof(FavoriteToggle),
+        new PropertyMetadata(true, (d, _) => ((FavoriteToggle)d).UpdateState()));
+
+    public bool IsChannel
+    {
+        get => (bool)GetValue(IsChannelProperty);
+        set => SetValue(IsChannelProperty, value);
+    }
+
     public static readonly DependencyProperty ChannelNameProperty = DependencyProperty.Register(
         nameof(ChannelName), typeof(string), typeof(FavoriteToggle),
         new PropertyMetadata(string.Empty, (d, _) => ((FavoriteToggle)d).UpdateState()));
@@ -57,8 +68,17 @@ public partial class FavoriteToggle : System.Windows.Controls.UserControl
         OutlineBolt.Visibility = IsFavorite ? Visibility.Collapsed : Visibility.Visible;
         FilledBolt.Visibility = IsFavorite ? Visibility.Visible : Visibility.Collapsed;
 
-        string name = string.IsNullOrWhiteSpace(ChannelName) ? "Bu kanalı" : $"{ChannelName} kanalını";
-        string label = IsFavorite ? $"{name} favorilerden çıkar" : $"{name} favorilere ekle";
+        string label;
+        if (IsChannel)
+        {
+            string name = string.IsNullOrWhiteSpace(ChannelName) ? "Bu kanalı" : $"{ChannelName} kanalını";
+            label = IsFavorite ? $"{name} favorilerden çıkar" : $"{name} favorilere ekle";
+        }
+        else
+        {
+            string name = string.IsNullOrWhiteSpace(ChannelName) ? "" : $"{ChannelName} · ";
+            label = IsFavorite ? $"{name}Favorilerden çıkar" : $"{name}Favorilere ekle";
+        }
         AutomationProperties.SetName(Toggle, label);
         Toggle.ToolTip = IsFavorite ? "Favorilerden çıkar" : "Favorilere ekle";
     }

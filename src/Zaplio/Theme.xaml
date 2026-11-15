@@ -91,6 +91,16 @@
         <Setter Property="Background" Value="{StaticResource Brand}" />
         <Setter Property="BorderBrush" Value="{StaticResource Accent}" />
         <Setter Property="Foreground" Value="{StaticResource Ink}" />
+        <Style.Triggers>
+            <!-- Soft brand glow while the pointer is on the main action. -->
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect Color="#9D8AFF" BlurRadius="20" ShadowDepth="0" Opacity="0.6" />
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     <Style x:Key="IconButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Width" Value="36" />
@@ -109,6 +119,39 @@
         <Setter Property="local:ButtonChrome.CornerRadius" Value="18" />
         <Setter Property="Background" Value="{StaticResource Surface}" />
         <Setter Property="BorderBrush" Value="{StaticResource Line}" />
+    </Style>
+    <!-- Borderless button for the control bar; fills softly on hover so every tool in the bar behaves the same. -->
+    <Style x:Key="BarButton" TargetType="Button" BasedOn="{StaticResource IconButton}">
+        <Setter Property="Width" Value="Auto" />
+        <Setter Property="MinWidth" Value="34" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="MinHeight" Value="34" />
+        <Setter Property="Padding" Value="9,0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Frame" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="17" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Frame" Property="Background" Value="{StaticResource Hover}" />
+                            <Setter Property="Foreground" Value="{StaticResource Text}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Frame" Property="Opacity" Value="0.76" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Frame" Property="BorderBrush" Value="{StaticResource Accent}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Frame" Property="Opacity" Value="0.42" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
     <Style x:Key="WindowButton" TargetType="Button" BasedOn="{StaticResource IconButton}">
         <Setter Property="Width" Value="38" />
@@ -309,6 +352,35 @@
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="TabFrame" Property="Background" Value="{StaticResource Active}" />
                             <Setter TargetName="TabFrame" Property="BorderBrush" Value="{StaticResource ActiveLine}" />
+                            <Setter Property="Foreground" Value="{StaticResource Accent}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="TabFrame" Property="BorderBrush" Value="{StaticResource Accent}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!-- Segmented tab whose selection is a separate indicator that slides between tabs (see Motion.TrackSelection). -->
+    <Style x:Key="SlidingTab" TargetType="RadioButton" BasedOn="{StaticResource SourceOption}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="16,8" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="TabFrame" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="1"
+                            Padding="{TemplateBinding Padding}" CornerRadius="8">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="TabFrame" Property="Background" Value="{StaticResource Hover}" />
+                            <Setter Property="Foreground" Value="{StaticResource Text}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="TabFrame" Property="Background" Value="Transparent" />
                             <Setter Property="Foreground" Value="{StaticResource Accent}" />
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">

@@ -18,6 +18,7 @@ public partial class App : Application
             args.SetObserved();
         };
         AppLog.Info($"Zaplio {UpdateChecker.CurrentVersion} başlatıldı · {Environment.OSVersion}");
+        Motion.InstallPressFeedback();
         base.OnStartup(e);
         ShowMainWindow();
     }

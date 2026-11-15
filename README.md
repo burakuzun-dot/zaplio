@@ -81,7 +81,7 @@
 
 ## 🏁 3 adımda başla
 
-1. **Kaynak ekle** — sağ üstteki **Kaynaklar** → M3U dosyası, M3U bağlantısı ya da Xtream (sunucu, kullanıcı adı, şifre).
+1. **Kaynak ekle** — sağ üstteki **Ayarlar** (⚙) → **Kaynaklar** → *Kaynak ekle*: M3U dosyası, M3U bağlantısı ya da Xtream (sunucu, kullanıcı adı, şifre). İlk açılışta ekrandaki *Liste ekle* düğmesi de aynı yere götürür.
 2. **Kanal seç** — tıkla ya da <kbd>Ctrl</kbd>+<kbd>↑</kbd>/<kbd>↓</kbd> ile gez, rakamla numaradan aç; <kbd>Backspace</kbd> önceki kanal.
 3. **Rehbere bak** — **Rehber** düğmesiyle programları gör; *ARŞİV* etiketli geçmiş programa çift tıkla.
 
