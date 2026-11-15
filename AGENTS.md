@@ -14,6 +14,7 @@ Bu dosya, depoda çalışan insanlar ve kodlama ajanları için kısa bir rehber
 | Çalıştır | `dotnet run --project src/Zaplio` |
 | Derle | `dotnet build` (kökten; uyarısız olmalı) |
 | Test | `dotnet test` |
+| Öz denetim | `powershell -File tools/SelfTest.ps1` |
 | Paket | bkz. [docs/building.md](docs/building.md) |
 
 Uygulama kodu `src/Zaplio/`, testler `tests/Zaplio.Tests/` altındadır; kökteki `Zaplio.slnx` ikisini birlikte açar.
@@ -30,6 +31,9 @@ Köke kod dosyası koyma.
 - Kullanıcıya görünen tüm metinler Türkçedir; mevcut üslubu ("sen" dili, kısa cümleler) koru.
 - Uzun işler UI iş parçacığını kilitlememeli (`Task.Run`, `async`); kapanışta `_lifetime` iptal belirteci kullanılır.
 - Yeni mantık için `tests/Zaplio.Tests` altına test ekle; testler kullanıcının gerçek klasörlerine dokunmamalı.
+- **Arayüze dokunan her değişiklikten sonra öz denetimi çalıştır.** Uygulamayı ekran dışında, geçici bir veri klasörü ve yerel bir demo
+  listeyle açıp ekranları gezer; yerleşim döngülerini ve animasyon hatalarını birim testleri göremez, bu yakalar. Yeni bir ekran ya da
+  panel eklediğinde `MainWindow.SelfTest.cs` içine onun denetimini de ekle. Ağ isteği yapmaz, gerçek veriye dokunmaz.
 - Değişiklikleri `CHANGELOG.md` → *Yayınlanmamış* altına yaz.
 
 ## Windows notu

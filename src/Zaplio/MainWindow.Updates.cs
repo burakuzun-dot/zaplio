@@ -12,7 +12,7 @@ public partial class MainWindow
     private async Task RunStartupMaintenanceAsync()
     {
         _ = Task.Run(() => CatalogCache.Prune(TimeSpan.FromDays(30)));
-        if (!_state.Settings.CheckForUpdates) return;
+        if (!_state.Settings.CheckForUpdates || SelfTest.Active) return; // the self test makes no network request
         try
         {
             await Task.Delay(TimeSpan.FromSeconds(6), _lifetime.Token);

@@ -102,6 +102,8 @@ public partial class MainWindow : Window
         _guideClock.Start();
         InitializeNetworkStatus();
         InitializeStateScreens();
+        InitializeTaskbar();
+        LogoLoader.PruneDiskCache();
         Motion.TrackSelection(LibraryTabsPanel, LibraryIndicator);
         Motion.TrackSelection(VodListTabsPanel, VodListIndicator);
         UpdateMuteIcon();
@@ -171,19 +173,6 @@ public partial class MainWindow : Window
         UpdateVodRows();
         UpdateAmbientLightVisibility();
         SetFooter("Ayarlar kaydedildi.");
-    }
-
-    private void OnLicenses(object sender, RoutedEventArgs e)
-    {
-        var notices = Path.Combine(AppContext.BaseDirectory, "Licenses", "ThirdPartyNotices.txt");
-        try
-        {
-            Process.Start(new ProcessStartInfo(notices) { UseShellExecute = true });
-        }
-        catch (Win32Exception)
-        {
-            SetFooter("Lisans belgesi açılamadı. Uygulama klasöründeki Licenses bölümüne bak.", isError: true);
-        }
     }
 
     private async Task AddSourceAsync(Source source, CancellationToken cancellationToken)
@@ -361,7 +350,6 @@ public partial class MainWindow : Window
         GroupList.SelectedItem = groups.FirstOrDefault(group => group.Key == selectedGroup) ?? groups[0];
         _updatingGroups = false;
 
-        SourceCount.Text = ActiveSource?.Name ?? "Kaynak yok";
         UpdateAccountCard();
         UpdateRefreshButton();
         UpdateChannelList(channels, selectedChannel);
@@ -461,24 +449,15 @@ public partial class MainWindow : Window
             new[] { channel.GroupLabel, _state.Sources.FirstOrDefault(source => source.Id == channel.SourceId)?.Name }
                 .Where(part => !string.IsNullOrEmpty(part)));
 
-        FavoriteButton.IsEnabled = PlayButton.IsEnabled = channel is not null;
+        PlayButton.IsEnabled = channel is not null;
         GuideToggle.Visibility = _librarySection == LibrarySection.Live ? Visibility.Visible : Visibility.Collapsed;
-        FavoriteButton.Visibility = _librarySection == LibrarySection.Live && channel?.IsOnDemand != true
-            ? Visibility.Visible : Visibility.Collapsed;
-        var favoriteChannel = _guideOpen ? GuideChannel : channel;
-        FavoriteButton.IsEnabled = favoriteChannel is not null;
-        var favorite = favoriteChannel is not null && IsFavorite(favoriteChannel);
-        FavoriteIcon.Foreground = (Brush)FindResource(favorite ? "Accent" : "Muted");
-        FavoriteButton.Background = (Brush)FindResource(favorite ? "Active" : "Surface");
-        FavoriteButton.BorderBrush = (Brush)FindResource(favorite ? "ActiveLine" : "Line");
-        var favoriteLabel = favorite ? "Favorilerden çıkar" : "Favorilere ekle";
-        FavoriteButton.ToolTip = favoriteLabel;
-        System.Windows.Automation.AutomationProperties.SetName(FavoriteButton, favoriteLabel);
+        UpdateHeaderLists(channel);
         var paused = CanPausePlayback && _player?.State == VLCState.Paused;
         PlayIcon.Text = _playingChannel is null || paused ? IconGlyphs.Play : CanPausePlayback ? IconGlyphs.Pause : IconGlyphs.Stop;
         var playLabel = _playingChannel is null ? "Oynat" : paused ? "Devam et" : CanPausePlayback ? "Duraklat" : "Durdur";
         PlayText.Text = playLabel;
         PlayButton.ToolTip = playLabel;
+        UpdateTaskbarButtons(playLabel, _playingChannel is null || paused);
         System.Windows.Automation.AutomationProperties.SetName(PlayButton, playLabel);
         UpdateGuide();
         UpdateVodPlaybackVisibility();
@@ -504,7 +483,7 @@ public partial class MainWindow : Window
                 ? (hasXtream ? "Xtream kaynağı seç" : "Xtream kaynağı ekle") :
                 _librarySection == LibrarySection.Movies ? "Bir film seç" : "Bir bölüm seç";
             PlaceholderDescription.Text = ActiveSource?.Kind == SourceKind.Xtream ? "Listeden bir içerik seçerek oynat."
-                : hasXtream ? "Üst menüden bir Xtream kaynağı seç." : "Film ve diziler Xtream hesabından yüklenir.";
+                : hasXtream ? "Sol alttaki Kaynak kartından bir Xtream kaynağı seç." : "Film ve diziler Xtream hesabından yüklenir.";
             return;
         }
         var noSources = _state.Sources.Count == 0;
@@ -522,7 +501,7 @@ public partial class MainWindow : Window
         else if (ActiveChannels.Count == 0)
         {
             PlaceholderTitle.Text = "Canlı kanal bulunamadı";
-            PlaceholderDescription.Text = "Aktif kaynağı kontrol et veya üst menüden başka bir kaynak seç.";
+            PlaceholderDescription.Text = "Aktif kaynağı kontrol et veya sol alttaki Kaynak kartından başka bir kaynak seç.";
         }
         else
         {
@@ -839,6 +818,11 @@ public partial class MainWindow : Window
 
     private void OnWindowKeyDown(object sender, KeyEventArgs e)
     {
+        if (HandleMediaKey(e.Key))
+        {
+            e.Handled = true;
+            return;
+        }
         if ((e.Key == Key.F11 && Keyboard.Modifiers == ModifierKeys.None) || (_fullscreen && e.Key == Key.Escape))
         {
             ToggleFullscreen();

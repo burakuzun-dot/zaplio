@@ -15,8 +15,7 @@ internal sealed class CatalogCache
 {
     public static readonly TimeSpan MaxAge = TimeSpan.FromHours(6);
 
-    public static string Folder { get; internal set; } = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Zaplio", "cache");
+    public static string Folder { get; internal set; } = Path.Combine(AppPaths.Root, "cache");
 
     private const string CatalogKind = "catalog2"; // v2 adds channel logos
 

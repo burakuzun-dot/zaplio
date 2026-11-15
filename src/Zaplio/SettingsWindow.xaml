@@ -332,6 +332,7 @@
                                 <Button Content="Kısayollar (F1)" Click="OnShortcuts" Margin="0,0,8,8" />
                                 <Button Content="Hukuki bilgilendirme" Click="OnLegalNotice" Margin="0,0,8,8" ToolTip="İçerik sorumluluğu ve hukuki bilgilendirme" />
                                 <Button Content="Proje sayfası" Click="OnProjectPage" Margin="0,0,8,8" ToolTip="GitHub: kaynak kod, sürümler, hata bildirimi" />
+                                <Button Content="Açık kaynak lisansları" Click="OnLicenses" Margin="0,0,8,8" ToolTip="Zaplio'nun kullandığı bileşenlerin lisansları" />
                             </WrapPanel>
 
                             <TextBlock Text="Bakım" Style="{StaticResource SettingTitle}" FontSize="15" Margin="0,0,0,4" />

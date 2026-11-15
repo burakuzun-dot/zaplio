@@ -16,15 +16,19 @@ public partial class MainWindow
         AccountCard.Cursor = ActiveSource?.Kind == SourceKind.Xtream ? Cursors.Hand : null;
         if (account is null)
         {
-            AccountText.Visibility = Visibility.Collapsed;
-            AccountCard.ToolTip = ActiveSource is { Kind: SourceKind.Xtream } ? $"{ActiveSource.Name}\nAbonelik bilgisini almak için tıkla" : ActiveSource?.Name;
+            // Only Xtream sources have a subscription to show; the line doubles as the "tap to check" hint.
+            var xtream = ActiveSource is { Kind: SourceKind.Xtream };
+            AccountCard.Visibility = xtream ? Visibility.Visible : Visibility.Collapsed;
+            AccountText.Text = _refreshingAccount ? "Kontrol ediliyor…" : "Abonelik bilgisi için tıkla";
+            AccountText.Foreground = (Brush)FindResource("Muted");
+            AccountCard.ToolTip = xtream ? $"{ActiveSource!.Name}\nAbonelik bilgisini almak için tıkla" : null;
             return;
         }
+        AccountCard.Visibility = Visibility.Visible;
 
         var now = DateTimeOffset.UtcNow;
         AccountText.Text = _refreshingAccount ? "Kontrol ediliyor…" : account.CardLine(now);
         AccountText.Foreground = (Brush)FindResource(account.IsExpired(now) ? "Error" : account.ExpiresSoon(now) ? "Warning" : "Muted");
-        AccountText.Visibility = Visibility.Visible;
         AccountCard.ToolTip = $"{ActiveSource!.Name}\n{account.Details(now)}";
 
         if (account.Warning(ActiveSource.Name, now) is { } warning && _expiryWarned.Add(ActiveSource.Id))

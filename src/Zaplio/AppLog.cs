@@ -13,8 +13,7 @@ internal static partial class AppLog
     private static readonly object Gate = new();
     private static bool _pruned;
 
-    public static string Folder { get; } = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Zaplio", "logs");
+    public static string Folder { get; } = Path.Combine(AppPaths.Root, "logs");
 
     public static void Info(string message) => Write("INFO", message, null);
     public static void Warn(string message, Exception? exception = null) => Write("WARN", message, exception);

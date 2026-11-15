@@ -112,6 +112,9 @@ internal static class Motion
             new RoutedEventHandler((sender, _) => Press(sender as ButtonBase, false)), handledEventsToo: true);
         EventManager.RegisterClassHandler(typeof(ButtonBase), UIElement.MouseLeaveEvent,
             new RoutedEventHandler((sender, _) => Press(sender as ButtonBase, false)), handledEventsToo: true);
+        // A drag that takes the mouse away from the button (e.g. scrolling a strip of posters) must not leave it pressed in.
+        EventManager.RegisterClassHandler(typeof(ButtonBase), UIElement.LostMouseCaptureEvent,
+            new RoutedEventHandler((sender, _) => Press(sender as ButtonBase, false)), handledEventsToo: true);
     }
 
     private static void Press(ButtonBase? button, bool down)
@@ -192,5 +195,9 @@ internal static class Motion
         foreach (var tab in tabs.Children.OfType<RadioButton>()) tab.Checked += (_, _) => Move(animate: true);
         tabs.SizeChanged += (_, _) => Move(animate: false);
         tabs.Loaded += (_, _) => Move(animate: false);
+        // The tabs are usually laid out already when this is attached (their Loaded and SizeChanged have passed), so place the
+        // indicator now, and once more after the pending layout in case they are not measured yet.
+        Move(animate: false);
+        tabs.Dispatcher.BeginInvoke(() => Move(animate: false), System.Windows.Threading.DispatcherPriority.Loaded);
     }
 }

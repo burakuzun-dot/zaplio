@@ -6,6 +6,14 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 ## Yayınlanmamış
 
 ### Eklenenler
+- **Öz denetim** (`tools/SelfTest.ps1`): uygulama ekran dışında, geçici bir veri klasörü ve yerel bir demo listeyle kendi ekranlarını gezip
+  yerleşim ve animasyon hatalarını raporlar. Gerçek veriye dokunmaz, ağ isteği yapmaz. Veri klasörü `ZAPLIO_DATA_DIR` ile değiştirilebilir.
+- **İzlemeye devam et:** Filmler ve Diziler'in üstünde yarıda kalan film ve bölümlerin afişli sırası; tıklayınca önizlemesi açılır, *Devam et* ile kaldığın yerden oynar.
+  Şerit fareyle sürüklenerek ya da tekerlekle sağa sola kaydırılır.
+  Dizilerde her dizinin yalnızca son izlenen bölümü görünür.
+- **Medya tuşları ve görev çubuğu:** klavyedeki oynat/duraklat, durdur, önceki/sonraki tuşları (Zaplio açık penceredeyken);
+  görev çubuğu önizlemesinde önceki kanal, oynat/duraklat ve sonraki kanal düğmeleri.
+- Film ya da bölüm oynarken başlıkta da şimşek (favori) ve *Sonra izle* düğmeleri.
 - Film, dizi ve bölümleri seçince afişi ve mevcut detayları oynatma alanında görünür. Oynatmayı karttaki düğmeyle başlatabilirsin.
 - Canlı kanal geçişlerine kısa karıncalanma, pencere kapanışına eski televizyonlardaki gibi sönme efekti eklendi.
 - Oynayan videodan alınan renkler pencerenin zeminine hafifçe yansıyor. Efekti Seçenekler menüsünden kapatabilirsin.
@@ -23,6 +31,12 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 - İlk liste ekranı: hiç kaynak yokken "İlk M3U listeni ekle" ekranı gösterilir.
 
 ### Değişenler
+- **Düzen temizliği:** kaynak seçimi ve *Listeleri yenile* üst çubuktan sol alttaki tek bir *Kaynak* kartına taşındı (Filmler ve Diziler'de
+  liste panelinin altında); abonelik bilgisi aynı kartta. Üst çubuk inceldi, yalnızca izleme geçmişi ve ayarlar kaldı. Panel boşlukları,
+  başlık boyutları ve köşe yuvarlaklıkları tek ölçeğe bağlandı. *Lisanslar* alt çubuktan Ayarlar › Hakkında'ya taşındı.
+- Canlı TV başlığındaki favori yıldızı, kıvılcım animasyonlu şimşeğe dönüştü.
+- Sonuna kadar izlenen film izleme listesinden kendiliğinden çıkar.
+- Logo ve afiş önbelleği en çok 200 MB tutulur; eskiyen dosyalar açılışta arka planda silinir (önceden sınırsız büyüyordu).
 - **Ayarlar yenilendi:** solda bölümler (Kaynaklar, Oynatma, Görünüm, Genel, Hakkında), her ayarın altında kısa bir açıklama.
   **Kaynak ekleme ayarlara taşındı;** başlık çubuğundaki *Kaynaklar* düğmesi kaldırıldı. Ortam ışığı da Ayarlar › Görünüm'den açılıp kapanabiliyor.
 - Oynatma çubuğundaki ve başlıktaki düğmeler tek bir stile geçti: ses, ayarlar, mini pencere, 2. ekran ve tam ekran tek kapsülde,
@@ -37,6 +51,8 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 - Ana pencere ve oynatma alanının köşeleri yuvarlatıldı. Oynatma çubuğu ve düğmeleri daha yumuşak bir görünüme kavuştu.
 
 ### Düzeltilenler
+- Açılışta üstteki seçili sekmenin (Canlı TV) vurgusu görünmüyordu; ilk sekme değişimine kadar boş kalıyordu.
+- "İzlemeye devam et" şeridini sürükledikten sonra imleç çift oklu kalıyor ve tıklamalar çalışmıyordu.
 - Video ikinci ekrana taşınırken ve geri alınırken yayın bağlantısı, oynatma konumu ve duraklatma durumu korunur.
 
 ## 0.10.2 — 2026-11-14

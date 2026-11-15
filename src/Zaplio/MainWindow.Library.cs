@@ -109,6 +109,13 @@ public partial class MainWindow
         ChannelWidth.Width = Immersive ? new GridLength(0) : live ? new GridLength(318) : new GridLength(1, GridUnitType.Star);
         NavigationPane.Visibility = ChannelPane.Visibility = live && !Immersive ? Visibility.Visible : Visibility.Collapsed;
         VodPane.Visibility = !live && !Immersive ? Visibility.Visible : Visibility.Collapsed;
+        // One source card: under the group list for live TV, under the movie / series list otherwise.
+        var host = live ? SourceCardHostLive : SourceCardHostVod;
+        if (!ReferenceEquals(SourceCard.Parent, host))
+        {
+            if (SourceCard.Parent is System.Windows.Controls.Border previous) previous.Child = null;
+            host.Child = SourceCard;
+        }
         UpdateSelection();
         UpdatePlaceholder();
     }
@@ -265,6 +272,7 @@ public partial class MainWindow
         VodList.SelectedItem = rows.FirstOrDefault(row => row.Item.ProviderId == selectedId);
         VodBack.Visibility = _selectedSeries is null ? Visibility.Collapsed : Visibility.Visible;
         VodListTabs.Visibility = _selectedSeries is null ? Visibility.Visible : Visibility.Collapsed;
+        UpdateContinueWatching(showRow: _selectedSeries is null && listKind == VodListKind.All && category is null && query.Length == 0);
         VodHeading.Text = _selectedSeries?.Title ?? (_librarySection == LibrarySection.Movies ? "Filmler" : "Diziler");
         VodCount.Text = rows.Length.ToString("N0", Turkish);
         var needsXtream = ActiveSource?.Kind != SourceKind.Xtream;
@@ -274,7 +282,7 @@ public partial class MainWindow
         VodEmpty.Visibility = rows.Length == 0 && !loadingVod ? Visibility.Visible : Visibility.Collapsed;
         VodConnect.Visibility = needsXtream && !canSwitch ? Visibility.Visible : Visibility.Collapsed;
         VodRetry.Visibility = _vodError is null ? Visibility.Collapsed : Visibility.Visible;
-        VodMessage.Text = needsXtream ? (canSwitch ? "Üst menüdeki Aktif Kaynak listesinden bir Xtream kaynağı seç."
+        VodMessage.Text = needsXtream ? (canSwitch ? "Aşağıdaki Kaynak kartından bir Xtream kaynağı seç."
                 : "Film ve dizileri görmek için bir Xtream kaynağı ekle.")
             : _vodRequest is not null ? "İçerikler yükleniyor…"
             : _vodError ?? (query.Length > 0 ? "Aramana uyan içerik bulunamadı."

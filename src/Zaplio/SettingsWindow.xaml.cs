@@ -135,6 +135,18 @@ public partial class SettingsWindow : Window
         }
     }
 
+    private void OnLicenses(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "Licenses", "ThirdPartyNotices.txt")) { UseShellExecute = true });
+        }
+        catch (Win32Exception)
+        {
+            MaintenanceStatus.Text = "Lisans belgesi açılamadı. Uygulama klasöründeki Licenses bölümüne bak.";
+        }
+    }
+
     private void OnSave(object sender, RoutedEventArgs e) => DialogResult = true;
     private void OnCancel(object sender, RoutedEventArgs e) => Close();
     private void OnTitleMouseDown(object sender, MouseButtonEventArgs e) => DragMove();

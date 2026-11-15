@@ -4,7 +4,7 @@
 - **M3U / M3U8** — dosya ya da bağlantı. `tvg-id`, `tvg-name`, `tvg-logo`, `group-title` (`;` ile birden fazla grup), `#EXTGRP`,
   `#EXTVLCOPT` ile user-agent ve referrer, `x-tvg-url` ile rehber adresi desteklenir.
 - **Xtream API** — canlı kanallar, filmler, diziler, rehber (`xmltv.php`) ve arşiv.
-- Birden fazla kaynak eklenebilir; üstteki *Aktif kaynak* listesiyle geçilir. Her kaynak için grup, arama ve seçili kanal hatırlanır.
+- Birden fazla kaynak eklenebilir; sol alttaki *Kaynak* kartından geçilir (yanındaki düğme listeleri yeniler). Her kaynak için grup, arama ve seçili kanal hatırlanır.
 
 ## Canlı TV
 - **Abonelik kartı** (Xtream): sol altta bitiş tarihi ve açık/izin verilen bağlantı sayısı; son 7 günde uyarı, tıklayınca yenilenir.

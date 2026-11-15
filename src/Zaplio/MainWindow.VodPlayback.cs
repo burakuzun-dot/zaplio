@@ -89,6 +89,7 @@ public partial class MainWindow
         var position = completed ? 0 : player.Time;
         if (!completed && position < 0) return;
         var marked = completed && _state.CompletedItems.Add(channel.Id);
+        var watchlistKey = marked && channel.SeriesId == 0 && MovieKeyFor(channel) is { } key && _state.VodWatchlist.Remove(key) ? key : null;
         if (position < 3000)
         {
             if (!hadPosition && !marked) return;
@@ -103,6 +104,7 @@ public partial class MainWindow
         catch (SourceException exception)
         {
             if (marked) _state.CompletedItems.Remove(channel.Id);
+            if (watchlistKey is not null) _state.VodWatchlist.Add(watchlistKey);
             if (hadPosition) _state.WatchPositions[channel.Id] = previous;
             else _state.WatchPositions.Remove(channel.Id);
             SetFooter(exception.Message, isError: true);

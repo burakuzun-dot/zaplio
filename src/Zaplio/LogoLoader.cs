@@ -30,6 +30,50 @@ public static class LogoLoader
 
     public static string Folder { get; } = Path.Combine(CatalogCache.Folder, "logos");
 
+    /// <summary>Upper limit for the logo and poster files on disk; large lists otherwise grow the folder without end.</summary>
+    internal const long DiskLimitBytes = 200L * 1024 * 1024;
+
+    /// <summary>
+    /// Deletes expired images, then the least recently written ones until the folder fits in <paramref name="maxBytes"/>
+    /// (they are simply downloaded again when needed). Returns the bytes freed. Never throws: a file in use is skipped.
+    /// </summary>
+    internal static long PruneDiskCache(string folder, long maxBytes, TimeSpan maxAge)
+    {
+        long freed = 0;
+        try
+        {
+            if (!Directory.Exists(folder)) return 0;
+            var files = new DirectoryInfo(folder).GetFiles("*.img").OrderBy(file => file.LastWriteTimeUtc).ToList();
+            var total = files.Sum(file => file.Length);
+            var expiredBefore = DateTime.UtcNow - maxAge;
+            foreach (var file in files)
+            {
+                if (total <= maxBytes && file.LastWriteTimeUtc >= expiredBefore) continue;
+                try
+                {
+                    var length = file.Length;
+                    file.Delete();
+                    total -= length;
+                    freed += length;
+                }
+                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+                {
+                }
+            }
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+        }
+        return freed;
+    }
+
+    /// <summary>Background clean-up at startup.</summary>
+    internal static void PruneDiskCache() => _ = Task.Run(() =>
+    {
+        var freed = PruneDiskCache(Folder, DiskLimitBytes, DiskMaxAge);
+        if (freed > 0) AppLog.Info($"Logo önbelleği küçültüldü: {freed / (1024 * 1024)} MB silindi.");
+    });
+
     public static readonly DependencyProperty UrlProperty = DependencyProperty.RegisterAttached(
         "Url", typeof(string), typeof(LogoLoader), new PropertyMetadata(null, OnUrlChanged));
 

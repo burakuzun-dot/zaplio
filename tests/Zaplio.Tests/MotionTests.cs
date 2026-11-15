@@ -33,17 +33,39 @@ public sealed class MotionTests
             var second = new RadioButton { Content = "Favorilerim", Width = 110, GroupName = "t" };
             var tabs = new StackPanel { Orientation = Orientation.Horizontal, Children = { first, second } };
             var host = new Grid { Children = { new Canvas { Children = { indicator } }, tabs } };
+
+            // Attached before the tabs have a size, like a pane that only becomes visible later: no placement can happen yet.
+            Motion.TrackSelection(tabs, indicator);
             host.Measure(new Size(400, 40));
             host.Arrange(new Rect(0, 0, 400, 40));
-
-            // Attached after the first layout, like a pane that only becomes visible later: no placement has happened yet.
-            Motion.TrackSelection(tabs, indicator);
             Assert.True(double.IsNaN(indicator.Width));
 
             second.IsChecked = true;
 
             Assert.Equal(110, indicator.Width);
             Assert.False(indicator.HasAnimatedProperties);
+        });
+    }
+
+    [Fact]
+    public void Indicator_is_placed_at_once_when_the_tabs_are_already_laid_out()
+    {
+        // Regression (found by the self test): at startup the indicator was attached after the tabs' Loaded and SizeChanged
+        // had already fired, so the selected tab had no highlight until the first tab change.
+        OnStaThread(() =>
+        {
+            var indicator = new Border { BorderThickness = new Thickness(1) };
+            var first = new RadioButton { Content = "Canlı TV", Width = 90, Height = 34, IsChecked = true, GroupName = "w" };
+            var second = new RadioButton { Content = "Filmler", Width = 80, Height = 34, GroupName = "w" };
+            var tabs = new StackPanel { Orientation = Orientation.Horizontal, Children = { first, second } };
+            var host = new Grid { Children = { new Canvas { Children = { indicator } }, tabs } };
+            host.Measure(new Size(400, 40));
+            host.Arrange(new Rect(0, 0, 400, 40));
+
+            Motion.TrackSelection(tabs, indicator);
+
+            Assert.Equal(90, indicator.Width);
+            Assert.Equal(34, indicator.Height);
         });
     }
 

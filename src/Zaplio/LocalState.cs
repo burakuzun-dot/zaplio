@@ -50,8 +50,7 @@ internal sealed record PlaybackSettings
 
 internal sealed class LocalStateStore
 {
-    private readonly string _path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "Zaplio", "settings.dat");
+    private readonly string _path = Path.Combine(AppPaths.Root, "settings.dat");
 
     public LocalState Load()
     {
