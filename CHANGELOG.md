@@ -16,6 +16,8 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 - İlk liste ekranı: hiç kaynak yokken "İlk M3U listeni ekle" ekranı gösterilir.
 
 ### Değişenler
+- **Ortam ışığı** yenilendi: ışık artık dört kenardan (üst, alt, sol, sağ) içeri doğru yayılıyor, renkler daha canlı, geçişler daha
+  akıcı; sahne kesilince ışık sıçramıyor. Video duraklayınca ışık kısılıyor.
 - Açılış animasyonu şeffaf bir pencerede gösteriliyor. Animasyonlar kapalıysa şeffaf son kare kullanılıyor.
 - Film ve dizi ekranında afişler büyütüldü, içerik alanı genişletildi ve üstteki sekmeler bir araya getirildi.
 - Ana pencere ve oynatma alanının köşeleri yuvarlatıldı. Oynatma çubuğu ve düğmeleri daha yumuşak bir görünüme kavuştu.

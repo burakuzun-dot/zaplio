@@ -36,13 +36,8 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Border x:Name="AmbientLightPanel" Grid.RowSpan="3" Visibility="Collapsed" IsHitTestVisible="False" Opacity="0.42">
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop x:Name="AmbientLeft" Color="Transparent" />
-                    <GradientStop x:Name="AmbientRight" Color="Transparent" Offset="1" />
-                </LinearGradientBrush>
-            </Border.Background>
+        <Border x:Name="AmbientLightPanel" Grid.RowSpan="3" Visibility="Collapsed" IsHitTestVisible="False" Opacity="0.85">
+            <local:AmbientGlow x:Name="AmbientGlow" />
         </Border>
         <Border x:Name="TitleBar" Style="{StaticResource AmbientPanelSurface}" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1"
                 MouseLeftButtonDown="OnTitleMouseDown">

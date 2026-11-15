@@ -10,6 +10,7 @@ namespace Zaplio;
 public partial class MainWindow
 {
     private long _nextAmbientSampleAt;
+    private AmbientPalette? _ambientShown;
 
     private bool CanShowAmbientLight => _state.Settings.AmbientLight && !_closing && IsVisible &&
         WindowState != WindowState.Minimized && !Immersive && !IsSecondScreenActive &&
@@ -32,27 +33,31 @@ public partial class MainWindow
     {
         if (CanShowAmbientLight || AmbientLightPanel.Visibility == Visibility.Collapsed) return;
         AmbientLightPanel.Visibility = Visibility.Collapsed;
-        SetAmbientColor(AmbientLeft, Colors.Transparent, animate: false);
-        SetAmbientColor(AmbientRight, Colors.Transparent, animate: false);
+        AmbientGlow.Clear();
+        _ambientShown = null;
         _nextAmbientSampleAt = 0;
     }
 
     private async Task UpdateAmbientLightAsync(long now)
     {
         UpdateAmbientLightVisibility();
-        if (!CanShowAmbientLight || now < _nextAmbientSampleAt || _player is not { IsPlaying: true } player ||
-            !_playbackLock.Wait(0)) return;
+        if (!CanShowAmbientLight || _player is not { } player) return;
+        var animate = SystemParameters.ClientAreaAnimation;
+        // Paused: let the light settle down with the picture instead of freezing at full strength.
+        AmbientGlow.SetIntensity(player.IsPlaying ? 1 : 0.25, animate);
+        if (!player.IsPlaying || now < _nextAmbientSampleAt || !_playbackLock.Wait(0)) return;
 
         var revision = _playbackRevision;
-        _nextAmbientSampleAt = now + 2_000;
+        _nextAmbientSampleAt = now + 900;
         try
         {
             var palette = await Task.Run(() => CaptureAmbientPalette(player));
             if (!CanShowAmbientLight || revision != _playbackRevision || palette is not { } colors) return;
             AmbientLightPanel.Visibility = Visibility.Visible;
-            var animate = SystemParameters.ClientAreaAnimation;
-            SetAmbientColor(AmbientLeft, colors.Left, animate);
-            SetAmbientColor(AmbientRight, colors.Right, animate);
+            // Scene cuts: move only part of the way per sample so the light fades instead of jumping.
+            var shown = _ambientShown is { } previous ? AmbientPalette.Blend(previous, colors, 0.6) : colors;
+            _ambientShown = shown;
+            AmbientGlow.Show(shown, animate);
         }
         finally
         {
@@ -84,14 +89,5 @@ public partial class MainWindow
             try { File.Delete(path); }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException) { }
         }
-    }
-
-    private static void SetAmbientColor(GradientStop stop, Color target, bool animate)
-    {
-        var current = stop.Color;
-        stop.Color = target;
-        stop.BeginAnimation(GradientStop.ColorProperty, animate && current != target
-            ? new ColorAnimation(current, target, TimeSpan.FromMilliseconds(650)) { FillBehavior = FillBehavior.Stop }
-            : null);
     }
 }

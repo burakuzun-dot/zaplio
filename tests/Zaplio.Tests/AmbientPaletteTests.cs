@@ -1,45 +1,128 @@
+using System.Windows.Media;
 using Xunit;
 
 namespace Zaplio.Tests;
 
 public sealed class AmbientPaletteTests
 {
-    [Fact]
-    public void Uses_the_two_edge_colors_and_ignores_letterbox_rows()
+    private const int Width = 12;
+    private const int Height = 10;
+
+    private static byte[] Frame() => new byte[Width * Height * 4];
+
+    private static void Paint(byte[] pixels, int x0, int x1, int y0, int y1, byte red, byte green, byte blue)
     {
-        const int width = 12;
-        const int height = 10;
-        var pixels = new byte[width * height * 4];
-        for (var y = 2; y < 8; y++)
+        for (var y = y0; y < y1; y++)
         {
-            for (var x = 0; x < 4; x++) pixels[(y * width + x) * 4 + 2] = 190;
-            for (var x = 8; x < 12; x++) pixels[(y * width + x) * 4] = 200;
+            for (var x = x0; x < x1; x++)
+            {
+                var offset = (y * Width + x) * 4;
+                pixels[offset] = blue;
+                pixels[offset + 1] = green;
+                pixels[offset + 2] = red;
+                pixels[offset + 3] = 255;
+            }
         }
-
-        var palette = AmbientPalette.FromBgra(pixels, width, height);
-
-        Assert.Equal(190, palette.Left.R);
-        Assert.Equal(0, palette.Left.B);
-        Assert.Equal(200, palette.Right.B);
-        Assert.Equal(0, palette.Right.R);
-        Assert.Equal(116, palette.Left.A);
-        Assert.Equal(116, palette.Right.A);
     }
 
     [Fact]
-    public void Black_frames_turn_off_the_glow_and_sparse_colors_stay_dim()
+    public void Letterbox_rows_do_not_dim_the_top_and_bottom_edges()
     {
-        var pixels = new byte[6 * 4 * 4];
-        var dark = AmbientPalette.FromBgra(pixels, 6, 4);
+        var pixels = Frame();
+        Paint(pixels, 0, Width, 2, 8, 20, 180, 40); // black bars above and below
 
-        Assert.Equal(0, dark.Left.A);
-        Assert.Equal(0, dark.Right.A);
+        var palette = AmbientPalette.FromBgra(pixels, Width, Height);
 
-        pixels[2] = 128;
-        var sparse = AmbientPalette.FromBgra(pixels, 6, 4);
+        Assert.Equal(AmbientPalette.MaxAlpha, palette.Top.A);
+        Assert.Equal(AmbientPalette.MaxAlpha, palette.Bottom.A);
+        Assert.Equal(AmbientPalette.MaxAlpha, palette.Left.A);
+        Assert.True(palette.Top.G > palette.Top.R && palette.Top.G > palette.Top.B);
+    }
 
-        Assert.InRange(sparse.Left.A, (byte)1, (byte)30);
-        Assert.Equal(128, sparse.Left.R);
-        Assert.Equal(0, sparse.Right.A);
+    [Fact]
+    public void Each_edge_gets_its_own_color()
+    {
+        var pixels = Frame();
+        Paint(pixels, 0, 4, 2, 8, 200, 0, 0);      // left: red
+        Paint(pixels, 8, Width, 2, 8, 0, 0, 200);  // right: blue
+        Paint(pixels, 2, 10, 2, 4, 0, 200, 0);     // top: green
+        Paint(pixels, 2, 10, 6, 8, 200, 200, 0);   // bottom: yellow
+
+        var palette = AmbientPalette.FromBgra(pixels, Width, Height);
+
+        Assert.True(palette.Left.R > palette.Left.G && palette.Left.R > palette.Left.B);
+        Assert.True(palette.Right.B > palette.Right.R && palette.Right.B > palette.Right.G);
+        Assert.True(palette.Top.G > palette.Top.R && palette.Top.G > palette.Top.B);
+        Assert.True(palette.Bottom.R > palette.Bottom.B && palette.Bottom.G > palette.Bottom.B);
+    }
+
+    [Fact]
+    public void Black_frames_turn_the_glow_off()
+    {
+        var palette = AmbientPalette.FromBgra(Frame(), Width, Height);
+
+        Assert.Equal(AmbientPalette.Off, palette);
+    }
+
+    [Fact]
+    public void An_edge_with_little_color_stays_dim()
+    {
+        var pixels = Frame();
+        Paint(pixels, 0, Width, 2, 8, 90, 90, 90);
+        Paint(pixels, 8, Width, 2, 8, 0, 0, 0); // right edge dark
+
+        var palette = AmbientPalette.FromBgra(pixels, Width, Height);
+
+        Assert.True(palette.Left.A > 0);
+        Assert.Equal(0, palette.Right.A);
+    }
+
+    [Fact]
+    public void Muddy_averages_become_more_colorful_but_grays_stay_gray()
+    {
+        var muddy = AmbientPalette.Vivid(120, 100, 90, 100);
+        var gray = AmbientPalette.Vivid(100, 100, 100, 100);
+
+        Assert.True(muddy.R - muddy.B > 120 - 90);
+        Assert.Equal(gray.R, gray.G);
+        Assert.Equal(gray.G, gray.B);
+        Assert.Equal(100, muddy.A);
+    }
+
+    [Fact]
+    public void Vivid_keeps_the_glow_readable_but_never_exceeds_the_input_channel_range()
+    {
+        var dark = AmbientPalette.Vivid(30, 10, 10, 100);
+
+        Assert.True(dark.R >= 127);
+        Assert.InRange(dark.G, (byte)0, (byte)255);
+    }
+
+    [Fact]
+    public void Blend_moves_part_of_the_way_and_new_colors_fade_in_from_dark()
+    {
+        var shown = new AmbientPalette(Color.FromArgb(100, 200, 0, 0), Colors.Transparent, Colors.Transparent, Colors.Transparent);
+        var next = new AmbientPalette(Color.FromArgb(100, 0, 0, 200), Color.FromArgb(120, 0, 200, 0), Colors.Transparent, Colors.Transparent);
+
+        var blended = AmbientPalette.Blend(shown, next, 0.5);
+
+        Assert.Equal(100, blended.Left.A);
+        Assert.Equal(100, blended.Left.R);
+        Assert.Equal(100, blended.Left.B);
+        Assert.Equal(60, blended.Right.A); // half of 120, and already the new green rather than a gray in between
+        Assert.Equal(200, blended.Right.G);
+        Assert.Equal(0, blended.Top.A);
+    }
+
+    [Fact]
+    public void Blend_fades_a_color_out_without_changing_its_tint()
+    {
+        var shown = new AmbientPalette(Color.FromArgb(100, 200, 40, 0), Colors.Transparent, Colors.Transparent, Colors.Transparent);
+
+        var blended = AmbientPalette.Blend(shown, AmbientPalette.Off, 0.6);
+
+        Assert.Equal(40, blended.Left.A);
+        Assert.Equal(200, blended.Left.R);
+        Assert.Equal(40, blended.Left.G);
     }
 }
