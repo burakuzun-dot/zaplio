@@ -56,6 +56,7 @@ public partial class MainWindow
 
         CancelCatalogRequest();
         CancelVodRequest();
+        CancelVodPreviewRequest();
         _activeSourceId = id;
         _lastChannel = null;
         _finishedEpisode = null;

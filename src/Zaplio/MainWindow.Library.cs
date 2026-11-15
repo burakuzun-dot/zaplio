@@ -1,3 +1,4 @@
+using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -11,7 +12,6 @@ public partial class MainWindow
     private sealed record VodRow(VodItem Item, string Caption, string Tile)
     {
         public string Title => Item.Title;
-        public string Action => Item.Playable is null ? IconGlyphs.ChevronRight : IconGlyphs.Play;
         public override string ToString() => Title;
     }
 
@@ -23,12 +23,62 @@ public partial class MainWindow
     private CancellationTokenSource? _vodRequest;
     private string? _vodError;
     private bool _changingVodFilters;
+    private string? _vodPreviewError;
+    private VodItem? _vodPreviewDetails;
+    private CancellationTokenSource? _vodPreviewRequest;
 
     private Channel? SelectedVod => (VodList.SelectedItem as VodRow)?.Item.Playable;
+
+    private VodPreview? SelectedVodPreview
+    {
+        get
+        {
+            if (_librarySection == LibrarySection.Live || Immersive || VodList.SelectedItem is not VodRow row ||
+                (_playingChannel is not null && _playingChannel.Id == row.Item.Playable?.Id)) return null;
+            return VodPreview.Create(_vodPreviewDetails ?? row.Item, _selectedSeries, _activeSourceId, _state);
+        }
+    }
+
+    private void UpdateVodPreview()
+    {
+        var preview = SelectedVodPreview;
+        VodPreviewPanel.Visibility = preview is null ? Visibility.Collapsed : Visibility.Visible;
+        MainVideoSlot.Visibility = preview is null ? Visibility.Visible : Visibility.Hidden;
+        VideoOverlay.Visibility = preview is null || IsSecondScreenActive ? Visibility.Visible : Visibility.Hidden;
+        UpdatePlaceholderVisibility();
+        PlayerHeader.Visibility = Immersive || preview is not null ? Visibility.Collapsed : Visibility.Visible;
+        PlayButton.Visibility = preview is null || _playingChannel is not null ? Visibility.Visible : Visibility.Collapsed;
+        LogoLoader.SetUrl(VodPreviewPoster, preview?.Poster);
+        if (preview is null) return;
+
+        VodPreviewSeries.Text = _selectedSeries?.Title;
+        VodPreviewSeries.Visibility = _selectedSeries is null ? Visibility.Collapsed : Visibility.Visible;
+        VodPreviewIcon.Text = _librarySection == LibrarySection.Movies ? IconGlyphs.Movie : IconGlyphs.Series;
+        VodPreviewTitle.Text = preview.Title;
+        VodPreviewMetadata.Text = preview.Metadata;
+        VodPreviewSummary.Text = preview.Summary;
+        VodPreviewSummary.Visibility = string.IsNullOrWhiteSpace(preview.Summary) ? Visibility.Collapsed : Visibility.Visible;
+        VodPreviewAction.Text = preview.Action;
+        System.Windows.Automation.AutomationProperties.SetName(VodPreviewPlayButton, preview.Action);
+        VodPreviewError.Text = _vodPreviewError;
+        VodPreviewError.Visibility = _vodPreviewError is null ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    private async void OnVodPreviewPlay(object sender, RoutedEventArgs e)
+    {
+        if (SelectedVodPreview is not null && VodList.SelectedItem is VodRow row) await ActivateVodAsync(row.Item);
+    }
+
+    private void CancelVodPreviewRequest()
+    {
+        _vodPreviewRequest?.Cancel();
+        _vodPreviewDetails = null;
+    }
 
     private async void OnLibraryChanged(object sender, RoutedEventArgs e)
     {
         if (!_isReady) return;
+        CancelVodPreviewRequest();
         _librarySection = sender == MoviesTab ? LibrarySection.Movies : sender == SeriesTab ? LibrarySection.Series : LibrarySection.Live;
         if (_guideOpen) SetGuideOpen(false);
         ApplyLibraryLayout();
@@ -49,6 +99,10 @@ public partial class MainWindow
     private void ApplyLibraryLayout()
     {
         var live = _librarySection == LibrarySection.Live;
+        NavigationWidth.Width = new GridLength(live && !Immersive ? 218 : 0);
+        ChannelWidth.MinWidth = !live && !Immersive ? 280 : 0;
+        ChannelWidth.MaxWidth = live || Immersive ? double.PositiveInfinity : 410;
+        ChannelWidth.Width = Immersive ? new GridLength(0) : live ? new GridLength(318) : new GridLength(1, GridUnitType.Star);
         NavigationPane.Visibility = ChannelPane.Visibility = live && !Immersive ? Visibility.Visible : Visibility.Collapsed;
         VodPane.Visibility = !live && !Immersive ? Visibility.Visible : Visibility.Collapsed;
         UpdateSelection();
@@ -64,6 +118,7 @@ public partial class MainWindow
 
     private async Task LoadVodViewAsync(bool refresh = false)
     {
+        CancelVodPreviewRequest();
         CancelVodRequest();
         _vodError = null;
         _vodItems = [];
@@ -189,7 +244,7 @@ public partial class MainWindow
             {
                 var resume = item.Playable is not null && _state.Settings.ResumeOnDemand ? _state.WatchPositions.GetValueOrDefault(item.Playable.Id) : 0;
                 var completed = item.Playable is not null && _state.CompletedItems.Contains(item.Playable.Id);
-                var parts = new[] { item.Category, item.Detail, resume > 0 ? $"Devam et · {VodTime(resume)}" : completed ? "İzlendi" : "" };
+                var parts = new[] { item.Category, item.Detail, resume > 0 ? $"Devam et · {PlaybackTime.Format(resume)}" : completed ? "İzlendi" : "" };
                 return new VodRow(item, string.Join(" · ", parts.Where(part => part.Length > 0).Distinct()),
                     _librarySection == LibrarySection.Movies ? IconGlyphs.Movie : IconGlyphs.Series);
             }).ToArray();
@@ -212,24 +267,42 @@ public partial class MainWindow
         UpdateSelection();
     }
 
-    private void OnVodSelected(object sender, SelectionChangedEventArgs e)
+    private async void OnVodSelected(object sender, SelectionChangedEventArgs e)
     {
+        CancelVodPreviewRequest();
+        _vodPreviewError = null;
         if (VodDetailsButton is not null) VodDetailsButton.IsEnabled = VodList.SelectedItem is VodRow;
-        if (_isReady) UpdateSelection();
+        if (!_isReady || _closing) return;
+        UpdateSelection();
+        if (SelectedVodPreview is not { } preview || _selectedSeries is not null || ActiveSource is not { Kind: SourceKind.Xtream } source ||
+            VodList.SelectedItem is not VodRow row || (!string.IsNullOrWhiteSpace(preview.Summary) && !string.IsNullOrWhiteSpace(preview.Poster))) return;
+
+        using var request = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        _vodPreviewRequest = request;
+        try
+        {
+            await Task.Delay(350, request.Token);
+            var details = await _loader.LoadVodDetailsAsync(source, row.Item, request.Token);
+            if (request.IsCancellationRequested || !ReferenceEquals(VodList.SelectedItem, row) || _activeSourceId != source.Id) return;
+            _vodPreviewDetails = details;
+            UpdateVodPreview();
+        }
+        catch (Exception exception) when (request.IsCancellationRequested ||
+            exception is SourceException or HttpRequestException or OperationCanceledException or System.Text.Json.JsonException or System.IO.IOException)
+        {
+            // Keep the catalog preview if the detail request was cancelled or the provider could not supply it.
+        }
+        finally
+        {
+            if (_vodPreviewRequest == request) _vodPreviewRequest = null;
+        }
     }
 
-    private async void OnVodClick(object sender, MouseButtonEventArgs e)
+    private void OnVodKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.OriginalSource is DependencyObject target &&
-            ItemsControl.ContainerFromElement(VodList, target) is ListBoxItem { DataContext: VodRow row })
-            await ActivateVodAsync(row.Item);
-    }
-
-    private async void OnVodKeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Key != Key.Enter || VodList.SelectedItem is not VodRow row) return;
+        if (e.Key != Key.Enter || SelectedVodPreview is null) return;
         e.Handled = true;
-        await ActivateVodAsync(row.Item);
+        VodPreviewPlayButton.Focus();
     }
 
     private async Task ActivateVodAsync(VodItem item)

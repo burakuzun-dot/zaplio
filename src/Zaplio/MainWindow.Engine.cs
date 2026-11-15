@@ -29,9 +29,9 @@ public partial class MainWindow
         var cache = Path.Combine(AppContext.BaseDirectory, "libvlc", Environment.Is64BitProcess ? "win-x64" : "win-x86",
             "plugins", "plugins.dat");
         var hadCache = File.Exists(cache);
-        var engine = hadCache
-            ? new LibVLC("--no-video-title-show")
-            : new LibVLC("--no-video-title-show", "--reset-plugins-cache");
+        // The player supplies its own OSD. Keep VLC from showing snapshot filenames or thumbnails during sampling.
+        string[] options = ["--no-video-title-show", "--no-osd", "--no-snapshot-preview"];
+        var engine = new LibVLC(hadCache ? options : [.. options, "--reset-plugins-cache"]);
         var status = hadCache ? "kullanıldı" : File.Exists(cache) ? "oluşturuldu" : "oluşturulamadı";
         AppLog.Info($"VLC motoru hazır: {clock.ElapsedMilliseconds} ms · eklenti önbelleği {status}");
         return engine;

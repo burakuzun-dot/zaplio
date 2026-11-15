@@ -23,7 +23,7 @@ public partial class MainWindow
 
     private void TogglePip()
     {
-        if (!_pip && (_player is null || _secondScreen is not null)) return;
+        if (!_pip && (_player is null || IsSecondScreenActive)) return;
         if (!_pip && _fullscreen) ToggleFullscreen();
         if (!_pip && _guideOpen) SetGuideOpen(false);
         _pip = !_pip;
@@ -73,14 +73,14 @@ public partial class MainWindow
         ExitFullscreenButton.Visibility = _fullscreen ? Visibility.Visible : Visibility.Collapsed;
         PipControls.Visibility = _pip ? Visibility.Visible : Visibility.Collapsed;
         var visibility = immersive ? Visibility.Collapsed : Visibility.Visible;
-        TitleBar.Visibility = PlayerHeader.Visibility = PlayerControls.Visibility = Footer.Visibility = visibility;
+        TitleBar.Visibility = PlayerControls.Visibility = Footer.Visibility = visibility;
         ApplyLibraryLayout();
-        NavigationWidth.Width = new GridLength(immersive ? 0 : 218);
-        ChannelWidth.Width = new GridLength(immersive ? 0 : 318);
-        // In mini mode leave a thin frame outside the video: the video overlay would otherwise cover the resize border.
-        PlayerPane.Margin = _pip ? new Thickness(5) : immersive ? new Thickness(0) : new Thickness(23, 22, 23, 20);
+        // Keep the separate video overlay inside the rounded window and clear of the resize border.
+        PlayerPane.Margin = _pip ? new Thickness(8) : immersive ? new Thickness(0) : new Thickness(23, 22, 23, 20);
+        MainVideoSlot.Margin = new Thickness(immersive ? 0 : 8);
+        ChannelStatic.Margin = MainVideoSlot.Margin;
         VideoFrame.BorderThickness = new Thickness(immersive ? 0 : 1);
-        VideoFrame.CornerRadius = new CornerRadius(immersive ? 0 : 15);
+        VideoFrame.CornerRadius = immersive ? new CornerRadius(0) : (CornerRadius)FindResource("PlayerCornerRadius");
         UpdateGuide();
     }
 
@@ -90,7 +90,8 @@ public partial class MainWindow
         if (e.ClickCount == 2)
         {
             _videoDragStart = null;
-            if (_pip) TogglePip();
+            if (IsSecondScreenActive) ReturnVideoToMainWindow();
+            else if (_pip) TogglePip();
             else ToggleFullscreen();
             e.Handled = true;
             return;

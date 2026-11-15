@@ -24,3 +24,6 @@ Zaplio-Gorseller/
 *.cer
 *.m3u
 *.m3u8
+
+# Açılış animasyonunun ham kaynağı (uygulama .frames.zip kullanır)
+src/Zaplio/Assets/Intro-transparent.mov

@@ -53,7 +53,7 @@ public partial class MainWindow
     {
         LiveReturnButton.Visibility = CanReturnToLive ? Visibility.Visible : Visibility.Collapsed;
         if (!IsLiveDelayed) return;
-        var delay = VodTime(CurrentLiveDelay(Environment.TickCount64));
+        var delay = PlaybackTime.Format(CurrentLiveDelay(Environment.TickCount64));
         SetPlaybackStatus(_livePausedAt > 0 ? $"Duraklatıldı · canlıdan {delay} geride" : $"Canlıdan {delay} geride");
     }
 

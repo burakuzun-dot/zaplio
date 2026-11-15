@@ -1,38 +1,33 @@
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
-using LibVLCSharp.WPF;
 
 namespace Zaplio;
 
 public partial class MainWindow
 {
     private SecondScreenWindow? _secondScreen;
-    private VideoView? _attachedView;
-    private long _forcedResume;
-
-    /// <summary>The surface new playback attaches to: the second-screen window while it is open, otherwise the main video.</summary>
-    private VideoView ActiveVideoView => _secondScreen?.VideoSurface ?? VideoView;
+    private bool IsSecondScreenActive => _secondScreen?.IsVisible == true;
 
     private bool HasSecondMonitor => Monitors().Count > 1;
 
-    private async void OnSecondScreen(object sender, RoutedEventArgs e) => await ToggleSecondScreenAsync();
+    private void OnSecondScreen(object sender, RoutedEventArgs e) => ToggleSecondScreen();
 
-    private async Task ToggleSecondScreenAsync()
+    private void ToggleSecondScreen()
     {
-        if (_secondScreen is not null)
+        if (_closing) return;
+        if (IsSecondScreenActive)
         {
-            await CloseSecondScreenAsync(returnVideo: true);
+            ReturnVideoToMainWindow();
             return;
         }
-        if (_playingChannel is not { } channel)
+        if (_player is null)
         {
             SetFooter("İkinci ekranda oynatmak için önce bir yayın başlat.");
             return;
         }
-        var current = MonitorFromWindow(new WindowInteropHelper(this).Handle, 2);
-        var target = Monitors().FirstOrDefault(monitor => monitor.Handle != current);
-        if (target.Handle == IntPtr.Zero)
+        var monitors = Monitors();
+        if (monitors.Count < 2)
         {
             SetFooter("İkinci ekran bulunamadı. Monitörün bağlı ve Windows'ta \"Genişlet\" modunda olmalı.", isError: true);
             return;
@@ -40,43 +35,51 @@ public partial class MainWindow
         if (_fullscreen) ToggleFullscreen();
         if (_pip) TogglePip();
 
-        var window = new SecondScreenWindow(); // no Owner: an owned window would minimize together with the main window
-        window.ReturnRequested += () => _ = CloseSecondScreenAsync(returnVideo: true);
-        window.KeyForwarded += OnWindowKeyDown;
-        window.Show();
+        var current = MonitorFromWindow(new WindowInteropHelper(this).Handle, 2);
+        var target = monitors.First(monitor => monitor.Handle != current);
+        // Keep this window independent so the video remains visible when the main window minimizes.
+        if (_secondScreen is null)
+        {
+            _secondScreen = new SecondScreenWindow();
+            _secondScreen.ReturnRequested += ReturnVideoToMainWindow;
+            _secondScreen.PreviewKeyDown += OnWindowKeyDown;
+        }
+        var window = _secondScreen;
         var area = target.Bounds;
-        SetWindowPos(new WindowInteropHelper(window).Handle, IntPtr.Zero, area.Left, area.Top,
-            area.Right - area.Left, area.Bottom - area.Top, 0x0040 /* SWP_SHOWWINDOW */);
-        _secondScreen = window;
+        const uint noZOrderOrActivate = 0x0014;
+        if (!SetWindowPos(new WindowInteropHelper(window).EnsureHandle(), IntPtr.Zero, area.Left, area.Top,
+                area.Right - area.Left, area.Bottom - area.Top, noZOrderOrActivate))
+        {
+            SetFooter("Video ikinci ekrana taşınamadı. Tekrar dene.", isError: true);
+            return;
+        }
 
-        await RestartOnActiveSurfaceAsync(channel);
+        window.Show();
+        VideoView.MoveTo(window.VideoSlot);
+        UpdateVodPreview();
         UpdatePlaceholder();
         UpdateExtraControls();
-        ShowOsd("İkinci ekranda oynatılıyor", "Esc ya da çift tık ile geri al");
+        ShowOsd("İkinci ekran", "Esc ya da çift tık ile geri al");
     }
 
-    /// <param name="returnVideo">Restart the current stream in the main window (false when playback stopped anyway).</param>
-    private async Task CloseSecondScreenAsync(bool returnVideo)
+    private void ReturnVideoToMainWindow()
     {
-        if (_secondScreen is not { } window) return;
-        _secondScreen = null;
-        if (returnVideo && _playingChannel is { } channel && !_closing) await RestartOnActiveSurfaceAsync(channel);
-        window.AllowClose = true;
-        window.Close();
-        if (_closing) return;
-        UpdatePlaceholder();
-        UpdateExtraControls();
+        if (_closing || !IsSecondScreenActive) return;
+        if (WindowState == WindowState.Minimized) SystemCommands.RestoreWindow(this);
+        HideSecondScreen();
         Activate();
     }
 
-    /// <summary>
-    /// LibVLC cannot move a running video to another window, so the stream is reopened on the new surface;
-    /// films and archives continue from the same second.
-    /// </summary>
-    private async Task RestartOnActiveSurfaceAsync(Channel channel)
+    private void HideSecondScreen()
     {
-        _forcedResume = channel.IsOnDemand && _player is { } player ? Math.Max(0, player.Time) : 0;
-        await PlayChannelAsync(channel, reconnect: true);
+        if (_secondScreen is not { IsVisible: true } window) return;
+
+        VideoView.MoveTo(MainVideoSlot);
+        // The overlay switches owners on Loaded. Hiding keeps its previous owner alive until then.
+        window.Hide();
+        UpdateVodPreview();
+        UpdatePlaceholder();
+        UpdateExtraControls();
     }
 
     private readonly record struct MonitorArea(IntPtr Handle, NativeRectangle Bounds);

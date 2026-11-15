@@ -101,6 +101,7 @@ public partial class MainWindow : Window
         _isReady = true;
         _guideClock.Start();
         InitializeNetworkStatus();
+        InitializeStateScreens();
         UpdateMuteIcon();
         UpdateSourcePicker();
         ApplyLibraryLayout();
@@ -465,15 +466,17 @@ public partial class MainWindow : Window
         UpdateGuide();
         UpdateVodPlaybackVisibility();
         UpdateExtraControls();
+        UpdateVodPreview();
     }
 
     private void UpdatePlaceholder()
     {
-        if (_secondScreen is not null && _playingChannel is not null)
+        EmptyLibrary.Visibility = _state.Sources.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        if (IsSecondScreenActive && _playingChannel is not null)
         {
             FirstSourceButton.Visibility = Visibility.Collapsed;
             PlaceholderTitle.Text = "İkinci ekranda oynatılıyor";
-            PlaceholderDescription.Text = "Kanal listesini ve rehberi buradan kullanabilirsin. Esc ya da \"2. ekran\" ile bu pencereye geri al.";
+            PlaceholderDescription.Text = "Kanal listesini ve rehberi buradan kullanabilirsin. Esc ya da \"Geri al\" ile videoyu bu pencereye taşı.";
             return;
         }
         if (_librarySection != LibrarySection.Live)
@@ -511,6 +514,13 @@ public partial class MainWindow : Window
         }
     }
 
+    private void UpdatePlaceholderVisibility()
+    {
+        PlayerPlaceholder.Visibility = VodPreviewPanel.Visibility == Visibility.Visible ||
+            (!IsSecondScreenActive && VideoView.Visibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
+        UpdateAmbientLightVisibility();
+    }
+
     private void OnFavorite(object sender, RoutedEventArgs e)
     {
         if ((_guideOpen ? GuideChannel : DisplayedChannel) is not { IsOnDemand: false } channel ||
@@ -538,6 +548,10 @@ public partial class MainWindow : Window
     private async Task PlayChannelAsync(Channel channel, bool reconnect = false)
     {
         if (_closing || channel.SourceId != _activeSourceId || (!reconnect && _playingChannel?.Id == channel.Id)) return;
+        if (_sleepingChannel is { } sleeping && sleeping.Id != channel.Id) HideSleeping();
+        var showStatic = TelevisionEffect.IsChannelChange(_playingChannel, channel, reconnect);
+        _vodPreviewError = null;
+        UpdateVodPreview();
         if (!reconnect)
         {
             RememberPreviousChannel(channel);
@@ -553,7 +567,12 @@ public partial class MainWindow : Window
         await _playbackLock.WaitAsync();
         try
         {
-            if (revision != _playbackRevision) return;
+            if (revision != _playbackRevision || _closing) return;
+            if (showStatic && SystemParameters.ClientAreaAnimation)
+            {
+                if (!IsSecondScreenActive) ChannelStatic.ShowStatic();
+                VideoStatic.ShowStatic();
+            }
             var lockWait = _playClock.ElapsedMilliseconds;
             await ReleasePlayerAsync();
             if (revision != _playbackRevision || channel.SourceId != _activeSourceId) return;
@@ -595,10 +614,9 @@ public partial class MainWindow : Window
                 });
             }
 
-            var surface = ActiveVideoView;
-            surface.Visibility = Visibility.Visible;
-            surface.MediaPlayer = player;
-            _attachedView = surface;
+            VideoView.Visibility = Visibility.Visible;
+            UpdatePlaceholderVisibility();
+            VideoView.MediaPlayer = player;
             UpdateSelection();
             SetPlaybackStatus("Bağlanıyor…");
 
@@ -629,6 +647,7 @@ public partial class MainWindow : Window
     {
         if (player != _player || revision != _playbackRevision || _closing) return;
         _playbackTimeout.Stop();
+        HideSleeping();
         _playStartedAt = Environment.TickCount64;
         _streamWasPlaying = true;
         AppLog.Info($"Yayın başladı: {_playingChannel?.Name} · {_playClock?.ElapsedMilliseconds} ms");
@@ -699,16 +718,15 @@ public partial class MainWindow : Window
         _player = null;
         _recordedPlayback = null;
         _playingChannel = null;
-        var surface = _attachedView ?? VideoView;
-        _attachedView = null;
-        surface.Visibility = Visibility.Hidden;
+        VideoView.Visibility = Visibility.Hidden;
+        UpdatePlaceholderVisibility();
         try
         {
             await Task.Run(player.Stop);
         }
         finally
         {
-            surface.MediaPlayer = null;
+            VideoView.MediaPlayer = null;
             player.Dispose();
         }
     }
@@ -717,17 +735,27 @@ public partial class MainWindow : Window
     {
         if (_fullscreen) ToggleFullscreen();
         if (_pip) TogglePip();
-        if (_secondScreen is not null) _ = CloseSecondScreenAsync(returnVideo: false);
+        HideSecondScreen();
         ChannelOsd.Visibility = Visibility.Collapsed;
         UpdateSelection();
         UpdatePlaceholder();
         if (_librarySection != LibrarySection.Live) UpdateVodRows();
         if (isError)
         {
-            PlaceholderTitle.Text = status;
-            PlaceholderDescription.Text = "Tekrar oynatmayı dene veya başka bir içerik seç.";
+            if (SelectedVodPreview is not null)
+            {
+                _vodPreviewError = status;
+                UpdateVodPreview();
+            }
+            else
+            {
+                PlaceholderTitle.Text = status;
+                PlaceholderDescription.Text = "Tekrar oynatmayı dene veya başka bir içerik seç.";
+            }
         }
         SetPlaybackStatus(status, isError: isError);
+        if (isError && _lastChannel is { IsOnDemand: false } failed && _librarySection == LibrarySection.Live) ShowSleeping(failed);
+        else HideSleeping();
     }
 
     private void OnMute(object sender, RoutedEventArgs e)
@@ -804,14 +832,14 @@ public partial class MainWindow : Window
             if (!OwnedWindows.OfType<ShortcutsWindow>().Any()) new ShortcutsWindow { Owner = this }.ShowDialog();
             e.Handled = true;
         }
-        else if (_secondScreen is not null && e.Key == Key.Escape)
+        else if (IsSecondScreenActive && e.Key == Key.Escape)
         {
-            _ = CloseSecondScreenAsync(returnVideo: true);
+            ReturnVideoToMainWindow();
             e.Handled = true;
         }
         else if (e.Key == Key.F11 && Keyboard.Modifiers == ModifierKeys.Shift)
         {
-            _ = ToggleSecondScreenAsync();
+            ToggleSecondScreen();
             e.Handled = true;
         }
         else if (_pip && e.Key == Key.Escape)
@@ -873,7 +901,7 @@ public partial class MainWindow : Window
 
     private void ToggleFullscreen()
     {
-        if (!_fullscreen && (_player is null || _secondScreen is not null)) return;
+        if (!_fullscreen && (_player is null || IsSecondScreenActive)) return;
         if (!_fullscreen && _pip) TogglePip();
         if (!_fullscreen && _guideOpen) SetGuideOpen(false);
         _fullscreen = !_fullscreen;
@@ -934,17 +962,19 @@ public partial class MainWindow : Window
         e.Cancel = true;
         if (_closing) return;
         _closing = true;
+        ReleaseStateScreens();
+        _playbackTimeout.Stop();
         _guideClock.Stop();
         _networkClock.Stop();
-        if (_secondScreen is { } secondScreen)
-        {
-            _secondScreen = null;
-            secondScreen.AllowClose = true;
-            secondScreen.Close();
-        }
         CancelCatalogRequest();
         CancelVodRequest();
         _lifetime.Cancel();
+        if (SystemParameters.ClientAreaAnimation && (WindowState != WindowState.Minimized || IsSecondScreenActive))
+        {
+            if (WindowState != WindowState.Minimized) WindowPowerOff.ShowPowerOff();
+            if (VideoOverlay.IsVisible) VideoPowerOff.ShowPowerOff();
+            await Task.Delay(TelevisionEffect.PowerOffDuration);
+        }
         if (_peakDownload > _state.PeakDownloadBps)
         {
             _state.PeakDownloadBps = _peakDownload;
@@ -957,6 +987,7 @@ public partial class MainWindow : Window
         }
 
         await StopPlaybackAsync("Durduruldu");
+        _secondScreen?.CloseForShutdown();
         (_engine ?? (_engineTask is { IsCompletedSuccessfully: true } warmed ? warmed.Result : null))?.Dispose();
         _loader.Dispose();
         _guideLoader.Dispose();

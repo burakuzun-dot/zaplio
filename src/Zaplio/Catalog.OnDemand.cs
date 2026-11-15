@@ -58,6 +58,12 @@ internal sealed partial class CatalogLoader
             !response.RootElement.TryGetProperty("episodes", out var episodes))
             throw new SourceException("Bu dizi için bölüm listesi alınamadı.");
 
+        return ParseEpisodes(source, series, connection, episodes);
+    }
+
+    internal static IReadOnlyList<VodItem> ParseEpisodes(Source source, VodItem series,
+        (string Root, string Username, string Password) connection, JsonElement episodes)
+    {
         var result = new List<VodItem>();
         if (episodes.ValueKind == JsonValueKind.Object)
         {
@@ -88,7 +94,7 @@ internal sealed partial class CatalogLoader
 
         void ReadEpisode(JsonElement entry, int season)
         {
-            if (!PositiveNumber(Value(entry, "id"), out var id)) return;
+            if (entry.ValueKind != JsonValueKind.Object || !PositiveNumber(Value(entry, "id"), out var id)) return;
             season = Value(entry, "season") is string number ? Number(number) : season;
             var episode = Number(Value(entry, "episode_num"));
             var title = Value(entry, "title")?.Trim();
@@ -97,7 +103,12 @@ internal sealed partial class CatalogLoader
             var detail = episode > 0 ? $"{episode}. Bölüm" : category;
             var media = VodMedia(source, connection, "series", id, $"{series.Title} · {title}",
                 $"{category} · {detail}", Value(entry, "container_extension")) with { SeriesId = series.ProviderId, EpisodeId = id };
-            result.Add(new VodItem(id, title, category, detail, media, season, episode));
+            var summary = entry.TryGetProperty("info", out var info)
+                ? Value(info, "plot") ?? Value(info, "description") : null;
+            var poster = NullIfBlank(Value(info, "movie_image")) ?? NullIfBlank(Value(info, "cover_big"))
+                ?? NullIfBlank(Value(info, "cover")) ?? NullIfBlank(Value(entry, "movie_image"));
+            result.Add(new VodItem(id, title, category, detail, media, season, episode,
+                Poster: poster, Plot: summary ?? Value(entry, "plot")));
         }
     }
 

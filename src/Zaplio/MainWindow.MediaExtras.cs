@@ -25,10 +25,10 @@ public partial class MainWindow
     private void UpdateExtraControls()
     {
         TracksButton.IsEnabled = _player is not null;
-        PipButton.IsEnabled = _player is not null && _secondScreen is null;
-        SecondScreenButton.Visibility = HasSecondMonitor || _secondScreen is not null ? Visibility.Visible : Visibility.Collapsed;
-        SecondScreenButton.IsEnabled = _player is not null || _secondScreen is not null;
-        SecondScreenText.Text = _secondScreen is null ? "2. ekran" : "Geri al";
+        PipButton.IsEnabled = _player is not null && !IsSecondScreenActive;
+        SecondScreenButton.Visibility = HasSecondMonitor || IsSecondScreenActive ? Visibility.Visible : Visibility.Collapsed;
+        SecondScreenButton.IsEnabled = _player is not null || IsSecondScreenActive;
+        SecondScreenText.Text = IsSecondScreenActive ? "Geri al" : "2. ekran";
         NextEpisodeButton.Visibility = (_playingChannel ?? _finishedEpisode) is { SeriesId: > 0 } episode &&
             episode.SourceId == _activeSourceId ? Visibility.Visible : Visibility.Collapsed;
     }
@@ -97,6 +97,9 @@ public partial class MainWindow
             }));
         }
         menu.Items.Add(new Separator());
+        var ambientLight = new MenuItem { Header = "Ortam ışığı", IsCheckable = true, IsChecked = _state.Settings.AmbientLight };
+        ambientLight.Click += (_, _) => SetAmbientLightEnabled(ambientLight.IsChecked);
+        menu.Items.Add(ambientLight);
         var snapshot = new MenuItem { Header = "Ekran görüntüsü al  (S)" };
         snapshot.Click += async (_, _) => await TakeSnapshotAsync(player);
         menu.Items.Add(snapshot);
@@ -172,8 +175,10 @@ public partial class MainWindow
         var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "Zaplio");
         var file = Path.Combine(folder, $"Zaplio_{DateTime.Now:yyyyMMdd_HHmmss}.png");
         bool saved;
+        await _playbackLock.WaitAsync();
         try
         {
+            if (_closing || player != _player) return;
             Directory.CreateDirectory(folder);
             saved = await Task.Run(() => player.TakeSnapshot(0, file, 0, 0));
         }
@@ -181,6 +186,10 @@ public partial class MainWindow
         {
             AppLog.Error("Ekran görüntüsü klasörü oluşturulamadı.", exception);
             saved = false;
+        }
+        finally
+        {
+            _playbackLock.Release();
         }
         if (_closing) return;
         if (saved)

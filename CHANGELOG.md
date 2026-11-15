@@ -5,6 +5,24 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 
 ## Yayınlanmamış
 
+### Eklenenler
+- Film, dizi ve bölümleri seçince afişi ve mevcut detayları oynatma alanında görünür. Oynatmayı karttaki düğmeyle başlatabilirsin.
+- Canlı kanal geçişlerine kısa karıncalanma, pencere kapanışına eski televizyonlardaki gibi sönme efekti eklendi.
+- Oynayan videodan alınan renkler pencerenin zeminine hafifçe yansıyor. Efekti Seçenekler menüsünden kapatabilirsin.
+- Kanal satırlarında favori şimşek düğmesi ve logonun köşesinde favori rozeti; favoriye eklerken kıvılcım animasyonu oynar.
+- **Kanal uykuda** ekranı: yayın açılamayınca gösterilir; "Kanalı uyandır" ve "Sonraki kanal" düğmeleri vardır. Sağlayıcıyı yormamak için
+  kendiliğinden en çok iki kez yeniden dener, sonra seni bekler.
+- **Bağlantı koptu** ekranı: internet gidince yayın durur, bağlantı geri gelince kaldığın kanal yeniden açılır.
+- İlk liste ekranı: hiç kaynak yokken "İlk M3U listeni ekle" ekranı gösterilir.
+
+### Değişenler
+- Açılış animasyonu şeffaf bir pencerede gösteriliyor. Animasyonlar kapalıysa şeffaf son kare kullanılıyor.
+- Film ve dizi ekranında afişler büyütüldü, içerik alanı genişletildi ve üstteki sekmeler bir araya getirildi.
+- Ana pencere ve oynatma alanının köşeleri yuvarlatıldı. Oynatma çubuğu ve düğmeleri daha yumuşak bir görünüme kavuştu.
+
+### Düzeltilenler
+- Video ikinci ekrana taşınırken ve geri alınırken yayın bağlantısı, oynatma konumu ve duraklatma durumu korunur.
+
 ## 0.10.2 — 2026-11-14
 
 ### Düzeltilenler

@@ -47,6 +47,7 @@ public partial class MainWindow
         UpdateNetworkSpeed(now);
         UpdateStability(now);
         UpdateLiveStatus();
+        _ = UpdateAmbientLightAsync(now);
     }
 
     private void UpdateNetworkSpeed(long now)

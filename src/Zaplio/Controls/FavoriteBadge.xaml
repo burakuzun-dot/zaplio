@@ -1,0 +1,32 @@
+<!--
+  Kanal logosunun sağ alt köşesine oturan küçük şimşek rozeti.
+  Kullanım (logo kutusu bir Grid içindeyse):
+    <controls:FavoriteBadge IsFavorite="{Binding IsFavorite}"
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-4,-4"/>
+  CutoutBrush: rozetin çevresindeki ince halka; satırın arka plan rengi olmalı.
+-->
+<UserControl x:Class="Zaplio.Controls.FavoriteBadge"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="20" Height="20" IsHitTestVisible="False" Focusable="False">
+    <UserControl.Resources>
+        <Storyboard x:Key="PopStoryboard">
+            <DoubleAnimation Storyboard.TargetName="BadgeScale" Storyboard.TargetProperty="ScaleX"
+                             From="0.3" To="1" Duration="0:0:0.45">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="BadgeScale" Storyboard.TargetProperty="ScaleY"
+                             From="0.3" To="1" Duration="0:0:0.45">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+    </UserControl.Resources>
+
+    <Grid x:Name="Root" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
+        <Grid.RenderTransform><ScaleTransform x:Name="BadgeScale"/></Grid.RenderTransform>
+        <Ellipse Fill="{DynamicResource ZpBoltBrush}" StrokeThickness="2"
+                 Stroke="{Binding CutoutBrush, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+        <Path Width="11" Height="11" Stretch="Uniform" Data="{DynamicResource ZpBoltIcon}"
+              Fill="{DynamicResource ZpBgBrush}"/>
+    </Grid>
+</UserControl>

@@ -1,0 +1,105 @@
+<!--
+  Henüz hiç liste eklenmemişken gösterilen karşılama ekranı.
+  Kullanım:
+    <views:EmptyLibraryView AddPlaylistCommand="{Binding AddPlaylistCommand}"
+                            Visibility="{Binding HasNoPlaylists, Converter={StaticResource BoolToVisibility}}"/>
+-->
+<UserControl x:Class="Zaplio.Views.EmptyLibraryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource ZpBgBrush}"
+             FontFamily="{DynamicResource ZpFontFamily}">
+    <UserControl.Resources>
+        <Storyboard x:Key="IdleStoryboard">
+            <!-- M3U kartı süzülür -->
+            <DoubleAnimation Storyboard.TargetName="CardFloat" Storyboard.TargetProperty="Y"
+                             From="0" To="-10" Duration="0:0:1.8" AutoReverse="True" RepeatBehavior="Forever">
+                <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <!-- Kesikli çerçeve akar (değer çizgi kalınlığı cinsinden) -->
+            <DoubleAnimation Storyboard.TargetName="DashedCard" Storyboard.TargetProperty="StrokeDashOffset"
+                             From="0" To="-20" Duration="0:0:6" RepeatBehavior="Forever"/>
+            <!-- Yıldızlar parlar -->
+            <DoubleAnimation Storyboard.TargetName="Star1" Storyboard.TargetProperty="Opacity" From="0.2" To="1"
+                             Duration="0:0:1.2" AutoReverse="True" RepeatBehavior="Forever"/>
+            <DoubleAnimation Storyboard.TargetName="Star1Scale" Storyboard.TargetProperty="ScaleX" From="0.4" To="1"
+                             Duration="0:0:1.2" AutoReverse="True" RepeatBehavior="Forever"/>
+            <DoubleAnimation Storyboard.TargetName="Star1Scale" Storyboard.TargetProperty="ScaleY" From="0.4" To="1"
+                             Duration="0:0:1.2" AutoReverse="True" RepeatBehavior="Forever"/>
+            <DoubleAnimation Storyboard.TargetName="Star2" Storyboard.TargetProperty="Opacity" From="0.2" To="1"
+                             Duration="0:0:1.2" BeginTime="0:0:0.8" AutoReverse="True" RepeatBehavior="Forever"/>
+            <DoubleAnimation Storyboard.TargetName="Star2Scale" Storyboard.TargetProperty="ScaleX" From="0.4" To="1"
+                             Duration="0:0:1.2" BeginTime="0:0:0.8" AutoReverse="True" RepeatBehavior="Forever"/>
+            <DoubleAnimation Storyboard.TargetName="Star2Scale" Storyboard.TargetProperty="ScaleY" From="0.4" To="1"
+                             Duration="0:0:1.2" BeginTime="0:0:0.8" AutoReverse="True" RepeatBehavior="Forever"/>
+            <DoubleAnimation Storyboard.TargetName="Star3" Storyboard.TargetProperty="Opacity" From="0.2" To="1"
+                             Duration="0:0:1.2" BeginTime="0:0:1.6" AutoReverse="True" RepeatBehavior="Forever"/>
+            <DoubleAnimation Storyboard.TargetName="Star3Scale" Storyboard.TargetProperty="ScaleX" From="0.4" To="1"
+                             Duration="0:0:1.2" BeginTime="0:0:1.6" AutoReverse="True" RepeatBehavior="Forever"/>
+            <DoubleAnimation Storyboard.TargetName="Star3Scale" Storyboard.TargetProperty="ScaleY" From="0.4" To="1"
+                             Duration="0:0:1.2" BeginTime="0:0:1.6" AutoReverse="True" RepeatBehavior="Forever"/>
+        </Storyboard>
+    </UserControl.Resources>
+
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24">
+        <!-- Çizim: boş ekran ve eklenmeyi bekleyen M3U kartı -->
+        <Canvas Width="360" Height="240" HorizontalAlignment="Center" Margin="0,0,0,28"
+                AutomationProperties.Name="Boş bir ekrana eklenmeyi bekleyen M3U listesi">
+            <Rectangle Canvas.Left="40" Canvas.Top="16" Width="280" Height="180" RadiusX="20" RadiusY="20"
+                       Fill="#12152A" Stroke="{DynamicResource ZpIllustrationLineBrush}" StrokeThickness="6"/>
+            <Rectangle Canvas.Left="160" Canvas.Top="196" Width="40" Height="22" Fill="{DynamicResource ZpIllustrationLineBrush}"/>
+            <Rectangle Canvas.Left="120" Canvas.Top="216" Width="120" Height="10" RadiusX="5" RadiusY="5"
+                       Fill="{DynamicResource ZpIllustrationLineBrush}"/>
+
+            <Canvas>
+                <Canvas.RenderTransform><TranslateTransform x:Name="CardFloat"/></Canvas.RenderTransform>
+                <Rectangle x:Name="DashedCard" Canvas.Left="118" Canvas.Top="58" Width="124" Height="96"
+                           RadiusX="16" RadiusY="16" Fill="#1A7B61FF" Stroke="{DynamicResource ZpAccentBrush}"
+                           StrokeThickness="3" StrokeDashArray="3.3 2.7"/>
+                <Rectangle Canvas.Left="138" Canvas.Top="80" Width="58" Height="8" RadiusX="4" RadiusY="4" Fill="{DynamicResource ZpBorderStrongBrush}"/>
+                <Rectangle Canvas.Left="138" Canvas.Top="98" Width="84" Height="8" RadiusX="4" RadiusY="4" Fill="{DynamicResource ZpBorderStrongBrush}"/>
+                <Rectangle Canvas.Left="138" Canvas.Top="116" Width="70" Height="8" RadiusX="4" RadiusY="4" Fill="{DynamicResource ZpBorderStrongBrush}"/>
+                <TextBlock Canvas.Left="138" Canvas.Top="130" Text="M3U" FontSize="14" FontWeight="Bold" Foreground="#B3A5FF"/>
+                <Ellipse Canvas.Left="224" Canvas.Top="40" Width="36" Height="36" Fill="{DynamicResource ZpBoltBrush}"/>
+                <Path Data="M242,49 V67 M233,58 H251" Stroke="{DynamicResource ZpBgBrush}" StrokeThickness="3.5"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+            </Canvas>
+
+            <Path x:Name="Star1" Opacity="0.2" Fill="{DynamicResource ZpBoltBrush}" RenderTransformOrigin="0.5,0.5"
+                  Canvas.Left="61" Canvas.Top="46" Stretch="None"
+                  Data="M11,0 L14,8 L22,11 L14,14 L11,22 L8,14 L0,11 L8,8 Z">
+                <Path.RenderTransform><ScaleTransform x:Name="Star1Scale" ScaleX="0.4" ScaleY="0.4"/></Path.RenderTransform>
+            </Path>
+            <Path x:Name="Star2" Opacity="0.2" Fill="{DynamicResource ZpBoltBrush}" RenderTransformOrigin="0.5,0.5"
+                  Canvas.Left="284" Canvas.Top="150" Stretch="None"
+                  Data="M8,0 L10,6 L16,8 L10,10 L8,16 L6,10 L0,8 L6,6 Z">
+                <Path.RenderTransform><ScaleTransform x:Name="Star2Scale" ScaleX="0.4" ScaleY="0.4"/></Path.RenderTransform>
+            </Path>
+            <Path x:Name="Star3" Opacity="0.2" Fill="#9F8CFF" RenderTransformOrigin="0.5,0.5"
+                  Canvas.Left="81" Canvas.Top="160" Stretch="None"
+                  Data="M7,0 L9,5 L14,7 L9,9 L7,14 L5,9 L0,7 L5,5 Z">
+                <Path.RenderTransform><ScaleTransform x:Name="Star3Scale" ScaleX="0.4" ScaleY="0.4"/></Path.RenderTransform>
+            </Path>
+        </Canvas>
+
+        <TextBlock Style="{DynamicResource ZpStateTitle}" Text="İlk M3U listeni ekle"/>
+        <TextBlock Style="{DynamicResource ZpStateBody}" Margin="0,12,0,28"
+                   Text="Kanalların burada görünecek. Bir M3U bağlantısı yapıştır ya da bilgisayarından dosya seç."/>
+
+        <Button x:Name="AddButton" Style="{DynamicResource ZpPrimaryButton}" HorizontalAlignment="Center"
+                MinHeight="52" Padding="30,0" FontSize="17" Click="OnAddClick"
+                Command="{Binding AddPlaylistCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+            <Button.Effect>
+                <DropShadowEffect Color="#7B61FF" BlurRadius="30" ShadowDepth="10" Direction="270" Opacity="0.35"/>
+            </Button.Effect>
+            <StackPanel Orientation="Horizontal">
+                <Path Data="{DynamicResource ZpPlusIcon}" Width="20" Height="20" Stretch="Uniform" Stroke="White"
+                      StrokeThickness="2.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Margin="0,0,10,0"/>
+                <TextBlock Text="Liste ekle" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Button>
+
+        <TextBlock Margin="0,18,0,0" FontSize="14" TextAlignment="Center" Foreground="{DynamicResource ZpMutedTextBrush}"
+                   Text="Xtream hesabın mı var? Liste eklerken onu da seçebilirsin."/>
+    </StackPanel>
+</UserControl>

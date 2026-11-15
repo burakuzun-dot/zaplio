@@ -7,6 +7,7 @@
         MouseLeftButtonDown="OnSkip" KeyDown="OnKey"
         ToolTip="Atlamak için tıkla">
     <Grid>
+        <Image x:Name="TransparentFrame" Stretch="None" Visibility="Collapsed" RenderOptions.BitmapScalingMode="HighQuality" />
         <!-- Last frame: shown when animations are reduced or the video cannot be played. -->
         <Image x:Name="StillFrame" Source="Assets/Splash.png" Stretch="Uniform" Visibility="Collapsed"
                RenderOptions.BitmapScalingMode="HighQuality" />

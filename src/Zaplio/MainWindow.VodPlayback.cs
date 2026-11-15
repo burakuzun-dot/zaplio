@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -12,6 +11,7 @@ public partial class MainWindow
     private bool _vodStarted;
     private bool _seekingVod;
     private bool _updatingVodSeek;
+    private long _forcedResume;
     private long _pendingVodPosition;
     private long _lastVodSave;
 
@@ -71,9 +71,9 @@ public partial class MainWindow
         {
             VodSeek.Maximum = Math.Max(1, length);
             VodSeek.Value = Math.Min(time, VodSeek.Maximum);
-            VodElapsed.Text = VodTime(time);
+            VodElapsed.Text = PlaybackTime.Format(time);
         }
-        VodDuration.Text = length > 0 ? VodTime(length) : "—";
+        VodDuration.Text = length > 0 ? PlaybackTime.Format(length) : "—";
         _updatingVodSeek = false;
         if (player.IsPlaying && Environment.TickCount64 - _lastVodSave >= 30_000) SaveVodPosition(player);
     }
@@ -123,7 +123,7 @@ public partial class MainWindow
     private void OnVodSeekChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (_updatingVodSeek || !_isReady || !VodSeek.IsEnabled) return;
-        VodElapsed.Text = VodTime((long)e.NewValue);
+        VodElapsed.Text = PlaybackTime.Format((long)e.NewValue);
         if (!_seekingVod) SeekVod();
     }
 
@@ -135,9 +135,4 @@ public partial class MainWindow
         player.Time = (long)VodSeek.Value;
     }
 
-    private static string VodTime(long milliseconds)
-    {
-        var time = TimeSpan.FromMilliseconds(Math.Max(0, milliseconds));
-        return time.ToString(time.TotalHours >= 1 ? @"h\:mm\:ss" : @"mm\:ss", CultureInfo.InvariantCulture);
-    }
 }

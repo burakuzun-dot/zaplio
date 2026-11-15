@@ -19,10 +19,10 @@
     <PackageDownload Include="Microsoft.Windows.SDK.BuildTools" Version="[10.0.26100.1742]" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Assets\Fonts\*.ttf;Assets\Zaplio.ico;Assets\Brand\*.png;Assets\Splash.png;Assets\Intro.mp4" />
+    <None Remove="Assets\Fonts\*.ttf;Assets\Zaplio.ico;Assets\Brand\*.png;Assets\Splash.png;Assets\Intro.mp4;Assets\Intro-transparent.frames.zip" />
     <Resource Include="Assets\Fonts\*.ttf;Assets\Zaplio.ico;Assets\Brand\*.png;Assets\Splash.png" />
     <!-- MediaElement plays from disk, not from resources. -->
-    <Content Include="Assets\Intro.mp4" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="Assets\Intro.mp4;Assets\Intro-transparent.frames.zip" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <InternalsVisibleTo Include="Zaplio.Tests" />
     <None Include="$(ZaplioRepoRoot)\LICENSE" Link="Licenses\Zaplio.LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <None Update="Licenses\*.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />

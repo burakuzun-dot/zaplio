@@ -1,26 +1,37 @@
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace Zaplio;
 
 /// <summary>
-/// The animated Zaplio intro (~2.8 s). It ends on its own, on a click or key press, or after a safety timeout, and
-/// falls back to the still last frame when Windows asks for fewer animations or the video cannot be decoded.
+/// Plays the transparent intro, with the legacy video and still available as fallbacks.
 /// </summary>
 public partial class IntroWindow : Window
 {
     private static readonly TimeSpan StillDuration = TimeSpan.FromMilliseconds(700);
     private static readonly TimeSpan SafetyTimeout = TimeSpan.FromSeconds(5);
     private readonly DispatcherTimer _timer = new();
+    private readonly bool _transparentIntro;
+    private readonly Stopwatch _clock = new();
+    private BitmapSource[]? _frames;
     private bool _finished;
 
     public IntroWindow()
     {
         InitializeComponent();
-        _timer.Tick += (_, _) => Finish();
-        Loaded += (_, _) => Start();
+        _transparentIntro = File.Exists(IntroFrameSequence.PathOnDisk);
+        if (_transparentIntro)
+        {
+            AllowsTransparency = true;
+            Background = Brushes.Transparent;
+        }
+        _timer.Tick += OnTick;
+        Loaded += async (_, _) => await StartAsync();
         Closed += (_, _) =>
         {
             IsClosed = true;
@@ -35,10 +46,43 @@ public partial class IntroWindow : Window
 
     internal static string VideoPath => Path.Combine(AppContext.BaseDirectory, "Assets", "Intro.mp4");
 
-    private void Start()
+    private async Task StartAsync()
     {
+        var animate = SystemParameters.ClientAreaAnimation;
+        if (_transparentIntro)
+        {
+            _timer.Interval = SafetyTimeout;
+            _timer.Start();
+            try
+            {
+                var frames = await Task.Run(() => IntroFrameSequence.Load(IntroFrameSequence.PathOnDisk, animate));
+                if (_finished) return;
+
+                _timer.Stop();
+                Video.Visibility = Visibility.Collapsed;
+                TransparentFrame.Source = frames[0];
+                TransparentFrame.Visibility = Visibility.Visible;
+                if (animate)
+                {
+                    _frames = frames;
+                    _clock.Start();
+                }
+                _timer.Interval = animate ? TimeSpan.FromMilliseconds(1000d / 60) : StillDuration;
+                _timer.Start();
+                return;
+            }
+            catch (Exception exception) when (exception is IOException or InvalidDataException or FileFormatException or
+                NotSupportedException or ArgumentException or InvalidOperationException)
+            {
+                if (_finished) return;
+                _timer.Stop();
+                AppLog.Warn("Şeffaf açılış animasyonu yüklenemedi.", exception);
+                SetResourceReference(BackgroundProperty, "Canvas");
+            }
+        }
+
         // Windows "Animation effects" off → respect it and show the final frame only.
-        if (!SystemParameters.ClientAreaAnimation || !File.Exists(VideoPath))
+        if (!animate || !File.Exists(VideoPath))
         {
             ShowStill();
             return;
@@ -47,6 +91,19 @@ public partial class IntroWindow : Window
         Video.Play();
         _timer.Interval = SafetyTimeout;
         _timer.Start();
+    }
+
+    private void OnTick(object? sender, EventArgs e)
+    {
+        if (_frames is not { } frames)
+        {
+            Finish();
+            return;
+        }
+
+        var index = (int)(_clock.Elapsed.TotalSeconds * IntroFrameSequence.FramesPerSecond);
+        if (index >= frames.Length) Finish();
+        else TransparentFrame.Source = frames[index];
     }
 
     private void ShowStill()
@@ -75,7 +132,8 @@ public partial class IntroWindow : Window
         if (_finished) return;
         _finished = true;
         _timer.Stop();
-        Video.Stop();
+        _frames = null;
+        if (Video.Source is not null) Video.Stop();
         Finished?.Invoke();
     }
 }

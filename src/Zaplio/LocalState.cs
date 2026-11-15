@@ -38,6 +38,7 @@ internal sealed record PlaybackSettings
     public bool CheckForUpdates { get; init; } = true;
     public bool ShowLogos { get; init; } = true;
     public bool ShowIntro { get; init; } = true;
+    public bool AmbientLight { get; init; } = true;
     public bool LegalNoticeAccepted { get; init; }
     public bool MergeQualities { get; init; } = true;
     public QualityMode QualityMode { get; init; } = QualityMode.Auto;
