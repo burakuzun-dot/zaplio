@@ -96,7 +96,7 @@ Tüm kısayollar uygulamada <kbd>F1</kbd>'de ve [docs/keyboard-shortcuts.md](doc
 - Birden fazla kaynak, kaynak başına hatırlanan grup / arama / kanal
 - Gruplar, Türkçe karakter duyarsız arama, favoriler ve sıralama, kanal logoları
 - Grup gizleme, kanal yeniden adlandırma, aynı kanalın kalitelerini birleştirme ve elle sabitleme
-- Xtream abonelik kartı: bitiş tarihi, bağlantı sayısı, son haftada uyarı
+- Xtream abonelik bilgisi (Ayarlar › Kaynaklar): bitiş tarihi, bağlantı sayısı, son haftada uyarı
 
 </details>
 
@@ -137,7 +137,7 @@ Ayrıntılı liste: [docs/features.md](docs/features.md)
 
 Çoğunlukla bilgisayarda açık bir **VPN** (ör. Cloudflare WARP) yüzündendir; birçok sağlayıcı VPN bağlantılarını reddeder. VPN'i kapatıp
 tekrar dene. Devam ederse bağlantı sınırın dolmuş, IP adresin geçici olarak engellenmiş ya da aboneliğin bitmiş olabilir
-(sol alttaki abonelik kartına bak).
+(Ayarlar › Kaynaklar'daki abonelik bilgisine bak).
 </details>
 
 <details>

@@ -154,16 +154,18 @@
                         <StackPanel x:Name="SourcesPage">
                             <TextBlock Text="Kaynaklar" Style="{StaticResource PageTitle}" />
                             <TextBlock Style="{StaticResource PageIntro}"
-                                       Text="M3U listelerin ve Xtream hesapların. Eklediğin ya da kaldırdığın kaynak hemen uygulanır; Kaydet'e basman gerekmez." />
+                                       Text="M3U listelerin ve Xtream hesapların. Kullanmak istediğin kaynağa tıkla. Seçim, ekleme ve kaldırma hemen uygulanır; Kaydet'e basman gerekmez." />
                             <Border Background="{StaticResource Canvas}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="6">
                                 <Grid>
-                                    <ItemsControl x:Name="SourceList">
-                                        <ItemsControl.ItemTemplate>
+                                    <ListBox x:Name="SourceList" Background="Transparent" BorderThickness="0" SelectionChanged="OnSourceSelected"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Aktif kaynak">
+                                        <ListBox.ItemTemplate>
                                             <DataTemplate>
-                                                <Grid Margin="8,8">
+                                                <Grid Margin="0,2">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="40" />
                                                         <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
                                                     <Border Width="32" Height="32" CornerRadius="9" Background="{StaticResource Active}" HorizontalAlignment="Left">
                                                         <TextBlock Text="{Binding Icon}" FontFamily="{StaticResource GlyphFont}" FontSize="16"
@@ -173,21 +175,59 @@
                                                         <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
                                                         <TextBlock Text="{Binding TypeLabel}" Style="{StaticResource MutedText}" FontSize="12" Margin="0,2,0,0" />
                                                     </StackPanel>
+                                                    <Border Grid.Column="2" CornerRadius="9" Padding="9,3" VerticalAlignment="Center" Margin="8,0,2,0"
+                                                            Background="{StaticResource Surface}" BorderBrush="{StaticResource ActiveLine}" BorderThickness="1">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                                        <Setter Property="Visibility" Value="Visible" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="Kullanılıyor" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Accent}" />
+                                                    </Border>
                                                 </Grid>
                                             </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
                                     <TextBlock x:Name="NoSources" Text="Henüz kaynak yok. İlk listeni ekleyerek başla." Style="{StaticResource MutedText}"
                                                Margin="10,14" TextWrapping="Wrap" />
                                 </Grid>
                             </Border>
-                            <Button Style="{StaticResource Primary}" Click="OnManageSources" HorizontalAlignment="Left" Margin="0,16,0,0"
-                                    AutomationProperties.Name="{Binding Text, ElementName=ManageSourcesText}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock x:Name="ManageSourcesIcon" Style="{StaticResource Glyph}" FontSize="17" Margin="0,0,6,0" />
-                                    <TextBlock x:Name="ManageSourcesText" Foreground="{StaticResource Ink}" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </Button>
+                            <Border x:Name="AccountPanel" Margin="0,12,0,0" Padding="12,10" CornerRadius="12" Visibility="Collapsed"
+                                    Background="{StaticResource Canvas}" BorderBrush="{StaticResource Line}" BorderThickness="1">
+                                <DockPanel>
+                                    <Button x:Name="CheckAccountButton" DockPanel.Dock="Right" Content="Aboneliği kontrol et" Click="OnCheckAccount"
+                                            VerticalAlignment="Center" Margin="10,0,0,0" />
+                                    <TextBlock DockPanel.Dock="Left" FontFamily="{StaticResource GlyphFont}" Text="{x:Static local:IconGlyphs.Server}"
+                                               FontSize="16" Foreground="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Abonelik" FontSize="12" FontWeight="SemiBold" />
+                                        <TextBlock x:Name="AccountText" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0" Style="{StaticResource MutedText}" />
+                                    </StackPanel>
+                                </DockPanel>
+                            </Border>
+                            <WrapPanel Margin="0,16,0,0">
+                                <Button Style="{StaticResource Primary}" Click="OnManageSources" Margin="0,0,8,0"
+                                        AutomationProperties.Name="{Binding Text, ElementName=ManageSourcesText}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock x:Name="ManageSourcesIcon" Style="{StaticResource Glyph}" FontSize="17" Margin="0,0,6,0" />
+                                        <TextBlock x:Name="ManageSourcesText" Foreground="{StaticResource Ink}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                                <Button x:Name="RefreshListsButton" Click="OnRefreshLists" AutomationProperties.Name="Listeleri yenile"
+                                        ToolTip="Aktif kaynağın listelerini sağlayıcıdan yeniden al (F5)">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Refresh}" FontSize="17" Margin="0,0,6,0" />
+                                        <TextBlock Text="Listeleri yenile" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                            </WrapPanel>
+                            <TextBlock x:Name="RefreshHint" Style="{StaticResource SettingHint}" Margin="0,8,0,0" TextWrapping="Wrap"
+                                       Text="Yenileme ana pencerede açık olan bölümün (Canlı TV, Filmler ya da Diziler) listesini yeniler. Kısayolu F5." />
                         </StackPanel>
 
                         <!-- Playback -->

@@ -194,13 +194,6 @@ public partial class MainWindow
         else ApplyVodPaneWidth();
         NavigationPane.Visibility = ChannelPane.Visibility = live && !Immersive ? Visibility.Visible : Visibility.Collapsed;
         VodPane.Visibility = !live && !Immersive ? Visibility.Visible : Visibility.Collapsed;
-        // One source card: under the group list for live TV, under the movie / series list otherwise.
-        var host = live ? SourceCardHostLive : SourceCardHostVod;
-        if (!ReferenceEquals(SourceCard.Parent, host))
-        {
-            if (SourceCard.Parent is System.Windows.Controls.Border previous) previous.Child = null;
-            host.Child = SourceCard;
-        }
         UpdateSelection();
     }
 
@@ -456,7 +449,10 @@ public partial class MainWindow
             .FirstOrDefault(filter => filter.Category == filters?.Category);
     }
 
-    private void UpdateRefreshButton() => RefreshButton.IsEnabled = _librarySection == LibrarySection.Live
+    /// <summary>Whether "Listeleri yenile" (Settings › Kaynaklar, F5) can run for the current section now.</summary>
+    private bool CanRefreshLists() => _librarySection == LibrarySection.Live
         ? !_refreshing && ActiveSource is not null
         : _vodRequest is null && ActiveSource?.Kind == SourceKind.Xtream;
+
+    private void UpdateRefreshButton() => _sourceSettings?.NotifyChanged();
 }

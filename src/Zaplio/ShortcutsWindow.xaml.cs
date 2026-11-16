@@ -45,7 +45,9 @@ internal static class Shortcuts
         ]),
         new("GENEL",
         [
-            new("F1", "Bu pencere")
+            new("F1", "Bu pencere"),
+            new("F5", "Listeleri yenile"),
+            new("Ctrl + ,", "Ayarlar (aktif kaynak, abonelik)")
         ])
     ];
 }

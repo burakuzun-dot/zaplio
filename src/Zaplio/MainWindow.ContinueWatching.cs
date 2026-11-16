@@ -33,9 +33,11 @@ public partial class MainWindow
                 return new ContinueRow(channel, title, episode, $"Devam et · {time}", item?.Poster, series ? IconGlyphs.Series : IconGlyphs.Movie,
                     $"{title}: kaldığın yerden devam ({time})");
             }).ToArray();
+        ContinueList.Tag ??= _continueShelf;
         ContinueList.ItemsSource = rows;
         ContinuePanel.Visibility = rows.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
         UpdateVodInfo();
+        FitContinueShelf();
     }
 
     /// <summary>

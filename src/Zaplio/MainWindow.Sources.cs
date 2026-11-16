@@ -4,13 +4,11 @@ namespace Zaplio;
 
 public partial class MainWindow
 {
-    private sealed record SourceChoice(Guid? Id, string Name);
     private sealed record LiveSourceView(string Group, string Search, string? ChannelId);
 
     private readonly Dictionary<Guid, LiveSourceView> _liveSourceViews = new();
     private Guid? _activeSourceId;
     private CancellationTokenSource? _catalogRequest;
-    private bool _syncSourcePicker;
     private bool _restoringSourceView;
 
     private Source? ActiveSource => _state.Sources.FirstOrDefault(source => source.Id == _activeSourceId);
@@ -30,22 +28,8 @@ public partial class MainWindow
         : $"{(int)age.TotalDays} gün önce";
     private bool _refreshing => _catalogRequest is not null;
 
-    private void UpdateSourcePicker()
-    {
-        var choices = _state.Sources.Select(source => new SourceChoice(source.Id, source.Name)).ToArray();
-        if (choices.Length == 0) choices = [new SourceChoice(null, "Kaynak yok")];
-        _syncSourcePicker = true;
-        ActiveSourcePicker.ItemsSource = choices;
-        ActiveSourcePicker.SelectedItem = choices.FirstOrDefault(choice => choice.Id == _activeSourceId);
-        ActiveSourcePicker.IsEnabled = _state.Sources.Count > 0;
-        _syncSourcePicker = false;
-    }
-
-    private async void OnActiveSourceChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (!_isReady || _syncSourcePicker || ActiveSourcePicker.SelectedItem is not SourceChoice choice) return;
-        await ActivateSourceAsync(choice.Id);
-    }
+    /// <summary>The active source is chosen in Settings › Kaynaklar; an open settings window follows changes made here.</summary>
+    private void UpdateSourcePicker() => _sourceSettings?.NotifyChanged();
 
     private async Task ActivateSourceAsync(Guid? id)
     {

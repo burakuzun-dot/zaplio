@@ -12,20 +12,30 @@ public partial class SettingsWindow : Window
 {
     private sealed record StartupChoice(LibrarySection Section, string Label);
     private sealed record QualityChoice(QualityMode Mode, string Label);
+    private sealed record SourceRow(Guid Id, string Name, string TypeLabel, string Icon, bool IsActive);
 
     private readonly PlaybackSettings _original;
     private readonly Func<IReadOnlyList<Source>> _sources;
     private readonly Action<Window> _manageSources;
+    private readonly SourceSettingsHost? _host;
+    private bool _syncingSources;
 
     /// <param name="sources">Current sources; read again after the sources window closes.</param>
     /// <param name="manageSources">Opens the sources window over this one (changes apply at once, not on Kaydet).</param>
+    /// <param name="host">The main window's side of the active source, refresh and subscription; without it the list is read-only.</param>
     internal SettingsWindow(PlaybackSettings settings, int volume, Func<IReadOnlyList<Source>> sources, Action<Window> manageSources,
-        SettingsPage page = SettingsPage.Sources)
+        SettingsPage page = SettingsPage.Sources, SourceSettingsHost? host = null)
     {
         InitializeComponent();
         _original = settings; // keeps values the window does not show (e.g. the accepted legal notice)
         _sources = sources;
         _manageSources = manageSources;
+        _host = host;
+        if (host is not null)
+        {
+            host.Changed += UpdateSources;
+            Closed += (_, _) => host.Changed -= UpdateSources;
+        }
 
         StartupChoice[] choices = [new(LibrarySection.Live, "Canlı TV"), new(LibrarySection.Movies, "Filmler"), new(LibrarySection.Series, "Diziler")];
         StartupPicker.ItemsSource = choices;
@@ -88,10 +98,49 @@ public partial class SettingsWindow : Window
     private void UpdateSources()
     {
         var sources = _sources();
-        SourceList.ItemsSource = sources;
+        var active = _host?.ActiveSourceId();
+        var rows = sources.Select(source => new SourceRow(source.Id, source.Name, source.TypeLabel, source.Icon, source.Id == active)).ToArray();
+        _syncingSources = true;
+        SourceList.ItemsSource = rows;
+        SourceList.SelectedItem = rows.FirstOrDefault(row => row.IsActive);
+        SourceList.IsHitTestVisible = _host is not null;
+        _syncingSources = false;
         NoSources.Visibility = sources.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         ManageSourcesText.Text = sources.Count == 0 ? "Kaynak ekle" : "Kaynakları yönet";
         ManageSourcesIcon.Text = sources.Count == 0 ? IconGlyphs.Add : IconGlyphs.Plug;
+
+        RefreshListsButton.Visibility = RefreshHint.Visibility = _host is null || sources.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+        RefreshListsButton.IsEnabled = _host?.CanRefresh() == true;
+
+        var account = _host?.Account();
+        AccountPanel.Visibility = account is null ? Visibility.Collapsed : Visibility.Visible;
+        AccountText.Text = account?.Text;
+        AccountText.Foreground = (System.Windows.Media.Brush)FindResource(account?.BrushKey ?? "Muted");
+        AccountPanel.ToolTip = account?.Details;
+        CheckAccountButton.IsEnabled = account?.CanCheck == true;
+    }
+
+    private async void OnSourceSelected(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (_syncingSources || _host is null || SourceList.SelectedItem is not SourceRow row || row.Id == _host.ActiveSourceId()) return;
+        await _host.Activate(row.Id);
+        UpdateSources();
+    }
+
+    private async void OnRefreshLists(object sender, RoutedEventArgs e)
+    {
+        if (_host is null || !_host.CanRefresh()) return;
+        var refresh = _host.Refresh();
+        UpdateSources(); // the button turns off while the lists load
+        await refresh;
+        if (IsLoaded) UpdateSources();
+    }
+
+    private async void OnCheckAccount(object sender, RoutedEventArgs e)
+    {
+        if (_host is null) return;
+        await _host.CheckAccount();
+        if (IsLoaded) UpdateSources();
     }
 
     private void OnManageSources(object sender, RoutedEventArgs e)

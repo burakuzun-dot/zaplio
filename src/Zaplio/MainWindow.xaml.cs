@@ -147,7 +147,7 @@ public partial class MainWindow : Window
 
     private void OnSettings(object sender, RoutedEventArgs e)
     {
-        var dialog = new SettingsWindow(_state.Settings, _state.Volume, () => _state.Sources.ToArray(), ManageSources) { Owner = this };
+        var dialog = new SettingsWindow(_state.Settings, _state.Volume, () => _state.Sources.ToArray(), ManageSources, host: SourceSettings) { Owner = this };
         if (dialog.ShowDialog() != true) return;
         var previousSettings = _state.Settings;
         var previousVolume = _state.Volume;
@@ -849,6 +849,17 @@ public partial class MainWindow : Window
         else if (e.Key == Key.F1 && Keyboard.Modifiers == ModifierKeys.None)
         {
             if (!OwnedWindows.OfType<ShortcutsWindow>().Any()) new ShortcutsWindow { Owner = this }.ShowDialog();
+            e.Handled = true;
+        }
+        else if (e.Key == Key.F5 && Keyboard.Modifiers == ModifierKeys.None)
+        {
+            // The refresh button now lives in Settings › Kaynaklar; F5 keeps it one key away.
+            if (CanRefreshLists()) OnRefresh(this, new RoutedEventArgs());
+            e.Handled = true;
+        }
+        else if (e.Key == Key.OemComma && Keyboard.Modifiers == ModifierKeys.Control)
+        {
+            if (!OwnedWindows.OfType<SettingsWindow>().Any()) OnSettings(this, new RoutedEventArgs());
             e.Handled = true;
         }
         else if (IsSecondScreenActive && e.Key == Key.Escape)

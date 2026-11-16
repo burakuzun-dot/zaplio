@@ -128,36 +128,6 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    <!-- The source card lives here for live TV and under the movie/series list otherwise (see ApplyLibraryLayout). -->
-                    <Border x:Name="SourceCardHostLive" Grid.Row="2" Margin="0,10,0,0">
-                        <Border x:Name="SourceCard" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1"
-                                CornerRadius="12" Padding="8">
-                            <StackPanel>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <ComboBox x:Name="ActiveSourcePicker" Style="{StaticResource LibraryPicker}" DisplayMemberPath="Name" Height="34"
-                                              SelectionChanged="OnActiveSourceChanged" AutomationProperties.Name="Aktif kaynak"
-                                              ToolTip="Aktif kaynak; yeni kaynak eklemek için Ayarlar › Kaynaklar" />
-                                    <Button x:Name="RefreshButton" Grid.Column="1" Style="{StaticResource IconButton}" Width="34" Height="34" Click="OnRefresh"
-                                            ToolTip="Listeleri yenile" AutomationProperties.Name="Listeleri yenile" Margin="4,0,0,0">
-                                        <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Refresh}" FontSize="17" />
-                                    </Button>
-                                </Grid>
-                                <Border x:Name="AccountCard" Background="Transparent" Margin="4,6,0,1" MouseLeftButtonUp="OnAccountCardClick"
-                                        ToolTipService.InitialShowDelay="300" Visibility="Collapsed">
-                                    <DockPanel>
-                                        <TextBlock DockPanel.Dock="Left" FontFamily="{StaticResource GlyphFont}" Text="{x:Static local:IconGlyphs.Server}"
-                                                   FontSize="14" Foreground="{StaticResource Muted}" VerticalAlignment="Center" />
-                                        <TextBlock x:Name="AccountText" FontSize="11" Margin="7,0,0,0" VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis" Style="{StaticResource MutedText}" />
-                                    </DockPanel>
-                                </Border>
-                            </StackPanel>
-                        </Border>
-                    </Border>
                 </Grid>
             </Border>
 
@@ -352,7 +322,6 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <Border x:Name="SourceCardHostVod" Grid.Row="6" Margin="0,10,0,0" />
                     <DockPanel Margin="0,0,0,12">
                         <Button x:Name="VodBack" Content="Diziler" Click="OnVodBack" Visibility="Collapsed" Margin="0,0,10,0" />
                         <Button x:Name="VodDetailsButton" DockPanel.Dock="Right" Content="Detaylar" Click="OnVodDetails"
@@ -389,19 +358,26 @@
                         </Grid>
                     </Border>
                     <Border x:Name="ContinueHostList" Grid.Row="2">
-                    <StackPanel x:Name="ContinuePanel" Margin="0,0,0,8" Visibility="Collapsed">
+                    <!-- Above the list: one row that scrolls sideways. Under the player: rows that wrap to the panel and scroll down. -->
+                    <Grid x:Name="ContinuePanel" Margin="0,0,0,8" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
                         <TextBlock Text="İzlemeye devam et" Style="{StaticResource SectionLabel}" FontSize="13" Margin="2,0,0,8" />
-                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Focusable="False"
-                                      PanningMode="HorizontalOnly" local:DragScroll.IsEnabled="True">
+                        <ScrollViewer x:Name="ContinueScroll" Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                                      Focusable="False" PanningMode="HorizontalOnly" local:DragScroll.IsEnabled="True">
                             <ItemsControl x:Name="ContinueList">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal" />
+                                        <WrapPanel />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Button Click="OnContinueWatching" Margin="0,0,8,3" Cursor="Hand" Width="236" ToolTip="{Binding Tooltip}"
+                                        <Button Click="OnContinueWatching" Margin="0,0,8,8" Cursor="Hand" ToolTip="{Binding Tooltip}"
+                                                Width="{Binding Tag.CardWidth, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                Height="{Binding Tag.CardHeight, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                 AutomationProperties.Name="{Binding Tooltip}">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
@@ -423,23 +399,29 @@
                                             </Button.Template>
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="58" />
+                                                    <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
-                                                <Border Width="48" Height="70" CornerRadius="7" Background="{StaticResource Active}" HorizontalAlignment="Left">
+                                                <Border x:Name="ContinuePoster" CornerRadius="7" Background="{StaticResource Active}" Margin="0,0,10,0"
+                                                        Width="{Binding Tag.PosterWidth, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        Height="{Binding Tag.PosterHeight, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
                                                     <Grid>
                                                         <TextBlock Text="{Binding Tile}" FontFamily="{StaticResource GlyphFont}" Foreground="{StaticResource Accent}"
                                                                    FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                         <Image Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"
-                                                               local:LogoLoader.Url="{Binding Poster}" local:LogoLoader.DecodeWidth="120">
+                                                               local:LogoLoader.Url="{Binding Poster}" local:LogoLoader.DecodeWidth="160">
                                                             <Image.Clip>
-                                                                <RectangleGeometry Rect="0,0,48,70" RadiusX="7" RadiusY="7" />
+                                                                <MultiBinding Converter="{x:Static local:RoundedClipConverter.Instance}" ConverterParameter="7">
+                                                                    <Binding ElementName="ContinuePoster" Path="ActualWidth" />
+                                                                    <Binding ElementName="ContinuePoster" Path="ActualHeight" />
+                                                                </MultiBinding>
                                                             </Image.Clip>
                                                         </Image>
                                                     </Grid>
                                                 </Border>
                                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
+                                                               TextWrapping="Wrap" MaxHeight="40" />
                                                     <TextBlock Text="{Binding Subtitle}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,3,0,0">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock" BasedOn="{StaticResource MutedText}">
@@ -464,7 +446,7 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </ScrollViewer>
-                    </StackPanel>
+                    </Grid>
                     </Border>
                     <ComboBox x:Name="VodCategoryPicker" Grid.Row="3" Margin="0,0,0,10" Width="150" HorizontalAlignment="Left" Height="38"
                               DisplayMemberPath="Label" Style="{StaticResource LibraryPicker}"
@@ -1086,8 +1068,8 @@
                     AutomationProperties.Name="Ayrıntılar">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <ScrollViewer x:Name="VodInfoScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
                         <StackPanel Margin="2,0,6,0">
@@ -1161,7 +1143,7 @@
                             </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
-                    <Border x:Name="ContinueHostInfo" Grid.Row="1" />
+                    <Border x:Name="ContinueHostInfo" Grid.Row="1" SizeChanged="OnContinueHostInfoSizeChanged" />
                 </Grid>
             </Border>
         </Grid>

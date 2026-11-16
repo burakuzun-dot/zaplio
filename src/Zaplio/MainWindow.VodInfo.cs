@@ -27,6 +27,7 @@ public partial class MainWindow
         _activeSourceId is { } source && _vodDetailsCache.TryGetValue((source, _librarySection, item.ProviderId), out var details) ? details : null;
 
     private bool _continueFitsWithDetails;
+    private readonly ContinueShelfLayout _continueShelf = new();
 
     /// <param name="playerHeight">The capped player height, or NaN when the player fills the column.</param>
     private void PlaceVodInfoPanel(double playerHeight, double columnHeight)
@@ -46,10 +47,21 @@ public partial class MainWindow
         // selection when both fit. The list on the left therefore never jumps when a title is selected.
         _continueFitsWithDetails = show && room >= VodInfoWithContinue;
         var host = show ? ContinueHostInfo : ContinueHostList;
+        ContinueList.Tag ??= _continueShelf;
         if (!ReferenceEquals(ContinuePanel.Parent, host))
         {
             if (ContinuePanel.Parent is Border previous) previous.Child = null;
-            if (!show) ContinuePanel.Margin = new Thickness(0, 0, 0, 8);
+            if (!show)
+            {
+                ContinuePanel.Margin = new Thickness(0);
+                _continueShelf.UseDefault();
+            }
+            // Above the list the row scrolls sideways (drag or wheel); under the player the wrapped rows scroll down.
+            ContinueScroll.HorizontalScrollBarVisibility = show ? ScrollBarVisibility.Disabled : ScrollBarVisibility.Auto;
+            ContinueScroll.VerticalScrollBarVisibility = show ? ScrollBarVisibility.Auto : ScrollBarVisibility.Disabled;
+            ContinueScroll.PanningMode = show ? PanningMode.VerticalOnly : PanningMode.HorizontalOnly;
+            DragScroll.SetIsEnabled(ContinueScroll, !show);
+            ContinueScroll.ScrollToHome();
             host.Child = ContinuePanel;
         }
         UpdateVodInfo();
@@ -96,9 +108,14 @@ public partial class MainWindow
         var idle = item is null;
         var continueFirst = idle && ContinuePanel.Visibility == Visibility.Visible;
         VodInfoScroll.Visibility = continueFirst ? Visibility.Collapsed : Visibility.Visible;
-        Grid.SetRow(ContinueHostInfo, continueFirst ? 0 : 1);
-        ContinueHostInfo.Visibility = idle || _continueFitsWithDetails ? Visibility.Visible : Visibility.Collapsed;
+        var continueShown = idle || _continueFitsWithDetails;
+        ContinueHostInfo.Visibility = continueShown ? Visibility.Visible : Visibility.Collapsed;
         ContinuePanel.Margin = continueFirst ? new Thickness(0) : new Thickness(0, 12, 0, 0);
+        // The facts take what they need; the cards below get the rest, but never less than their smallest size.
+        var shelfMinimum = ContinuePanel.Visibility == Visibility.Visible && continueShown ? ContinueShelfLayout.MinimumCardHeight + 50 : 0;
+        VodInfoScroll.MaxHeight = double.IsFinite(VodInfoPanel.Height) ? Math.Max(60, VodInfoPanel.Height - shelfMinimum) : double.PositiveInfinity;
+        // The margin above the cards may have changed without the host resizing; fit again once layout has settled.
+        Dispatcher.BeginInvoke(FitContinueShelf, System.Windows.Threading.DispatcherPriority.Loaded);
 
         // The plot is shown in full here, so the preview card does not repeat it.
         if (plot is not null) VodPreviewSummary.Visibility = Visibility.Collapsed;
@@ -106,6 +123,23 @@ public partial class MainWindow
         var next = NextEpisodes(row);
         VodNextEpisodes.ItemsSource = next;
         VodNextEpisodesPanel.Visibility = next.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void OnContinueHostInfoSizeChanged(object sender, SizeChangedEventArgs e) => FitContinueShelf();
+
+    /// <summary>Fits the cards under the player to the panel's width and to the height left for them.</summary>
+    private void FitContinueShelf()
+    {
+        if (!ReferenceEquals(ContinuePanel.Parent, ContinueHostInfo) || ContinueHostInfo.ActualWidth <= 0) return;
+        var heading = ContinuePanel.Children[0] is FrameworkElement label ? label.ActualHeight + label.Margin.Top + label.Margin.Bottom : 28;
+        var height = ContinueHostInfo.ActualHeight - ContinuePanel.Margin.Top - heading;
+        var count = ContinueList.Items.Count;
+        _continueShelf.Fit(ContinueHostInfo.ActualWidth, height, count);
+        // A scroll bar only when some rows do not fit; otherwise it would narrow the row and push the last card down.
+        var overflow = count > _continueShelf.Columns * _continueShelf.Rows;
+        if (overflow) _continueShelf.Fit(ContinueHostInfo.ActualWidth - SystemParameters.VerticalScrollBarWidth - 1, height, count);
+        var bar = overflow ? ScrollBarVisibility.Auto : ScrollBarVisibility.Disabled;
+        if (ContinueScroll.VerticalScrollBarVisibility != bar) ContinueScroll.VerticalScrollBarVisibility = bar;
     }
 
     /// <summary>Up to three episodes after the selected one, in list order.</summary>

@@ -1,6 +1,4 @@
 using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
 
 namespace Zaplio;
 
@@ -8,34 +6,42 @@ public partial class MainWindow
 {
     private bool _refreshingAccount;
     private readonly HashSet<Guid> _expiryWarned = new();
+    private SourceSettingsHost? _sourceSettings;
 
-    /// <summary>Shows the active Xtream subscription (expiry, connections) under the source name.</summary>
-    private void UpdateAccountCard()
+    /// <summary>The bridge Settings › Kaynaklar uses to pick the active source, refresh it and show its subscription.</summary>
+    private SourceSettingsHost SourceSettings => _sourceSettings ??= new SourceSettingsHost
     {
-        var account = ActiveSource is { Kind: SourceKind.Xtream } source ? _catalog.GetValueOrDefault(source.Id)?.Account : null;
-        AccountCard.Cursor = ActiveSource?.Kind == SourceKind.Xtream ? Cursors.Hand : null;
-        if (account is null)
-        {
-            // Only Xtream sources have a subscription to show; the line doubles as the "tap to check" hint.
-            var xtream = ActiveSource is { Kind: SourceKind.Xtream };
-            AccountCard.Visibility = xtream ? Visibility.Visible : Visibility.Collapsed;
-            AccountText.Text = _refreshingAccount ? "Kontrol ediliyor…" : "Abonelik bilgisi için tıkla";
-            AccountText.Foreground = (Brush)FindResource("Muted");
-            AccountCard.ToolTip = xtream ? $"{ActiveSource!.Name}\nAbonelik bilgisini almak için tıkla" : null;
-            return;
-        }
-        AccountCard.Visibility = Visibility.Visible;
+        ActiveSourceId = () => _activeSourceId,
+        Activate = ActivateSourceAsync,
+        CanRefresh = CanRefreshLists,
+        Refresh = () => LoadActiveSectionAsync(refresh: true),
+        Account = CurrentAccountLine,
+        CheckAccount = CheckAccountAsync
+    };
+
+    /// <summary>The active Xtream subscription (expiry, connections), shown in Settings › Kaynaklar.</summary>
+    private AccountLine? CurrentAccountLine()
+    {
+        if (ActiveSource is not { Kind: SourceKind.Xtream } source) return null;
+        if (_catalog.GetValueOrDefault(source.Id)?.Account is not { } account)
+            return new AccountLine(_refreshingAccount ? "Kontrol ediliyor…" : "Abonelik bilgisi henüz alınmadı.", "Muted", null, !_refreshingAccount);
 
         var now = DateTimeOffset.UtcNow;
-        AccountText.Text = _refreshingAccount ? "Kontrol ediliyor…" : account.CardLine(now);
-        AccountText.Foreground = (Brush)FindResource(account.IsExpired(now) ? "Error" : account.ExpiresSoon(now) ? "Warning" : "Muted");
-        AccountCard.ToolTip = $"{ActiveSource!.Name}\n{account.Details(now)}";
-
-        if (account.Warning(ActiveSource.Name, now) is { } warning && _expiryWarned.Add(ActiveSource.Id))
-            SetFooter(warning, isError: true);
+        return new AccountLine(_refreshingAccount ? "Kontrol ediliyor…" : account.CardLine(now),
+            account.IsExpired(now) ? "Error" : account.ExpiresSoon(now) ? "Warning" : "Muted", account.Details(now), !_refreshingAccount);
     }
 
-    private async void OnAccountCardClick(object sender, MouseButtonEventArgs e)
+    /// <summary>Warns once in the footer when the subscription is about to end, and refreshes an open settings window.</summary>
+    private void UpdateAccountCard()
+    {
+        var now = DateTimeOffset.UtcNow;
+        if (ActiveSource is { Kind: SourceKind.Xtream } source && _catalog.GetValueOrDefault(source.Id)?.Account is { } account &&
+            account.Warning(source.Name, now) is { } warning && _expiryWarned.Add(source.Id))
+            SetFooter(warning, isError: true);
+        _sourceSettings?.NotifyChanged();
+    }
+
+    private async Task CheckAccountAsync()
     {
         if (_refreshingAccount || ActiveSource is not { Kind: SourceKind.Xtream } source) return;
         _refreshingAccount = true;

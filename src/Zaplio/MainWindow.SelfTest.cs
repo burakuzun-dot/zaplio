@@ -112,7 +112,8 @@ public partial class MainWindow
             ChannelSkeleton.Visibility = Visibility.Collapsed;
 
             // ── other windows (shown without blocking, then closed)
-            var settings = new SettingsWindow(_state.Settings, _state.Volume, () => _state.Sources.ToArray(), _ => { }) { Owner = this, ShowActivated = false };
+            var settings = new SettingsWindow(_state.Settings, _state.Volume, () => _state.Sources.ToArray(), _ => { }, host: SourceSettings)
+                { Owner = this, ShowActivated = false };
             settings.Show();
             foreach (var (nav, page, name) in new (RadioButton, FrameworkElement, string)[]
                      {
@@ -127,6 +128,12 @@ public partial class MainWindow
                 SelfTest.Snapshot(settings, $"ayarlar {name}");
             }
             Check(settings.SourceList.Items.Count == 1, "Ayarlar › Kaynaklar demo kaynağı listeler");
+            settings.SourcesNav.IsChecked = true;
+            await SettleAsync(200);
+            SelfTest.Snapshot(settings, "ayarlar Kaynaklar aktif");
+            Check(settings.SourceList.SelectedItem is not null, "Ayarlar › Kaynaklar aktif kaynağı seçili gösterir");
+            Check(settings.RefreshListsButton.IsVisible && settings.RefreshListsButton.IsEnabled, "Ayarlar › Kaynaklar'da 'Listeleri yenile' kullanılabilir");
+            Check(!settings.AccountPanel.IsVisible, "M3U kaynağında abonelik satırı gösterilmez");
             settings.Close();
 
             var history = new WatchHistoryWindow("Demo", [], new Dictionary<string, long>(), resumeEnabled: true)
@@ -182,10 +189,12 @@ public partial class MainWindow
             Facts = new VodFacts("Komedi, Dram", "1 sa 52 dk", "★ 7,4", "Yönetmen A", "Oyuncu A, Oyuncu B, Oyuncu C")
         };
         _vodItems = demo;
-        var partialMovie = _vodItems[0].Playable!;
-        var watch = new WatchEntry(partialMovie, DateTimeOffset.Now);
-        _state.WatchHistory.Insert(0, watch);
-        _state.WatchPositions[partialMovie.Id] = 43_000;
+        var partial = _vodItems.Take(4).Select((item, index) => (Entry: new WatchEntry(item.Playable!, DateTimeOffset.Now.AddMinutes(-index)), Seconds: 43 + index * 60)).ToList();
+        foreach (var (entry, seconds) in Enumerable.Reverse(partial))
+        {
+            _state.WatchHistory.Insert(0, entry);
+            _state.WatchPositions[entry.Channel.Id] = seconds * 1000L;
+        }
         ResetVodCategories();
         UpdateVodRows();
         await SettleAsync();
@@ -200,9 +209,7 @@ public partial class MainWindow
             "seçim yokken oynatıcının altında 'izlemeye devam et' kartları görünür");
         var continueHost = ContinuePanel.Parent;
         SelfTest.Snapshot(this, "film ızgarası");
-        var continueCard = ContinueList.ItemContainerGenerator.ContainerFromIndex(0) as FrameworkElement;
-        Check(ContinuePanel.IsVisible && continueCard is { ActualWidth: >= 230 and <= 248, ActualHeight: >= 80 and <= 96 },
-            $"izlemeye devam et kartı okunur boyutta ({continueCard?.ActualWidth:0}×{continueCard?.ActualHeight:0})");
+        CheckContinueShelf("film kütüphanesi");
         if (VodList.ItemContainerGenerator.ContainerFromIndex(0) is ListBoxItem firstTile)
         {
             var columns = (int)Math.Round(VodList.ActualWidth / Math.Max(1, firstTile.ActualWidth));
@@ -225,8 +232,11 @@ public partial class MainWindow
         SelfTest.Snapshot(this, "film ızgarası geniş");
         Width = originalWidth;
         Height = originalHeight;
-        _state.WatchHistory.Remove(watch);
-        _state.WatchPositions.Remove(partialMovie.Id);
+        foreach (var (entry, _) in partial)
+        {
+            _state.WatchHistory.Remove(entry);
+            _state.WatchPositions.Remove(entry.Channel.Id);
+        }
 
         VodList.SelectedIndex = 0;
         await SettleAsync();
@@ -236,6 +246,7 @@ public partial class MainWindow
             $"oynatıcının altında tür, süre, puan, konu ve oyuncular görünür ({VodInfoChips.Items.Count} etiket)");
         Check(!VodPreviewSummary.IsVisible, "konu önizleme kartında tekrarlanmaz");
         Check(ReferenceEquals(ContinuePanel.Parent, continueHost), "film seçince 'izlemeye devam et' yer değiştirmez");
+        if (ContinueHostInfo.IsVisible) CheckContinueShelf("film seçiliyken");
         SelfTest.Snapshot(this, "film önizleme");
         Check(!PlayerControls.IsVisible, "önizlemede oynatma kumandaları içeriğin düğmelerini tekrarlamaz");
         Check(VodFavoriteToggle.IsVisible && VodWatchlistButton.IsVisible, "ayrıntı panelinde şimşek ve 'Sonra izle' görünür");
@@ -324,6 +335,36 @@ public partial class MainWindow
             _vodCatalogs.Remove((original.Id, LibrarySection.Movies));
             _vodCatalogs.Remove((original.Id, LibrarySection.Series));
         }
+    }
+
+    /// <summary>Cards under the player fill the panel's width in equal columns, none cut off; above the list they keep their size.</summary>
+    private void CheckContinueShelf(string when)
+    {
+        var cards = Enumerable.Range(0, ContinueList.Items.Count).Select(index => ContinueList.ItemContainerGenerator.ContainerFromIndex(index))
+            .OfType<FrameworkElement>().ToList();
+        if (!ContinuePanel.IsVisible || cards.Count == 0)
+        {
+            SelfTest.Check(false, $"{when}: izlemeye devam et kartları görünür");
+            return;
+        }
+        var first = cards[0];
+        if (ReferenceEquals(ContinuePanel.Parent, ContinueHostInfo))
+        {
+            var width = ContinueHostInfo.ActualWidth;
+            var shown = Math.Min(cards.Count, _continueShelf.Columns);
+            var lastVisible = cards[Math.Min(cards.Count, _continueShelf.Columns * _continueShelf.Rows) - 1];
+            SelfTest.Check(lastVisible.TranslatePoint(new Point(0, lastVisible.ActualHeight - ContinueShelfLayout.Gap), ContinueHostInfo).Y <= ContinueHostInfo.ActualHeight + 1,
+                $"{when}: devam kartları satırlara dizilir, sığan satırlar tam görünür ({_continueShelf.Columns}×{_continueShelf.Rows})");
+            var used = shown * first.ActualWidth; // each container includes the card's right margin
+            var left = first.TranslatePoint(new Point(), ContinueHostInfo).X;
+            SelfTest.Check(Math.Abs(left) <= 1 && used <= width + 1 && (_continueShelf.CardWidth >= ContinueShelfLayout.MaximumCardWidth || width - used <= ContinueShelfLayout.Gap + 15),
+                $"{when}: devam kartları panelin genişliğini eşit sütunlarla doldurur ({shown} sütun, {first.ActualWidth:0} px, {used:0}/{width:0} px)");
+            SelfTest.Check(first.ActualHeight >= ContinueShelfLayout.MinimumCardHeight - 1 &&
+                first.TranslatePoint(new Point(0, first.ActualHeight), VodInfoPanel).Y <= VodInfoPanel.ActualHeight + 1,
+                $"{when}: devam kartları panele sığar ({first.ActualWidth:0}×{first.ActualHeight:0})");
+        }
+        else SelfTest.Check(first is { ActualWidth: >= 230 and <= 248, ActualHeight: >= 80 and <= 96 },
+            $"{when}: listenin üstündeki devam kartı okunur boyutta ({first.ActualWidth:0}×{first.ActualHeight:0})");
     }
 
     private void CheckVodInfoPanel(string when)
@@ -418,8 +459,9 @@ public partial class MainWindow
     {
         SelfTest.Check(ChannelList.ActualHeight > 150, $"{when}: kanal listesine yer kalır ({ChannelList.ActualHeight:0} px)");
         SelfTest.Check(!VodInfoPanel.IsVisible, $"{when}: film ayrıntı paneli canlı yayında görünmez");
-        SelfTest.Check(ReferenceEquals(SourceCard.Parent, SourceCardHostLive) && SourceCard.IsVisible, $"{when}: kaynak kartı sol altta");
-        SelfTest.Check(SourceCard.ActualHeight is > 30 and < 120, $"{when}: kaynak kartı normal boyda ({SourceCard.ActualHeight:0} px)");
+        var groupsBottom = GroupList.TranslatePoint(new Point(0, GroupList.ActualHeight), NavigationPane).Y;
+        SelfTest.Check(NavigationPane.ActualHeight - groupsBottom < 30,
+            $"{when}: grup listesi panelin altına kadar uzanır, kaynak kartı yok ({NavigationPane.ActualHeight - groupsBottom:0} px boşluk)");
         CheckLibraryIndicator(when);
     }
 
@@ -429,7 +471,9 @@ public partial class MainWindow
         SelfTest.Check(VodList.ActualHeight > 150, $"{when}: listeye yer kalır ({VodList.ActualHeight:0} px)");
         SelfTest.Check(VodCategoryPicker.IsVisible && VodSearchBox.IsVisible && VodSearchBox.ActualWidth > 120,
             $"{when}: kategori ve arama görünür (arama {VodSearchBox.ActualWidth:0} px)");
-        SelfTest.Check(ReferenceEquals(SourceCard.Parent, SourceCardHostVod) && SourceCard.IsVisible, $"{when}: kaynak kartı listenin altında");
+        var listBottom = VodList.TranslatePoint(new Point(0, VodList.ActualHeight), VodPane).Y;
+        SelfTest.Check(VodPane.ActualHeight - listBottom < 30,
+            $"{when}: liste panelin altına kadar uzanır, kaynak kartı yok ({VodPane.ActualHeight - listBottom:0} px boşluk)");
         CheckIndicator(VodListIndicator, when + ": liste sekme göstergesi");
         CheckLibraryIndicator(when);
     }

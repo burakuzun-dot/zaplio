@@ -18,8 +18,9 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 - **Ayrıntı paneli:** Filmler ve Diziler'de oynatıcının altındaki boş alanda seçtiğin içeriğin yılı, türü, süresi, puanı, konusu,
   yönetmeni ve oyuncuları görünür. Dizide bir bölüm seçiliyken sıradaki üç bölüm de listelenir, tıklayınca seçilir. Bilgiler
   sağlayıcının zaten gönderdiği ayrıntı yanıtından okunur; aynı içeriği yeniden seçince sağlayıcıya tekrar sorulmaz. Hiçbir şey
-  seçili değilken panelde *İzlemeye devam et* kartları durur; bir içerik seçince yer varsa ayrıntıların altında kalır. Oynatma
-  başlayınca panel çekilir, video sütunu doldurur.
+  seçili değilken panelde *İzlemeye devam et* kartları durur; bir içerik seçince yer varsa ayrıntıların altında kalır. Kartlar
+  panelin genişliğini eşit sütunlarla doldurur, sığmayanlar alt satıra geçer ve yükseklik yetiyorsa kartlar büyür; sığmayan
+  satırlar aşağı kaydırılır. Oynatma başlayınca panel çekilir, video sütunu doldurur.
 - Film ya da bölüm oynarken başlıkta da şimşek (favori) ve *Sonra izle* düğmeleri.
 - Film, dizi ve bölümleri seçince afişi ve mevcut detayları oynatma alanında görünür. Oynatmayı karttaki düğmeyle başlatabilirsin.
 - Canlı kanal geçişlerine kısa karıncalanma, pencere kapanışına eski televizyonlardaki gibi sönme efekti eklendi.
@@ -39,11 +40,13 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 
 ### Değişenler
 - İzleme geçmişi koyu başlık çubuğuyla açılır. Yarım kalanları ayrı sekmede bulabilir, seçtiğin içeriğe *Devam et* ile dönebilirsin.
-- Ayarlar › Kaynaklar’da kayıtlı kaynakların varsa tek bir *Kaynakları yönet* düğmesi görünür.
+- **Kaynak seçimi Ayarlar'a taşındı:** sayfaların altındaki kaynak kartı kaldırıldı; listeler ve gruplar artık pencerenin altına
+  kadar uzanıyor. Aktif kaynağı Ayarlar › Kaynaklar'da listeden tıklayarak seçersin (kullanılan kaynakta *Kullanılıyor* yazar).
+  *Listeleri yenile* ve Xtream abonelik bilgisi (*Aboneliği kontrol et*) de orada. Yenilemek için **F5**, ayarları açmak için
+  **Ctrl + ,** kısayolları eklendi. Kayıtlı kaynakların varsa tek bir *Kaynakları yönet* düğmesi görünür.
 - Film ve dizi kütüphanesi oynatıcıyla alanı dengeli paylaşır. Gezinirken önizleme 16:9 oranına göre boyutlanır.
 - *İzlemeye devam et* kartları büyüdü: afiş daha büyük, başlık okunur boyutta. Dizilerde dizinin adının altında bölüm adı da yazar.
-- **Düzen temizliği:** kaynak seçimi ve *Listeleri yenile* üst çubuktan sol alttaki tek bir *Kaynak* kartına taşındı (Filmler ve Diziler'de
-  liste panelinin altında); abonelik bilgisi aynı kartta. Üst çubuk inceldi, yalnızca izleme geçmişi ve ayarlar kaldı. Panel boşlukları,
+- **Düzen temizliği:** kaynak seçimi ve *Listeleri yenile* üst çubuktan kaldırıldı (şimdi Ayarlar › Kaynaklar'da). Üst çubuk inceldi, yalnızca izleme geçmişi ve ayarlar kaldı. Panel boşlukları,
   başlık boyutları ve köşe yuvarlaklıkları tek ölçeğe bağlandı. *Lisanslar* alt çubuktan Ayarlar › Hakkında'ya taşındı.
 - Canlı TV başlığındaki favori yıldızı, kıvılcım animasyonlu şimşeğe dönüştü.
 - Sonuna kadar izlenen film izleme listesinden kendiliğinden çıkar.
