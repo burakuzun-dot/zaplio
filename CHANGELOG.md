@@ -5,6 +5,8 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 
 ## Yayınlanmamış
 
+- İndirme ve derleme belgeleri güncellendi.
+
 ## 0.11.0 — 2026-11-16
 
 ### Eklenenler
