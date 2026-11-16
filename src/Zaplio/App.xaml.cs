@@ -7,6 +7,8 @@ public partial class App : Application
 {
     private bool _reportedCrash;
 
+    private string[] _startupFiles = [];
+
     protected override void OnStartup(StartupEventArgs e)
     {
         DispatcherUnhandledException += OnDispatcherUnhandledException;
@@ -26,6 +28,8 @@ public partial class App : Application
         AppLog.Info($"Zaplio {UpdateChecker.CurrentVersion} başlatıldı · {Environment.OSVersion}");
         Motion.InstallPressFeedback();
         base.OnStartup(e);
+        _startupFiles = e.Args.Where(arg => !arg.StartsWith("--", StringComparison.Ordinal) &&
+            (System.IO.File.Exists(arg) || System.IO.Directory.Exists(arg))).ToArray();
         if (SelfTest.Active) RunSelfTest();
         else ShowMainWindow();
     }
@@ -59,6 +63,8 @@ public partial class App : Application
         var main = new MainWindow();
         MainWindow = main;
         main.WarmUp();
+        // "Birlikte aç" / a file given on the command line opens once the window is up.
+        main.OpenWhenShown(_startupFiles);
         if (!IntroEnabled())
         {
             main.Show();

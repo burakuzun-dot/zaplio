@@ -46,6 +46,8 @@ internal sealed record PlaybackSettings
     public bool LegalNoticeAccepted { get; init; }
     public bool MergeQualities { get; init; } = true;
     public QualityMode QualityMode { get; init; } = QualityMode.Auto;
+    /// <summary>Provider streams carry a local copy so recording starts and stops without restarting them.</summary>
+    public bool RecordReady { get; init; } = true;
 }
 
 internal sealed class LocalStateStore

@@ -7,7 +7,8 @@ namespace Zaplio;
 
 public partial class MainWindow
 {
-    private readonly DispatcherTimer _vodClock = new() { Interval = TimeSpan.FromMilliseconds(400) };
+    // Ten times a second, so the thumb and the elapsed time glide (see SmoothPlaybackClock).
+    private readonly DispatcherTimer _vodClock = new() { Interval = TimeSpan.FromMilliseconds(100) };
     private bool _vodStarted;
     private bool _seekingVod;
     private bool _updatingVodSeek;
@@ -22,6 +23,8 @@ public partial class MainWindow
         _pendingVodPosition = _forcedResume > 0 && channel.IsOnDemand ? _forcedResume
             : channel.IsOnDemand && _state.Settings.ResumeOnDemand ? _state.WatchPositions.GetValueOrDefault(channel.Id) : 0;
         _forcedResume = 0;
+        if (_restartAtMs > 0) _pendingVodPosition = 0; // a restart for recording begins at the right place by itself
+        _smoothClock.Reset();
         _lastVodSave = Environment.TickCount64;
         _seekingVod = false;
         _updatingVodSeek = true;
@@ -42,9 +45,23 @@ public partial class MainWindow
     private void OnVodPaused(MediaPlayer player, int revision)
     {
         if (player != _player || revision != _playbackRevision || _closing) return;
-        SaveVodPosition(player);
-        UpdateSelection();
+        if (_seekingVod) return; // the timeline pauses the picture while you drag; that is not a pause to report
+        UpdatePlayState(); // only the button: rebuilding the whole player area here made pausing feel slow
         SetPlaybackStatus("Duraklatıldı");
+        // The position is written to disk once the pause has lasted a moment, not on every quick pause and resume.
+        _pauseSave ??= new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+        _pauseSave.Stop();
+        _pauseSave.Tick -= OnPauseSave;
+        _pauseSave.Tick += OnPauseSave;
+        _pauseSave.Start();
+    }
+
+    private System.Windows.Threading.DispatcherTimer? _pauseSave;
+
+    private void OnPauseSave(object? sender, EventArgs e)
+    {
+        _pauseSave?.Stop();
+        if (_player is { State: VLCState.Paused } player && !_closing) SaveVodPosition(player);
     }
 
     private void TickVodPlayback()
@@ -65,7 +82,8 @@ public partial class MainWindow
             }
         }
 
-        var time = Math.Max(0, player.Time);
+        var time = Math.Min(_smoothClock.Time(player.Time, player.IsPlaying, player.Rate, Environment.TickCount64), Math.Max(0, length));
+        TrackClip(player);
         _updatingVodSeek = true;
         if (!_seekingVod)
         {
@@ -81,7 +99,7 @@ public partial class MainWindow
     private void SaveVodPosition(MediaPlayer player, bool completed = false)
     {
         if (_playingChannel is not { IsOnDemand: true } channel ||
-            !_state.Sources.Any(source => source.Id == channel.SourceId)) return;
+            !(LocalMedia.IsLocal(channel) || _state.Sources.Any(source => source.Id == channel.SourceId))) return;
         if (!_state.Settings.ResumeOnDemand && !completed) return;
         if (!completed && (!_vodStarted || _pendingVodPosition > 0 || !player.IsSeekable)) return;
         _lastVodSave = Environment.TickCount64;
@@ -113,28 +131,5 @@ public partial class MainWindow
 
     private async void OnVodStop(object sender, RoutedEventArgs e) => await StopPlaybackAsync("Durduruldu");
 
-    private void OnVodSeekStart(object sender, MouseButtonEventArgs e) => _seekingVod = VodSeek.IsEnabled;
-
-    private void OnVodSeekEnd(object sender, MouseEventArgs e)
-    {
-        if (!_seekingVod) return;
-        _seekingVod = false;
-        SeekVod();
-    }
-
-    private void OnVodSeekChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (_updatingVodSeek || !_isReady || !VodSeek.IsEnabled) return;
-        VodElapsed.Text = PlaybackTime.Format((long)e.NewValue);
-        if (!_seekingVod) SeekVod();
-    }
-
-    private void SeekVod()
-    {
-        if (_player is not { IsSeekable: true } player || _playingChannel?.IsOnDemand != true) return;
-        _pendingVodPosition = 0;
-        MarkSeek();
-        player.Time = (long)VodSeek.Value;
-    }
 
 }

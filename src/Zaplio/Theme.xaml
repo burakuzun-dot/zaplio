@@ -410,8 +410,61 @@
     <ControlTemplate x:Key="VolumeBar" TargetType="RepeatButton">
         <Border Background="{TemplateBinding Background}" Height="4" CornerRadius="2" VerticalAlignment="Center" />
     </ControlTemplate>
+    <!-- The video timeline: the whole height takes clicks, the bar thickens and the thumb appears under the mouse. -->
+    <ControlTemplate x:Key="SeekBar" TargetType="RepeatButton">
+        <Border Background="{TemplateBinding Background}" Height="{TemplateBinding Height}" CornerRadius="3" VerticalAlignment="Center" />
+    </ControlTemplate>
+    <Style x:Key="SeekSlider" TargetType="Slider">
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid Background="Transparent">
+                        <Track x:Name="PART_Track">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton x:Name="Played" Command="Slider.DecreaseLarge" Background="{StaticResource Accent}" Focusable="False"
+                                              Height="4" Template="{StaticResource SeekBar}" />
+                            </Track.DecreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb x:Name="SeekThumb" Width="14" Height="14" Opacity="0">
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Ellipse Fill="{StaticResource Accent}" Stroke="{StaticResource Panel}" StrokeThickness="2" />
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton x:Name="Remaining" Command="Slider.IncreaseLarge" Background="{StaticResource Line}" Focusable="False"
+                                              Height="4" Template="{StaticResource SeekBar}" />
+                            </Track.IncreaseRepeatButton>
+                        </Track>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Played" Property="Height" Value="6" />
+                            <Setter TargetName="Remaining" Property="Height" Value="6" />
+                            <Setter TargetName="SeekThumb" Property="Opacity" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsMouseCaptured" Value="True"> <!-- dragging: stays thick even when the pointer leaves the bar -->
+                            <Setter TargetName="Played" Property="Height" Value="6" />
+                            <Setter TargetName="Remaining" Property="Height" Value="6" />
+                            <Setter TargetName="SeekThumb" Property="Opacity" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Played" Property="Opacity" Value="0.4" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <Style x:Key="VolumeSlider" TargetType="Slider">
         <Setter Property="Height" Value="27" />
+        <Setter Property="Focusable" Value="False" /> <!-- keys stay with the player: Space, arrows -->
+        <Setter Property="local:SliderDrag.IsEnabled" Value="True" /> <!-- one press drags, no second grab of the thumb -->
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Slider">

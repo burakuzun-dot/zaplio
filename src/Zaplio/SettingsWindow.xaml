@@ -251,6 +251,13 @@
                             </Grid>
                             <Grid Style="{StaticResource SettingRow}">
                                 <StackPanel Margin="0,0,60,0">
+                                    <TextBlock Text="Kayda hazır tut" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Kayıt tuşuna basınca ya da kaydı bitirince yayın durmaz, yeniden yüklenmez. Yayının bir kopyası yalnızca bu bilgisayarda Zaplio'ya akar; kayıt yokken diske bir şey yazılmaz. Bir sonraki yayından itibaren geçerli." Style="{StaticResource SettingHint}" />
+                                </StackPanel>
+                                <CheckBox x:Name="RecordReady" Style="{StaticResource SettingsSwitch}" AutomationProperties.Name="Kayda hazır tut" />
+                            </Grid>
+                            <Grid Style="{StaticResource SettingRow}">
+                                <StackPanel Margin="0,0,60,0">
                                     <TextBlock Text="Kaldığım yeri hatırla" Style="{StaticResource SettingTitle}" />
                                     <TextBlock Text="Film ve dizilerde yarıda bıraktığın yerden devam eder." Style="{StaticResource SettingHint}" />
                                 </StackPanel>
@@ -282,8 +289,8 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="Ses düzeyi" Style="{StaticResource SettingTitle}" VerticalAlignment="Center" />
-                                <Slider x:Name="SoundSlider" Grid.Column="1" Width="150" Style="{StaticResource VolumeSlider}" Minimum="0"
-                                        Maximum="100" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center" IsMoveToPointEnabled="True"
+                                <Slider x:Name="SoundSlider" Grid.Column="1" Width="150" Style="{StaticResource VolumeSlider}" Focusable="True" Minimum="0"
+                                        Maximum="100" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"
                                         AutomationProperties.Name="Ses düzeyi" />
                                 <TextBlock Grid.Column="2" MinWidth="44" Text="{Binding Value, ElementName=SoundSlider, StringFormat={}{0:0}%}"
                                            Style="{StaticResource MutedText}" VerticalAlignment="Center" TextAlignment="Right" />

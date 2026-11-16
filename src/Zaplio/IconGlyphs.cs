@@ -30,5 +30,7 @@ public static class IconGlyphs
     public const string Pause = "\uF5A2";
     public const string History = "\uF47F";
     public const string Movie = "\uEEFC";
+    public const string Lightbulb = "\uF4D7";
+    public const string LightbulbOn = "\uF4DB";
     public const string Series = "\uF55A";
 }

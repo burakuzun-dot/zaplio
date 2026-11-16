@@ -7,7 +7,8 @@ Bu belge bilgilendirme amaçlıdır, hukuki danışmanlık değildir.
   ve önermez. Varsayılan bir kaynakla gelmez; her kaynağı kullanıcı kendisi ekler.
 - Zaplio bir yayın sağlayıcısı değildir; hiçbir sağlayıcı, yayın kuruluşu ya da markayla bağlantısı, ortaklığı ya da onayı yoktur.
 - Yayınlar doğrudan kullanıcının eklediği kaynakla kullanıcının bilgisayarı arasında akar. Zaplio yayın içeriğini kendiliğinden
-  kaydetmez, dağıtmaz ya da başkalarına iletmez.
+  kaydetmez, dağıtmaz ya da başkalarına iletmez. Kayıt yalnızca kullanıcı başlatınca, yalnızca kullanıcının bilgisayarına yapılır;
+  kaydedilen içeriği yalnızca hakkın olduğu ölçüde (ör. kişisel kullanım, hak sahibinin izni) kullanmaktan kullanıcı sorumludur.
 
 ## Kullanıcının sorumluluğu
 - Yalnızca erişim hakkına sahip olduğun kaynakları ekle: kendi aboneliğin, kendi dosyaların, serbest lisanslı ya da herkese açık yayınlar.

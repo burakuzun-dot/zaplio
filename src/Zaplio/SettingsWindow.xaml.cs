@@ -44,6 +44,7 @@ public partial class SettingsWindow : Window
         AutoPlayChannel.IsChecked = settings.AutoPlayChannel;
         ResumeOnDemand.IsChecked = settings.ResumeOnDemand;
         AutoReconnect.IsChecked = settings.AutoReconnect;
+        RecordReady.IsChecked = settings.RecordReady;
         CheckForUpdates.IsChecked = settings.CheckForUpdates;
         ShowLogos.IsChecked = settings.ShowLogos;
         ShowIntro.IsChecked = settings.ShowIntro;
@@ -74,6 +75,7 @@ public partial class SettingsWindow : Window
         AutoPlayChannel = AutoPlayChannel.IsChecked == true,
         ResumeOnDemand = ResumeOnDemand.IsChecked == true,
         AutoReconnect = AutoReconnect.IsChecked == true,
+        RecordReady = RecordReady.IsChecked == true,
         CheckForUpdates = CheckForUpdates.IsChecked == true,
         ShowLogos = ShowLogos.IsChecked == true,
         ShowIntro = ShowIntro.IsChecked == true,

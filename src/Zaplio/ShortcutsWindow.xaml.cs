@@ -28,11 +28,16 @@ internal static class Shortcuts
             new("Shift + F11", "İkinci ekranda oynat / geri al"),
             new("Esc", "Tam ekrandan veya mini pencereden çık"),
             new("P", "Mini pencere"),
+            new("C", "Sinema modu: çevreyi karart / ışıkları aç"),
             new("A", "Görüntü oranını değiştir"),
             new("M", "Sesi kapat / aç"),
             new("S", "Ekran görüntüsü al"),
-            new("Boşluk", "Duraklat / devam et (canlı yayın dahil)"),
+            new("R", "Kaydı başlat / durdur (kalite korunur, .mkv, Videolar\\Zaplio)"),
+            new(", / .", "Yavaşlat / hızlandır (film, dizi, dosya)"),
+            new("E", "Kare kare ilerle"),
+            new("Boşluk", "Duraklat / devam et; her zaman önce gelir (yazı yazarken hariç). Durmuşsa son izleneni yeniden açar"),
             new("← / →", "10 saniye geri / ileri (film, dizi, arşiv)"),
+            new("Shift + ← / →", "1 saniye geri / ileri; zaman çubuğunda tekerlek 5 sn"),
             new("← (canlı)", "30 saniye geri sar (arşivi olan kanallar)"),
             new("→ (canlı)", "Canlı yayına dön")
         ]),
@@ -47,6 +52,7 @@ internal static class Shortcuts
         [
             new("F1", "Bu pencere"),
             new("F5", "Listeleri yenile"),
+            new("Ctrl + O", "Bilgisayardan video aç (sürükle-bırak da olur)"),
             new("Ctrl + ,", "Ayarlar (aktif kaynak, abonelik)")
         ])
     ];

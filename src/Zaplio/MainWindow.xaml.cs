@@ -67,7 +67,13 @@ public partial class MainWindow : Window
         };
     }
 
-    private Channel? DisplayedChannel => (_playingChannel?.SourceId == _activeSourceId ? _playingChannel : null) ?? (_librarySection switch
+    /// <summary>A channel of the active source, or a video from this computer (which belongs to no source).</summary>
+    private bool PlayableHere(Channel channel) => LocalMedia.IsLocal(channel) || channel.SourceId == _activeSourceId;
+
+    /// <summary>What a log line may name: never a local path (it carries the user's folder names).</summary>
+    private static string LogTarget(Channel? channel) => channel is null ? "" : LocalMedia.IsLocal(channel) ? "yerel dosya" : channel.Stream.ToString();
+
+    private Channel? DisplayedChannel => (_playingChannel is { } playing && PlayableHere(playing) ? _playingChannel : null) ?? (_librarySection switch
     {
         LibrarySection.Live => ChannelList.SelectedItem as Channel ?? (_lastChannel is { IsOnDemand: false } ? _lastChannel : null),
         LibrarySection.Movies => SelectedVod ?? (_lastChannel is { IsOnDemand: true, SeriesId: 0 } movie &&
@@ -111,6 +117,7 @@ public partial class MainWindow : Window
         InitializeTaskbar();
         LogoLoader.PruneDiskCache();
         Motion.TrackSelection(LibraryTabsPanel, LibraryIndicator);
+        HookTimeline();
         Motion.TrackSelection(VodListTabsPanel, VodListIndicator);
         UpdateMuteIcon();
         UpdateSourcePicker();
@@ -458,6 +465,17 @@ public partial class MainWindow : Window
         GuideToggle.Visibility = _librarySection == LibrarySection.Live ? Visibility.Visible : Visibility.Collapsed;
         GuideGridButton.IsEnabled = ActiveSource is not null;
         UpdateHeaderLists(channel);
+        UpdatePlayState();
+        UpdateGuide();
+        UpdateVodPlaybackVisibility();
+        UpdateExtraControls();
+        UpdatePlaceholder();
+        UpdateVodPreview();
+    }
+
+    /// <summary>The play / pause button and the taskbar buttons; cheap, so pausing and resuming feel instant.</summary>
+    private void UpdatePlayState()
+    {
         var paused = CanPausePlayback && _player?.State == VLCState.Paused;
         PlayIcon.Text = _playingChannel is null || paused ? IconGlyphs.Play : CanPausePlayback ? IconGlyphs.Pause : IconGlyphs.Stop;
         var playLabel = _playingChannel is null ? "Oynat" : paused ? "Devam et" : CanPausePlayback ? "Duraklat" : "Durdur";
@@ -465,11 +483,6 @@ public partial class MainWindow : Window
         PlayButton.ToolTip = playLabel;
         UpdateTaskbarButtons(playLabel, _playingChannel is null || paused);
         System.Windows.Automation.AutomationProperties.SetName(PlayButton, playLabel);
-        UpdateGuide();
-        UpdateVodPlaybackVisibility();
-        UpdateExtraControls();
-        UpdatePlaceholder();
-        UpdateVodPreview();
     }
 
     private void UpdatePlaceholder()
@@ -561,7 +574,10 @@ public partial class MainWindow : Window
 
     private async Task PlayChannelAsync(Channel channel, bool reconnect = false)
     {
-        if (_closing || channel.SourceId != _activeSourceId || (!reconnect && _playingChannel?.Id == channel.Id)) return;
+        if (_closing || !PlayableHere(channel) || (!reconnect && _playingChannel?.Id == channel.Id)) return;
+        if (!LocalMedia.IsLocal(channel)) _localQueue.Clear();
+        if (_recordChannelId is not null && _recordChannelId != channel.Id) RecordingInterrupted();
+        if (!reconnect) _playbackRate = 1f;
         if (_sleepingChannel is { } sleeping && sleeping.Id != channel.Id) HideSleeping();
         var showStatic = TelevisionEffect.IsChannelChange(_playingChannel, channel, reconnect);
         _vodPreviewError = null;
@@ -589,7 +605,7 @@ public partial class MainWindow : Window
             }
             var lockWait = _playClock.ElapsedMilliseconds;
             await ReleasePlayerAsync();
-            if (revision != _playbackRevision || channel.SourceId != _activeSourceId) return;
+            if (revision != _playbackRevision || !PlayableHere(channel)) return;
 
             SetPlaybackStatus("Oynatıcı hazırlanıyor…");
             _engine ??= await EnsureEngineAsync();
@@ -607,6 +623,8 @@ public partial class MainWindow : Window
             _finishedEpisode = null;
             _lastChannel = _playingChannel = channel;
             PrepareVodPlayback(channel);
+            var (recordOption, startAt) = TakeStartOptions(channel);
+            var (tapOption, tapAddress) = recordOption is null ? PrepareTap(channel) : (null, null);
             player.Playing += (_, _) => Dispatcher.BeginInvoke(() => PlaybackStarted(player, revision));
             player.EndReached += (_, _) => Dispatcher.BeginInvoke(() => PlaybackEnded(player, revision, false));
             player.EncounteredError += (_, _) => Dispatcher.BeginInvoke(() => PlaybackEnded(player, revision, true));
@@ -638,16 +656,20 @@ public partial class MainWindow : Window
             var started = await Task.Run(() =>
             {
                 using var media = new Media(engine, channel.Stream);
+                if (recordOption is not null) media.AddOption(recordOption); // copy into the recording, untouched
+                else if (tapOption is not null) media.AddOption(tapOption); // "Kayda hazır": an untouched copy for instant recording
+                if (startAt > 0) media.AddOption(RecordingPlan.StartTime(startAt));
                 if (!string.IsNullOrEmpty(channel.UserAgent)) media.AddOption($":http-user-agent={channel.UserAgent}");
                 if (!string.IsNullOrEmpty(channel.Referrer)) media.AddOption($":http-referrer={channel.Referrer}");
                 return player.Play(media);
             });
             if (!started) throw new InvalidOperationException("LibVLC Play() returned false.");
+            if (tapAddress is not null) StartTapReader(tapAddress);
             AppLog.Info($"Oynatma istendi: {channel.Name} · kilit {lockWait} ms · motor {engineReady} ms · Play() {_playClock.ElapsedMilliseconds} ms");
         }
         catch (Exception exception)
         {
-            AppLog.Error($"Oynatma başlatılamadı: {channel.Name} ({channel.Stream})", exception);
+            AppLog.Error($"Oynatma başlatılamadı: {channel.Name} ({LogTarget(channel)})", exception);
             await ReleasePlayerAsync();
             if (revision == _playbackRevision) ShowPlaybackStopped("Yayın açılamadı", isError: true);
         }
@@ -657,17 +679,33 @@ public partial class MainWindow : Window
         }
     }
 
+    private VlcPlayer? _startedPlayer;
+
+    /// <summary>
+    /// VLC reports Playing when a stream first starts and again after every pause or buffering stall. Only the first time sets
+    /// the player up (volume, picture options, history, the whole screen); a resume just flips the play button, because
+    /// re-applying the picture options made VLC rebuild its video output and resuming felt slow, especially in 4K.
+    /// </summary>
     private void PlaybackStarted(VlcPlayer player, int revision)
     {
         if (player != _player || revision != _playbackRevision || _closing) return;
         _playbackTimeout.Stop();
+        _pauseSave?.Stop();
+        if (ReferenceEquals(_startedPlayer, player))
+        {
+            Resumed();
+            return;
+        }
+        _startedPlayer = player;
         HideSleeping();
         _playStartedAt = Environment.TickCount64;
         _streamWasPlaying = true;
         AppLog.Info($"Yayın başladı: {_playingChannel?.Name} · {_playClock?.ElapsedMilliseconds} ms");
         ApplyVolume();
         ApplyVideoOptions(player);
-        if (_playingChannel is { } channel) RecordWatch(channel);
+        ApplyPendingSubtitle(player);
+        ReleaseFreezeFrame(); // a stream restarted for recording is back: the held frame fades away
+        if (_playingChannel is { } channel && !LocalMedia.IsLocal(channel)) RecordWatch(channel);
         if (_playingChannel?.IsOnDemand == true)
         {
             _vodStarted = true;
@@ -685,6 +723,24 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>A resume (or the end of a stall): only what changes between paused and playing.</summary>
+    private void Resumed()
+    {
+        if (_playingChannel?.IsOnDemand == true)
+        {
+            _vodClock.Start();
+            TickVodPlayback();
+            SetPlaybackStatus("Oynatılıyor", live: true);
+        }
+        else
+        {
+            OnLiveResumed();
+            if (IsLiveDelayed) UpdateLiveStatus();
+            else SetPlaybackStatus("Canlı", live: true);
+        }
+        UpdatePlayState();
+    }
+
     private async void PlaybackEnded(VlcPlayer player, int revision, bool error)
     {
         if (player != _player || revision != _playbackRevision || _closing) return;
@@ -692,8 +748,13 @@ public partial class MainWindow : Window
         if (_playingChannel is { IsOnDemand: false } live &&
             await TryReconnectAsync(live, revision, error ? "oynatıcı hatası" : "yayın sona erdi")) return;
         if (_playingChannel is { IsOnDemand: false } failed && await TryFailoverAsync(failed)) return;
-        if (error) AppLog.Warn($"Yayın hatayla sona erdi: {_playingChannel?.Name} ({_playingChannel?.Stream})");
+        if (error) AppLog.Warn($"Yayın hatayla sona erdi: {_playingChannel?.Name} ({LogTarget(_playingChannel)})");
         if (!error && _playingChannel?.SeriesId > 0) _finishedEpisode = _playingChannel;
+        if (!error && _playingChannel is { } finished && LocalMedia.IsLocal(finished))
+        {
+            SaveVodPosition(player, completed: true);
+            if (await PlayNextLocalAsync()) return;
+        }
         var message = error ? (vod ? "İçerik açılamadı" : "Yayın açılamadı") : (vod ? "İçerik tamamlandı" : "Yayın sona erdi");
         await StopPlaybackAsync(message, error, completed: vod && !error);
     }
@@ -703,7 +764,7 @@ public partial class MainWindow : Window
         _playbackTimeout.Stop();
         if (_playingChannel is { IsOnDemand: false } live && await TryReconnectAsync(live, _playbackRevision, "zaman aşımı")) return;
         if (_playingChannel is { IsOnDemand: false } failed && await TryFailoverAsync(failed)) return;
-        AppLog.Warn($"Yayın zaman aşımına uğradı: {_playingChannel?.Name} ({_playingChannel?.Stream})");
+        AppLog.Warn($"Yayın zaman aşımına uğradı: {_playingChannel?.Name} ({LogTarget(_playingChannel)})");
         await StopPlaybackAsync("Yayın zaman aşımına uğradı", isError: true);
     }
 
@@ -725,6 +786,7 @@ public partial class MainWindow : Window
 
     private async Task ReleasePlayerAsync(bool completed = false)
     {
+        StopTapReader();
         _playbackTimeout.Stop();
         _vodClock.Stop();
         if (_player is not VlcPlayer player) return;
@@ -748,6 +810,9 @@ public partial class MainWindow : Window
 
     private void ShowPlaybackStopped(string status, bool isError)
     {
+        EndCinemaAfterPlayback();
+        RecordingInterrupted();
+        ReleaseFreezeFrame();
         if (_fullscreen) ToggleFullscreen();
         if (_pip) TogglePip();
         HideSecondScreen();
@@ -836,6 +901,28 @@ public partial class MainWindow : Window
 
     private void OnWindowKeyDown(object sender, KeyEventArgs e)
     {
+        if (IsLuckySpinning && e.Key is Key.Escape or Key.Enter or Key.Space)
+        {
+            _luckySkip?.Invoke();
+            e.Handled = true;
+            return;
+        }
+        if (HandleSpaceKey(e)) // play / pause comes before every other use of the space bar
+        {
+            e.Handled = true;
+            return;
+        }
+        if (HandleCinemaKey(e))
+        {
+            e.Handled = true;
+            return;
+        }
+        if (e.Key == Key.O && Keyboard.Modifiers == ModifierKeys.Control)
+        {
+            OnOpenFile();
+            e.Handled = true;
+            return;
+        }
         if (HandleMediaKey(e.Key))
         {
             e.Handled = true;
@@ -881,16 +968,17 @@ public partial class MainWindow : Window
         {
             e.Handled = true;
         }
-        else if (e.Key is Key.Space or Key.Left or Key.Right && Keyboard.Modifiers == ModifierKeys.None && _player is { } player &&
+        else if (e.Key is Key.Left or Key.Right && Keyboard.Modifiers == ModifierKeys.Shift && CanScrub &&
+            Keyboard.FocusedElement is not (System.Windows.Controls.Primitives.TextBoxBase or PasswordBox or ComboBox))
+        {
+            JumpVod(e.Key == Key.Left ? -1000 : 1000); // second by second
+            e.Handled = true;
+        }
+        else if (e.Key is Key.Left or Key.Right && Keyboard.Modifiers == ModifierKeys.None && _player is { } player &&
             _playingChannel is { } playing &&
             Keyboard.FocusedElement is not (System.Windows.Controls.Primitives.TextBoxBase or PasswordBox or ComboBox or Slider))
         {
-            if (e.Key == Key.Space && CanPausePlayback && Keyboard.FocusedElement is not (Button or RadioButton))
-            {
-                player.SetPause(player.State != VLCState.Paused);
-                e.Handled = true;
-            }
-            else if (!playing.IsOnDemand && e.Key == Key.Left)
+            if (!playing.IsOnDemand && e.Key == Key.Left)
             {
                 _ = LiveRewindAsync();
                 e.Handled = true;
@@ -902,9 +990,7 @@ public partial class MainWindow : Window
             }
             else if (playing.IsOnDemand && e.Key is Key.Left or Key.Right && player.IsSeekable && player.Length > 0)
             {
-                _pendingVodPosition = 0;
-                MarkSeek();
-                player.Time = Math.Clamp(player.Time + (e.Key == Key.Left ? -10_000 : 10_000), 0, player.Length);
+                JumpVod(e.Key == Key.Left ? -10_000 : 10_000);
                 e.Handled = true;
             }
         }

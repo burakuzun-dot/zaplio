@@ -17,7 +17,11 @@ public partial class MainWindow
     private long _netSent = -1;
     private long _netSampledAt;
 
-    private void MarkSeek() => _streamHealth.MarkSeek(Environment.TickCount64);
+    private void MarkSeek()
+    {
+        _streamHealth.MarkSeek(Environment.TickCount64);
+        _smoothClock.Reset();
+    }
 
     private void InitializeNetworkStatus()
     {

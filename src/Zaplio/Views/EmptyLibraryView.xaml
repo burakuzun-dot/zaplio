@@ -101,5 +101,8 @@
 
         <TextBlock Margin="0,18,0,0" FontSize="14" TextAlignment="Center" Foreground="{DynamicResource ZpMutedTextBrush}"
                    Text="Xtream hesabın mı var? Liste eklerken onu da seçebilirsin."/>
+
+        <TextBlock Margin="0,8,0,0" FontSize="13" TextAlignment="Center" Foreground="{DynamicResource ZpMutedTextBrush}"
+                   Text="Bilgisayarındaki bir videoyu izlemek için onu buraya sürükle ya da Ctrl + O'ya bas."/>
     </StackPanel>
 </UserControl>

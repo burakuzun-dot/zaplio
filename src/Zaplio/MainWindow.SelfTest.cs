@@ -67,6 +67,10 @@ public partial class MainWindow
                 GroupList.SelectedIndex = 0;
                 await SettleAsync();
 
+                // ── "Şansıma" for channels: only the pick is checked, nothing is played (no network in the self test)
+                var luckyChannel = await RunLuckyAsync(600, open: false);
+                Check(luckyChannel is Channel picked && VisibleChannels.Contains(picked), "kanallarda 'Şansıma' listedeki bir kanalı seçer");
+
                 // ── "channel is sleeping"
                 ShowSleeping(first);
                 await SettleAsync();
@@ -98,6 +102,58 @@ public partial class MainWindow
             Check(ChannelPane.IsVisible && !VodPane.IsVisible, "Canlı TV'ye dönünce kanal paneli geri gelir");
             SelfTest.Snapshot(this, "canlı tv dönüş");
             CheckLiveLayout("Canlı TV'ye dönüş");
+
+            // ── "Sinema modu": everything around the video fades, a part lights up under the mouse, the lights return after playback
+            SetCinema(true);
+            await SettleAsync(1300);
+            Check(IsCinemaMode && TitleBar.Opacity < 0.1 && ChannelPane.Opacity < 0.1 && NavigationPane.Opacity < 0.1 && CinemaShade.Opacity > 0.9 &&
+                PlayerControls.Opacity < 0.1 && Footer.Opacity < 0.1 && VideoFrame.IsVisible && VideoFrame.Opacity >= 1,
+                $"sinema modunda çevre kararır, yalnızca video alanı kalır (başlık {TitleBar.Opacity:0.00}, kumandalar {PlayerControls.Opacity:0.00}, alt bilgi {Footer.Opacity:0.00})");
+            SelfTest.Snapshot(this, "sinema modu");
+            PlayerControls.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, 0) { RoutedEvent = Mouse.MouseEnterEvent });
+            await SettleAsync(400);
+            Check(PlayerControls.Opacity > 0.8, $"karartılmış kumandalar fareyle aydınlanır ({PlayerControls.Opacity:0.00})");
+            EndCinemaAfterPlayback();
+            await SettleAsync(2500);
+            Check(!IsCinemaMode && TitleBar.Opacity >= 0.999 && ChannelPane.Opacity >= 0.999 && PlayerControls.Opacity >= 0.999 && CinemaShade.Opacity < 0.01,
+                "oynatma bitince ışıklar yavaşça geri açılır");
+
+            // ── the space bar and the timeline (no playback here: only what decides who gets the key, and the timeline's geometry)
+            SearchBox.Focus();
+            var space = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(this)!, 0, Key.Space) { RoutedEvent = Keyboard.PreviewKeyDownEvent };
+            Check(!HandleSpaceKey(space) && LastSpaceAction == SpaceAction.PassThrough, "arama kutusuna yazarken Boşluk yazıya gider");
+            Keyboard.ClearFocus();
+            Check(!VodSeek.Focusable && !VolumeSlider.Focusable, "zaman çubuğu ve ses kaydırıcısı tıklanınca tuşları (Boşluk, oklar) üzerine almaz");
+            Check(Math.Abs(SeekTimeAt(SeekXFor(42_000, 500, 100_000), 500, 100_000) - 42_000) < 1 && SeekTimeAt(0, 500, 100_000) == 0 &&
+                SeekTimeAt(500, 500, 100_000) == 100_000 && VodSeek.Height >= 28,
+                $"zaman çubuğunda fare altındaki zaman başparmağın konumuyla örtüşür, tıklama alanı geniş (yükseklik {VodSeek.Height:0} px)");
+
+            // ── one press drags: the press must reach our handlers even though WPF's slider handles it first
+            // The timeline is shown and enabled as during playback, so the slider's own click handling is really in the way.
+            var timelineShown = VodTimeline.Visibility;
+            VodTimeline.Visibility = Visibility.Visible;
+            VodSeek.Maximum = 100_000;
+            VodSeek.IsEnabled = true;
+            await SettleAsync(150);
+            var presses = SeekPresses;
+            VodSeek.RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left) { RoutedEvent = PreviewMouseLeftButtonDownEvent });
+            Check(SeekPresses == presses + 1, "zaman çubuğuna basış sürükleme koduna ulaşır (tek basışta sürükleme)");
+            VodSeek.IsEnabled = false;
+            VodTimeline.Visibility = timelineShown;
+            if (VolumeSlider.IsVisible)
+            {
+                var volume = VolumeSlider.Value;
+                VolumeSlider.RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left) { RoutedEvent = PreviewMouseLeftButtonDownEvent });
+                var held = VolumeSlider.IsMouseCaptured;
+                VolumeSlider.RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left) { RoutedEvent = PreviewMouseLeftButtonUpEvent });
+                Check(held && !VolumeSlider.IsMouseCaptured, "ses kaydırıcısı tek basışta fareyi tutar, bırakınca bırakır");
+                VolumeSlider.Value = volume;
+            }
+
+            // ── recording and speed controls: nothing plays in the self test, so only their idle state is checked
+            Check(!RecordButton.IsEnabled && !IsRecording && !RecordBadge.IsVisible, "oynatma yokken kayıt düğmesi kapalı, kayıt rozeti gizli");
+            Check(RecordingPlan.Folder.EndsWith("Zaplio", StringComparison.Ordinal), "kayıtlar Videolar\\Zaplio klasörüne gider");
+            await CheckLocalClipAsync();
 
             // ── full-window screens and loading placeholders
             OfflineView.Visibility = Visibility.Visible;
@@ -156,6 +212,23 @@ public partial class MainWindow
             }
 
             await CheckGuideGridAsync();
+
+            // ── videos from this computer: empty made-up files in the temporary data folder, opened without playing
+            var localFolder = System.IO.Path.Combine(AppPaths.Root, "yerel");
+            System.IO.Directory.CreateDirectory(localFolder);
+            foreach (var name in new[] { "Bölüm 10.mp4", "Bölüm 2.mp4", "notlar.txt", "Bölüm 2.srt" })
+                System.IO.File.WriteAllBytes(System.IO.Path.Combine(localFolder, name), []);
+            var opened = await OpenLocalAsync([localFolder, System.IO.Path.Combine(localFolder, "Bölüm 2.srt")], play: false);
+            Check(opened is { IsOnDemand: true } && opened.Name == "Bölüm 2" && LocalMedia.IsLocal(opened) && LocalQueueCount == 1 && PlayableHere(opened),
+                $"bırakılan klasörün videoları doğal sırayla açılır, sıradakiler kuyruğa girer ({opened?.Name}, kuyruk {LocalQueueCount})");
+            Check(!LogTarget(opened).Contains(localFolder, StringComparison.OrdinalIgnoreCase), "günlüğe yerel dosyanın yolu yazılmaz");
+            var unsupported = await OpenLocalAsync([System.IO.Path.Combine(localFolder, "notlar.txt")], play: false);
+            Check(unsupported is null && LocalQueueCount == 1, "video olmayan dosya oynatılmaz, kuyruk bozulmaz");
+            DropHint.Visibility = Visibility.Visible;
+            await SettleAsync(150);
+            Check(DropHint.ActualHeight > 300, "dosya sürüklenirken 'bırak' ipucu pencereyi kaplar");
+            SelfTest.Snapshot(this, "sürükle bırak");
+            DropHint.Visibility = Visibility.Collapsed;
 
             WindowState = WindowState.Normal;
             Width = MinWidth;
@@ -237,6 +310,20 @@ public partial class MainWindow
             _state.WatchHistory.Remove(entry);
             _state.WatchPositions.Remove(entry.Channel.Id);
         }
+
+        // "Şansıma": the reel spins over the window, stops on a random title and opens its preview
+        Check(LuckyVodButton.IsVisible, "film listesinin başlığında 'Şansıma' şimşeği görünür");
+        var lucky = RunLuckyAsync(1400);
+        await Task.Delay(500);
+        Check(IsLuckySpinning && LuckyReelView is { ActualWidth: > 400, ActualHeight: > 300 }, "şimşeğe basınca kartlar kayan bir makarada döner");
+        if (LuckyReelView is { } reelView) SelfTest.Snapshot(reelView, "şansıma makara");
+        var luckyPick = await lucky;
+        await SettleAsync();
+        Check(!IsLuckySpinning && luckyPick is not null && ReferenceEquals(VodList.SelectedItem, luckyPick) && VodPreviewPanel.IsVisible,
+            $"makara durunca seçilen film açılır ({(luckyPick as VodRow)?.Title})");
+        SelfTest.Snapshot(this, "şansıma sonucu");
+        VodList.SelectedItem = null;
+        await SettleAsync(200);
 
         VodList.SelectedIndex = 0;
         await SettleAsync();
@@ -365,6 +452,35 @@ public partial class MainWindow
         }
         else SelfTest.Check(first is { ActualWidth: >= 230 and <= 248, ActualHeight: >= 80 and <= 96 },
             $"{when}: listenin üstündeki devam kartı okunur boyutta ({first.ActualWidth:0}×{first.ActualHeight:0})");
+    }
+
+    /// <summary>
+    /// The real background copy behind recording a video from this computer: the bundled intro (a local file, no network) is
+    /// copied between two times into a temporary .mkv, without a picture. Nothing is written to the user's Videos folder.
+    /// </summary>
+    private async Task CheckLocalClipAsync()
+    {
+        var intro = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "Intro.mp4");
+        if (!System.IO.File.Exists(intro))
+        {
+            SelfTest.Check(false, "kayıt denemesi için açılış videosu bulundu");
+            return;
+        }
+        var folder = System.IO.Path.Combine(AppPaths.Root, "kayit");
+        System.IO.Directory.CreateDirectory(folder);
+        var source = System.IO.Path.Combine(folder, "kaynak.mp4");
+        System.IO.File.Copy(intro, source, overwrite: true);
+        var target = System.IO.Path.Combine(folder, "kesit" + RecordingPlan.Extension);
+        _engine ??= await EnsureEngineAsync();
+
+        _recordFile = target;
+        _clipChannel = LocalMedia.ToChannel(source);
+        _clipStart = 0;
+        _clipLast = 2_000;
+        await FinishClipAsync(target);
+        var size = System.IO.File.Exists(target) ? new System.IO.FileInfo(target).Length : 0;
+        SelfTest.Check(size > 10_000 && !IsRecording && FooterStatus.Text.StartsWith("Kayıt kaydedildi", StringComparison.Ordinal),
+            $"bilgisayardaki videonun kaydı durmadan, arka planda .mkv olarak kopyalanır ({size / 1024} KB)");
     }
 
     private void CheckVodInfoPanel(string when)

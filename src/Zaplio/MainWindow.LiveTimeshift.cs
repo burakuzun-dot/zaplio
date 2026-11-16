@@ -36,7 +36,7 @@ public partial class MainWindow
     {
         if (player != _player || revision != _playbackRevision || _closing) return;
         if (_livePausedAt == 0) _livePausedAt = Environment.TickCount64;
-        UpdateSelection();
+        UpdatePlayState();
         UpdateLiveStatus();
     }
 

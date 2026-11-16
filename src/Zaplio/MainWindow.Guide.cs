@@ -59,7 +59,8 @@ public partial class MainWindow
 
     /// <summary>
     /// In a narrow player column the guide buttons keep only their icons (so the title is not cut short) and the volume
-    /// slider steps aside (so the full-screen button still fits); the mute button and the volume keys still work.
+    /// slider and, in the narrowest column, the mini-window button step aside (so the full-screen button still fits); the mute
+    /// button, the volume keys and P still work.
     /// </summary>
     private void ApplyCompactPlayerChrome(double width)
     {
@@ -68,6 +69,8 @@ public partial class MainWindow
         GuideToggleText.Visibility = labels;
         GuideGridButton.Padding = GuideToggle.Padding = new Thickness(labels == Visibility.Visible ? 12 : 10, 0, labels == Visibility.Visible ? 12 : 4, 0);
         VolumeSlider.Visibility = width < 470 ? Visibility.Collapsed : Visibility.Visible;
+        PipButton.Visibility = width < 420 ? Visibility.Collapsed : Visibility.Visible; // P still opens the mini window
+        RecordButton.Visibility = width < 420 && !IsRecording ? Visibility.Collapsed : Visibility.Visible; // R still records
     }
 
     private void OnGuideProgrammeChanged(object sender, SelectionChangedEventArgs e)

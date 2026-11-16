@@ -15,7 +15,6 @@ public partial class MainWindow
         [(null, "Otomatik"), ("16:9", "16:9"), ("4:3", "4:3"), ("21:9", "21:9"), ("16:10", "16:10"), ("1:1", "1:1")];
     private static readonly (string? Value, string Label)[] CropModes =
         [(null, "Kırpma yok"), ("16:9", "16:9"), ("4:3", "4:3"), ("21:9", "21:9"), ("2.35:1", "2.35:1")];
-    private static readonly float[] PlaybackRates = [0.5f, 0.75f, 1f, 1.25f, 1.5f, 2f];
     private const long DelayStep = 100_000; // LibVLC delays are in microseconds.
 
     private Channel? _finishedEpisode;
@@ -26,6 +25,8 @@ public partial class MainWindow
     {
         TracksButton.IsEnabled = _player is not null;
         PipButton.IsEnabled = _player is not null && !IsSecondScreenActive;
+        RecordButton.IsEnabled = _player is not null || IsRecording;
+        CinemaButton.IsEnabled = _player is not null || _cinema;
         SecondScreenButton.Visibility = HasSecondMonitor || IsSecondScreenActive ? Visibility.Visible : Visibility.Collapsed;
         SecondScreenButton.IsEnabled = _player is not null || IsSecondScreenActive;
         SecondScreenText.Text = IsSecondScreenActive ? "Geri al" : "2. ekran";
@@ -38,6 +39,7 @@ public partial class MainWindow
     {
         player.AspectRatio = _aspectRatio;
         player.CropGeometry = _cropGeometry;
+        if (_playingChannel?.IsOnDemand == true && Math.Abs(_playbackRate - 1f) > 0.005f) player.SetRate(_playbackRate);
     }
 
     /// <summary>Player shortcuts that work for both live and on-demand playback.</summary>
@@ -54,6 +56,18 @@ public partial class MainWindow
                 return true;
             case Key.P:
                 TogglePip();
+                return true;
+            case Key.R:
+                _ = ToggleRecordingAsync();
+                return true;
+            case Key.OemComma or Key.OemPeriod when _playingChannel?.IsOnDemand == true:
+                ChangeSpeed(faster: e.Key == Key.OemPeriod);
+                return true;
+            case Key.E when _playingChannel?.IsOnDemand == true:
+                StepFrame();
+                return true;
+            case Key.C:
+                SetCinema(!_cinema);
                 return true;
             case Key.M:
                 OnMute(this, new RoutedEventArgs());
@@ -88,18 +102,21 @@ public partial class MainWindow
         menu.Items.Add(BuildDelay("Altyazı gecikmesi", player.SpuDelay, delay => player.SetSpuDelay(delay)));
         if (_playingChannel?.IsOnDemand == true)
         {
-            var rates = PlaybackRates.Select(rate => ((string?)rate.ToString(CultureInfo.InvariantCulture),
+            var rates = PlaybackSpeed.Ladder.Select(rate => ((string?)rate.ToString(CultureInfo.InvariantCulture),
                 rate == 1f ? "Normal" : $"{rate.ToString("0.##", Turkish)}×")).ToArray();
-            menu.Items.Add(BuildChoice("Oynatma hızı", rates, player.Rate.ToString(CultureInfo.InvariantCulture), value =>
+            menu.Items.Add(BuildChoice("Oynatma hızı  ( , / . )", rates, _playbackRate.ToString(CultureInfo.InvariantCulture), value =>
             {
                 if (ReferenceEquals(player, _player) && float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var rate))
-                    player.SetRate(rate);
+                    SetSpeed(rate);
             }));
         }
         menu.Items.Add(new Separator());
         var ambientLight = new MenuItem { Header = "Ortam ışığı", IsCheckable = true, IsChecked = _state.Settings.AmbientLight };
         ambientLight.Click += (_, _) => SetAmbientLightEnabled(ambientLight.IsChecked);
         menu.Items.Add(ambientLight);
+        var record = new MenuItem { Header = IsRecording ? "Kaydı durdur  (R)" : "Kaydet  (R)" };
+        record.Click += async (_, _) => await ToggleRecordingAsync();
+        menu.Items.Add(record);
         var snapshot = new MenuItem { Header = "Ekran görüntüsü al  (S)" };
         snapshot.Click += async (_, _) => await TakeSnapshotAsync(player);
         menu.Items.Add(snapshot);

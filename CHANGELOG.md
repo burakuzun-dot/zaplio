@@ -5,6 +5,55 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 
 ## Yayınlanmamış
 
+### Eklenenler
+- **Şansıma:** kanal ve film/dizi listelerinin başlığındaki şimşeğe basınca listedeki içerikler kayan bir makarada döner,
+  yavaşlar ve rastgele birinde durur. Film ya da dizi seçilirse önizlemesi açılır, kanal seçilirse oynamaya başlar. Liste
+  neye süzülmüşse (kategori, arama, Favorilerim) yalnızca onların arasından seçer; arka arkaya aynı şeye düşmemeye çalışır.
+  Tıklayarak ya da Esc ile beklemeden sonuca geçebilirsin. Windows'ta animasyonlar kapalıysa makara dönmeden doğrudan açılır.
+- **Sinema modu:** oynatırken kumanda çubuğundaki ampule ya da **C**'ye basınca ışıklar söner: videonun çevresindeki her şey
+  neredeyse siyaha döner, yalnızca görüntü ve ortam ışığı kalır. Fareyle karartılmış bir bölümün üstüne gelince o bölüm
+  kullanman için aydınlanır. **C** ya da **Esc** ışıkları açar; oynatma bitince ışıklar kendiliğinden, yavaşça geri gelir.
+
+- **Bilgisayardaki videolar:** bir video dosyasını ya da klasörü pencereye sürükle, **Ctrl + O** ile seç ya da Windows'ta
+  dosyayı Zaplio ile aç; aynı oynatıcıda oynar (sinema modu, mini pencere, ikinci ekran, kaldığın yerden devam). Klasör ya da
+  birden çok dosya bırakırsan videolar ad sırasıyla (Bölüm 2, Bölüm 10) art arda oynar. Oynayan videonun üstüne bırakılan
+  `.srt`, `.ass` ya da `.vtt` dosyası altyazı olarak eklenir; videoyla aynı adlı altyazı kendiliğinden bulunur. Dosyalar
+  bilgisayarından çıkmaz ve yolları günlüğe yazılmaz.
+
+- **Canlı sarma önizlemesi:** film, bölüm ya da bilgisayardaki bir videoda zaman çubuğunu sürüklerken görüntü de seninle kayar;
+  bıraktığın yerden oynamaya devam eder. Çubuğun üstündeki balon gittiğin zamanı gösterir. Bilgisayardaki dosyalar
+  neredeyse kare kare izler; sağlayıcıdan gelen yayınlar sağlayıcıyı yormamak için en çok yarım saniyede bir atlar.
+  Zaman çubuğunun üstünde tekerlek 5 saniye, **Shift + ← / →** 1 saniye kaydırır. Zaman çubuğu ve geçen süre artık
+  adım adım değil, akıcı ilerler.
+
+- **Kayıt:** oynatırken kumanda çubuğundaki kayıt düğmesine ya da **R**'ye bas; görüntü ve ses yeniden kodlanmadan, kaynakla
+  birebir aynı kalitede `Videolar\Zaplio` klasörüne `.mkv` dosyası olarak kaydedilir (Matroska her kodeki taşır). Kayıt sürerken
+  videonun köşesinde kırmızı **KAYIT** rozeti ve süre görünür.
+  - Bilgisayardaki bir videoda oynatma hiç durmaz: kayıt başladığın ve bitirdiğin an arasını arka planda dosyadan kopyalar.
+    Kayıt sıfırdan başlar ve tam bittiği yerde biter (büyük 4K VP9 videolarda kayıt videonun ortasındaki zamanla başlıyor, boş
+    gibi görünüyordu; bir kez de bitiş yok sayılıp videonun sonuna kadar kopyalanmıştı).
+  - Sağlayıcıdan gelen canlı yayında ve filmlerde de yayın durmaz, takılmaz, yeniden yüklenmez (**Kayda hazır tut**, Ayarlar ›
+    Oynatma, varsayılan açık): yayının dokunulmamış bir kopyası yalnızca bu bilgisayarda Zaplio'ya akar; kayıt yokken atılır
+    (diske bir şey yazılmaz, sağlayıcıya ek bağlantı açılmaz). Kayıt tuşu bir sonraki anahtar kareden yazmaya başlar, bitince
+    dosya arka planda kayıpsız `.mkv`'ye çevrilir. Canlı yayın kendiliğinden yeniden bağlanırsa kayıt aynı dosyada sürer.
+  - Ayar kapalıysa eski yönteme döner: kayıt başlarken ve biterken yayın bir an yeniden açılır, bu sırada son kare ekranda kalır.
+  - Başka kanala geçince ya da oynatma bitince kayıt kendiliğinden kapanır.
+- **Daha ince hız ayarı ve yavaş oynatma:** film, bölüm ve dosyalarda **,** yavaşlatır, **.** hızlandırır (0,25× ile 3× arası,
+  yavaş çekimde ince adımlar). Hız tek seferde değil kısa bir geçişle değişir; ses perdesi korunur. **E** kare kare ilerletir.
+
+### Değişenler
+- **Duraklatıp devam ettirmek anında:** her duraklatma ve devamda oynatıcı alanı baştan kuruluyor, konum hemen diske yazılıyor
+  ve görüntü ayarları yeniden uygulanıyordu (VLC'nin görüntü çıkışını yeniden kurmasına yol açıyordu, 4K'da belirgindi). Artık
+  yalnızca oynat/duraklat düğmesi değişir; konum, duraklama iki saniye sürerse kaydedilir.
+- **Boşluk tuşu her zaman önce gelir:** bir şey oynarken Boşluk, odak nerede olursa olsun (düğme, liste, zaman çubuğu, ikinci ekran)
+  duraklatır ve devam ettirir; önceden odaktaki düğmeye basabiliyor ya da zaman çubuğuna tıkladıktan sonra hiç çalışmıyordu.
+  Yalnızca bir yazı kutusuna yazarken boşluk yazıya gider. Basılı tutunca titremez. Oynatma durmuşsa son izleneni yeniden
+  açar (film kaldığı yerden). Videonun ortasında büyük bir oynat/duraklat işareti kısa süre belirir.
+- **Zaman çubuğu yenilendi:** tıklama alanı genişledi, çubuk üzerine gelince kalınlaşır ve tutamaç belirir; fareyle üzerinde
+  gezinince imlecin altındaki zaman balonda görünür. Zaman çubuğu ve ses kaydırıcısı tıklanınca artık tuşları kendine almaz.
+  Çubuğa dışarıdan gelip basılı tutarak sürükleyince bir kez kıpırdayıp duruyor, ikinci kez tutmak gerekiyordu; artık tek basışta
+  sürükleme başlar ve bırakana kadar (pencerenin dışına çıksa da) fareyi izler. Ses kaydırıcısı da aynı şekilde.
+- En dar pencerede mini pencere düğmesi de gizlenir, tam ekran düğmesi sığmaya devam eder (P kısayolu çalışır).
 - İndirme ve derleme belgeleri güncellendi.
 
 ## 0.11.0 — 2026-11-16
