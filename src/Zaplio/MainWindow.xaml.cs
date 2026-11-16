@@ -67,9 +67,15 @@ public partial class MainWindow : Window
         };
     }
 
-    private Channel? DisplayedChannel => (_playingChannel?.SourceId == _activeSourceId ? _playingChannel : null) ?? (_librarySection == LibrarySection.Live
-        ? (ChannelList.SelectedItem as Channel) ?? (_lastChannel is { IsOnDemand: false } ? _lastChannel : null)
-        : SelectedVod ?? (_lastChannel is { IsOnDemand: true } ? _lastChannel : null));
+    private Channel? DisplayedChannel => (_playingChannel?.SourceId == _activeSourceId ? _playingChannel : null) ?? (_librarySection switch
+    {
+        LibrarySection.Live => ChannelList.SelectedItem as Channel ?? (_lastChannel is { IsOnDemand: false } ? _lastChannel : null),
+        LibrarySection.Movies => SelectedVod ?? (_lastChannel is { IsOnDemand: true, SeriesId: 0 } movie &&
+            WatchHistory.ArchiveChannelId(movie.Id) is null ? movie : null),
+        LibrarySection.Series => SelectedVod ?? (_lastChannel is { SeriesId: > 0 } episode &&
+            episode.SeriesId == _selectedSeries?.ProviderId ? episode : null),
+        _ => null
+    });
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
@@ -379,7 +385,6 @@ public partial class MainWindow : Window
         NoChannels.Text = _refreshing ? "Kanallar yükleniyor…" : query.Length > 0 ? "Aramana uyan kanal yok." :
             group.Key == "favorites" ? "Favori kanalın burada görünür." : "Henüz kanal yok.";
         UpdateSelection();
-        UpdatePlaceholder();
     }
 
     private static bool Matches(string value, string query) =>
@@ -451,6 +456,7 @@ public partial class MainWindow : Window
 
         PlayButton.IsEnabled = channel is not null;
         GuideToggle.Visibility = _librarySection == LibrarySection.Live ? Visibility.Visible : Visibility.Collapsed;
+        GuideGridButton.IsEnabled = ActiveSource is not null;
         UpdateHeaderLists(channel);
         var paused = CanPausePlayback && _player?.State == VLCState.Paused;
         PlayIcon.Text = _playingChannel is null || paused ? IconGlyphs.Play : CanPausePlayback ? IconGlyphs.Pause : IconGlyphs.Stop;
@@ -462,6 +468,7 @@ public partial class MainWindow : Window
         UpdateGuide();
         UpdateVodPlaybackVisibility();
         UpdateExtraControls();
+        UpdatePlaceholder();
         UpdateVodPreview();
     }
 
@@ -479,11 +486,17 @@ public partial class MainWindow : Window
         {
             var hasXtream = _state.Sources.Any(source => source.Kind == SourceKind.Xtream);
             FirstSourceButton.Visibility = hasXtream ? Visibility.Collapsed : Visibility.Visible;
-            PlaceholderTitle.Text = ActiveSource?.Kind != SourceKind.Xtream
-                ? (hasXtream ? "Xtream kaynağı seç" : "Xtream kaynağı ekle") :
-                _librarySection == LibrarySection.Movies ? "Bir film seç" : "Bir bölüm seç";
-            PlaceholderDescription.Text = ActiveSource?.Kind == SourceKind.Xtream ? "Listeden bir içerik seçerek oynat."
-                : hasXtream ? "Sol alttaki Kaynak kartından bir Xtream kaynağı seç." : "Film ve diziler Xtream hesabından yüklenir.";
+            (PlaceholderTitle.Text, PlaceholderDescription.Text) = _librarySection switch
+            {
+                _ when ActiveSource?.Kind != SourceKind.Xtream && hasXtream =>
+                    ("Xtream kaynağı seç", "Sol alttaki Kaynak kartından bir Xtream kaynağı seç."),
+                _ when ActiveSource?.Kind != SourceKind.Xtream =>
+                    ("Xtream kaynağı ekle", "Film ve diziler Xtream hesabından yüklenir."),
+                _ when DisplayedChannel is not null => ("Oynatmaya hazır", "Başlatmak için Oynat’a bas."),
+                LibrarySection.Movies => ("Bir film seç", "Önizleme için listeden bir film seç."),
+                LibrarySection.Series when _selectedSeries is null => ("Bir dizi seç", "Bölümlerini görmek için listeden bir dizi seç."),
+                _ => ("Bir bölüm seç", "Önizleme için listeden bir bölüm seç.")
+            };
             return;
         }
         var noSources = _state.Sources.Count == 0;
@@ -502,6 +515,11 @@ public partial class MainWindow : Window
         {
             PlaceholderTitle.Text = "Canlı kanal bulunamadı";
             PlaceholderDescription.Text = "Aktif kaynağı kontrol et veya sol alttaki Kaynak kartından başka bir kaynak seç.";
+        }
+        else if (DisplayedChannel is not null)
+        {
+            PlaceholderTitle.Text = "Kanal seçildi";
+            PlaceholderDescription.Text = "Yayını başlatmak için Oynat’a ya da Enter’a bas.";
         }
         else
         {
@@ -714,6 +732,7 @@ public partial class MainWindow : Window
         _player = null;
         _recordedPlayback = null;
         _playingChannel = null;
+        UpdateMediaSession();
         VideoView.Visibility = Visibility.Hidden;
         UpdatePlaceholderVisibility();
         try
@@ -734,7 +753,6 @@ public partial class MainWindow : Window
         HideSecondScreen();
         ChannelOsd.Visibility = Visibility.Collapsed;
         UpdateSelection();
-        UpdatePlaceholder();
         if (_librarySection != LibrarySection.Live) UpdateVodRows();
         if (isError)
         {
@@ -964,6 +982,7 @@ public partial class MainWindow : Window
         if (_closing) return;
         _closing = true;
         ReleaseStateScreens();
+        ReleaseTaskbar();
         _playbackTimeout.Stop();
         _guideClock.Stop();
         _networkClock.Stop();

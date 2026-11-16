@@ -6,7 +6,7 @@ namespace Zaplio;
 internal enum LibrarySection { Live, Movies, Series }
 
 internal sealed record VodItem(long ProviderId, string Title, string Category, string Detail, Channel? Playable,
-    int Season = 0, int Episode = 0, string? Poster = null, string? Plot = null, int SeasonCount = 0)
+    int Season = 0, int Episode = 0, string? Poster = null, string? Plot = null, int SeasonCount = 0, VodFacts? Facts = null)
 {
     public override string ToString() => Title;
 }
@@ -58,11 +58,12 @@ internal sealed partial class CatalogLoader
             !response.RootElement.TryGetProperty("episodes", out var episodes))
             throw new SourceException("Bu dizi için bölüm listesi alınamadı.");
 
-        return ParseEpisodes(source, series, connection, episodes);
+        var seriesFacts = response.RootElement.TryGetProperty("info", out var info) ? VodFacts.Read(info) : null;
+        return ParseEpisodes(source, series, connection, episodes, seriesFacts);
     }
 
     internal static IReadOnlyList<VodItem> ParseEpisodes(Source source, VodItem series,
-        (string Root, string Username, string Password) connection, JsonElement episodes)
+        (string Root, string Username, string Password) connection, JsonElement episodes, VodFacts? seriesFacts = null)
     {
         var result = new List<VodItem>();
         if (episodes.ValueKind == JsonValueKind.Object)
@@ -107,8 +108,9 @@ internal sealed partial class CatalogLoader
                 ? Value(info, "plot") ?? Value(info, "description") : null;
             var poster = NullIfBlank(Value(info, "movie_image")) ?? NullIfBlank(Value(info, "cover_big"))
                 ?? NullIfBlank(Value(info, "cover")) ?? NullIfBlank(Value(entry, "movie_image"));
+            var facts = VodFacts.Read(info)?.With(seriesFacts) ?? seriesFacts;
             result.Add(new VodItem(id, title, category, detail, media, season, episode,
-                Poster: poster, Plot: summary ?? Value(entry, "plot")));
+                Poster: poster, Plot: summary ?? Value(entry, "plot"), Facts: facts));
         }
     }
 
@@ -128,7 +130,8 @@ internal sealed partial class CatalogLoader
             Plot = Value(info, "plot") ?? Value(info, "description") ?? item.Plot,
             Detail = Value(info, "year") ?? Value(info, "release_date") ?? Value(info, "releaseDate") ?? item.Detail,
             SeasonCount = response.RootElement.TryGetProperty("seasons", out var seasons) && seasons.ValueKind == JsonValueKind.Array
-                ? seasons.GetArrayLength() : item.SeasonCount
+                ? seasons.GetArrayLength() : item.SeasonCount,
+            Facts = VodFacts.Read(info) ?? item.Facts
         };
     }
 

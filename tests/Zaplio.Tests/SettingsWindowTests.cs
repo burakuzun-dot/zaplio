@@ -28,6 +28,7 @@ public sealed class SettingsWindowTests
                     Assert.Equal(Visibility.Visible, window.SourcesPage.Visibility);
                     Assert.Equal(2, window.SourceList.Items.Count);
                     Assert.Equal(Visibility.Collapsed, window.NoSources.Visibility);
+                    Assert.Equal("Kaynakları yönet", window.ManageSourcesText.Text);
 
                     window.AboutNav.IsChecked = true;
                     Assert.Equal(Visibility.Visible, window.AboutPage.Visibility);
@@ -48,7 +49,7 @@ public sealed class SettingsWindowTests
                 {
                     Assert.Equal(Visibility.Visible, empty.LookPage.Visibility);
                     Assert.Equal(Visibility.Visible, empty.NoSources.Visibility);
-                    Assert.Equal(Visibility.Collapsed, empty.EditSourcesButton.Visibility);
+                    Assert.Equal("Kaynak ekle", empty.ManageSourcesText.Text);
                 }
                 finally
                 {

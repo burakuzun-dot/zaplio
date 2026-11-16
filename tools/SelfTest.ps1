@@ -16,9 +16,12 @@ param(
     # Hazır bir Zaplio.exe; verilmezse proje geçici bir klasöre derlenir.
     [string]$Exe,
     # Uygulamanın bitmesi için beklenecek en uzun süre (saniye).
-    [int]$TimeoutSeconds = 120
+    [int]$TimeoutSeconds = 120,
+    # Verilirse her ekranın görüntüsü bu klasöre PNG olarak yazılır (tasarımı gözle incelemek için).
+    [string]$Shots
 )
 
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 
@@ -36,6 +39,10 @@ New-Item -ItemType Directory -Force $data | Out-Null
 
 $previous = $env:ZAPLIO_DATA_DIR
 $env:ZAPLIO_DATA_DIR = $data
+if ($Shots) {
+    New-Item -ItemType Directory -Force $Shots | Out-Null
+    $env:ZAPLIO_SELFTEST_SHOTS = (Resolve-Path $Shots).Path
+}
 try {
     $process = Start-Process $Exe -ArgumentList '--self-test', "`"$report`"" -PassThru
     if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
@@ -57,5 +64,6 @@ try {
 }
 finally {
     $env:ZAPLIO_DATA_DIR = $previous
+    Remove-Item Env:ZAPLIO_SELFTEST_SHOTS -ErrorAction SilentlyContinue
     Remove-Item $data -Recurse -Force -ErrorAction SilentlyContinue
 }

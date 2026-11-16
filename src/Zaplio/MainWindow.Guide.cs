@@ -47,9 +47,27 @@ public partial class MainWindow
         UpdateSelection();
     }
 
-    private void OnGuideHostSizeChanged(object sender, SizeChangedEventArgs e)
+    private void OnPlayerPaneSizeChanged(object sender, SizeChangedEventArgs e)
     {
         if (GuidePane is not null) GuidePane.Height = Math.Clamp(e.NewSize.Height * 0.38, 144, 315);
+        if (e.WidthChanged)
+        {
+            ApplyCompactPlayerChrome(e.NewSize.Width);
+            UpdateVodPlayerHeight();
+        }
+    }
+
+    /// <summary>
+    /// In a narrow player column the guide buttons keep only their icons (so the title is not cut short) and the volume
+    /// slider steps aside (so the full-screen button still fits); the mute button and the volume keys still work.
+    /// </summary>
+    private void ApplyCompactPlayerChrome(double width)
+    {
+        var labels = width < 560 ? Visibility.Collapsed : Visibility.Visible;
+        GuideGridText.Visibility = labels;
+        GuideToggleText.Visibility = labels;
+        GuideGridButton.Padding = GuideToggle.Padding = new Thickness(labels == Visibility.Visible ? 12 : 10, 0, labels == Visibility.Visible ? 12 : 4, 0);
+        VolumeSlider.Visibility = width < 470 ? Visibility.Collapsed : Visibility.Visible;
     }
 
     private void OnGuideProgrammeChanged(object sender, SelectionChangedEventArgs e)

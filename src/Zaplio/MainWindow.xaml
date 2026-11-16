@@ -52,21 +52,21 @@
                            AutomationProperties.Name="Zaplio" />
                     <TextBlock Text="Zaplio" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0" />
                 </StackPanel>
-                <Border Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{StaticResource Canvas}"
-                        BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="19" Padding="3">
+                <Border x:Name="LibraryTabs" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{StaticResource Canvas}"
+                        BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="21" Padding="4">
                     <Grid>
-                        <Canvas>
+                        <Canvas ClipToBounds="True">
                             <Border x:Name="LibraryIndicator" Background="{StaticResource Active}" BorderBrush="{StaticResource ActiveLine}"
-                                    BorderThickness="1" CornerRadius="8" />
+                                    BorderThickness="1" CornerRadius="{StaticResource LibraryNavigationTabRadius}" />
                         </Canvas>
-                        <StackPanel x:Name="LibraryTabsPanel" Orientation="Horizontal">
+                        <UniformGrid x:Name="LibraryTabsPanel" Rows="1">
                             <RadioButton x:Name="LiveTab" IsChecked="True" GroupName="Library" Content="Canlı TV"
-                                         Style="{StaticResource SlidingTab}" Checked="OnLibraryChanged" />
+                                         Style="{StaticResource LibraryNavigationTab}" Checked="OnLibraryChanged" />
                             <RadioButton x:Name="MoviesTab" GroupName="Library" Content="Filmler"
-                                         Style="{StaticResource SlidingTab}" Checked="OnLibraryChanged" />
+                                         Style="{StaticResource LibraryNavigationTab}" Checked="OnLibraryChanged" />
                             <RadioButton x:Name="SeriesTab" GroupName="Library" Content="Diziler"
-                                         Style="{StaticResource SlidingTab}" Checked="OnLibraryChanged" />
-                        </StackPanel>
+                                         Style="{StaticResource LibraryNavigationTab}" Checked="OnLibraryChanged" />
+                        </UniformGrid>
                     </Grid>
                 </Border>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
@@ -363,7 +363,7 @@
                     <Border x:Name="VodListTabs" Grid.Row="1" Margin="0,0,0,10" Background="{StaticResource Canvas}"
                             BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="3">
                         <Grid>
-                        <Canvas>
+                        <Canvas ClipToBounds="True">
                             <Border x:Name="VodListIndicator" Background="{StaticResource Active}" BorderBrush="{StaticResource ActiveLine}"
                                     BorderThickness="1" CornerRadius="8" />
                         </Canvas>
@@ -388,8 +388,9 @@
                         </UniformGrid>
                         </Grid>
                     </Border>
-                    <StackPanel x:Name="ContinuePanel" Grid.Row="2" Margin="0,0,0,10" Visibility="Collapsed">
-                        <TextBlock Text="İzlemeye devam et" Style="{StaticResource SectionLabel}" Margin="2,0,0,6" />
+                    <Border x:Name="ContinueHostList" Grid.Row="2">
+                    <StackPanel x:Name="ContinuePanel" Margin="0,0,0,8" Visibility="Collapsed">
+                        <TextBlock Text="İzlemeye devam et" Style="{StaticResource SectionLabel}" FontSize="13" Margin="2,0,0,8" />
                         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Focusable="False"
                                       PanningMode="HorizontalOnly" local:DragScroll.IsEnabled="True">
                             <ItemsControl x:Name="ContinueList">
@@ -400,45 +401,62 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Button Click="OnContinueWatching" Margin="0,0,8,4" Cursor="Hand" Width="176" ToolTip="{Binding Tooltip}"
+                                        <Button Click="OnContinueWatching" Margin="0,0,8,3" Cursor="Hand" Width="236" ToolTip="{Binding Tooltip}"
                                                 AutomationProperties.Name="{Binding Tooltip}">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="Frame" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}"
-                                                            BorderThickness="1" CornerRadius="10" Padding="5">
+                                                            BorderThickness="1" CornerRadius="12" Padding="7">
                                                         <ContentPresenter />
                                                     </Border>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
                                                             <Setter TargetName="Frame" Property="Background" Value="{StaticResource Hover}" />
+                                                            <Setter TargetName="Frame" Property="BorderBrush" Value="{StaticResource ActiveLine}" />
                                                         </Trigger>
                                                         <Trigger Property="IsKeyboardFocused" Value="True">
                                                             <Setter TargetName="Frame" Property="Background" Value="{StaticResource Hover}" />
+                                                            <Setter TargetName="Frame" Property="BorderBrush" Value="{StaticResource Accent}" />
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
                                             </Button.Template>
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="42" />
+                                                    <ColumnDefinition Width="58" />
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
-                                                <Border Width="34" Height="48" CornerRadius="6" Background="{StaticResource Active}" HorizontalAlignment="Left">
+                                                <Border Width="48" Height="70" CornerRadius="7" Background="{StaticResource Active}" HorizontalAlignment="Left">
                                                     <Grid>
                                                         <TextBlock Text="{Binding Tile}" FontFamily="{StaticResource GlyphFont}" Foreground="{StaticResource Accent}"
-                                                                   FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                                   FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                         <Image Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"
-                                                               local:LogoLoader.Url="{Binding Poster}" local:LogoLoader.DecodeWidth="96">
+                                                               local:LogoLoader.Url="{Binding Poster}" local:LogoLoader.DecodeWidth="120">
                                                             <Image.Clip>
-                                                                <RectangleGeometry Rect="0,0,34,48" RadiusX="6" RadiusY="6" />
+                                                                <RectangleGeometry Rect="0,0,48,70" RadiusX="7" RadiusY="7" />
                                                             </Image.Clip>
                                                         </Image>
                                                     </Grid>
                                                 </Border>
                                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                                    <TextBlock Text="{Binding Caption}" Foreground="{StaticResource Accent}" FontSize="11" TextTrimming="CharacterEllipsis"
-                                                               Margin="0,3,0,0" />
+                                                    <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{Binding Subtitle}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,3,0,0">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock" BasedOn="{StaticResource MutedText}">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Subtitle}" Value="{x:Null}">
+                                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,7,0,0">
+                                                        <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Play}" FontSize="12"
+                                                                   Foreground="{StaticResource Accent}" Margin="0,0,5,0" />
+                                                        <TextBlock Text="{Binding Caption}" Foreground="{StaticResource Accent}" FontSize="12" FontWeight="SemiBold"
+                                                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                                    </StackPanel>
                                                 </StackPanel>
                                             </Grid>
                                         </Button>
@@ -447,6 +465,7 @@
                             </ItemsControl>
                         </ScrollViewer>
                     </StackPanel>
+                    </Border>
                     <ComboBox x:Name="VodCategoryPicker" Grid.Row="3" Margin="0,0,0,10" Width="150" HorizontalAlignment="Left" Height="38"
                               DisplayMemberPath="Label" Style="{StaticResource LibraryPicker}"
                               SelectionChanged="OnVodFilterChanged" AutomationProperties.Name="İçerik kategorisi" />
@@ -475,12 +494,68 @@
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
                                 <Setter Property="AutomationProperties.Name" Value="{Binding Title}" />
-                                <Setter Property="Padding" Value="9,6" />
+                                <Setter Property="Padding" Value="6" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="VerticalContentAlignment" Value="Stretch" />
                             </Style>
                         </ListBox.ItemContainerStyle>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <local:VirtualizingTilePanel Loaded="OnVodPanelLoaded" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.Resources>
+                            <!-- Top level: poster tiles in a grid -->
+                            <DataTemplate x:Key="VodTileTemplate">
                                 <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Border x:Name="Poster" CornerRadius="10" Background="{StaticResource Active}">
+                                        <Grid>
+                                            <Grid.Clip>
+                                                <MultiBinding Converter="{x:Static local:RoundedClipConverter.Instance}" ConverterParameter="10">
+                                                    <Binding ElementName="Poster" Path="ActualWidth" />
+                                                    <Binding ElementName="Poster" Path="ActualHeight" />
+                                                </MultiBinding>
+                                            </Grid.Clip>
+                                            <TextBlock Text="{Binding Tile}" FontFamily="{StaticResource GlyphFont}" Foreground="{StaticResource Accent}"
+                                                       FontSize="34" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <Image Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"
+                                                   local:LogoLoader.Url="{Binding Item.Poster}" local:LogoLoader.DecodeWidth="200" />
+                                        </Grid>
+                                    </Border>
+                                    <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5" Width="34" Height="34" CornerRadius="17"
+                                            Background="#D9121621">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Style.Triggers>
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding IsFavorite, ElementName=VodTileFavorite}" Value="False" />
+                                                            <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="False" />
+                                                            <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="False" />
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Opacity" Value="0" />
+                                                    </MultiDataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Viewbox Width="30" Height="30">
+                                            <controls:FavoriteToggle x:Name="VodTileFavorite" IsChannel="False" ChannelName="{Binding Title}"
+                                                                     IsFavorite="{Binding IsFavorite, Mode=OneWay}" FavoriteToggled="OnVodRowFavoriteToggled" />
+                                        </Viewbox>
+                                    </Border>
+                                    <StackPanel Grid.Row="1" Margin="2,7,2,0">
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Caption}" Style="{StaticResource MutedText}" FontSize="11" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                            <!-- Inside a series: one row per episode -->
+                            <DataTemplate x:Key="VodRowTemplate">
+                                <Grid VerticalAlignment="Center">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="47" />
                                         <ColumnDefinition Width="*" />
@@ -528,7 +603,10 @@
                                     </Viewbox>
                                 </Grid>
                             </DataTemplate>
-                        </ListBox.ItemTemplate>
+                        </ListBox.Resources>
+                        <ListBox.ItemTemplateSelector>
+                            <local:VodTemplateSelector Tile="{StaticResource VodTileTemplate}" Row="{StaticResource VodRowTemplate}" />
+                        </ListBox.ItemTemplateSelector>
                     </ListBox>
                     <local:SkeletonList x:Name="VodSkeleton" Grid.Row="5" Visibility="Collapsed" Posters="True" Text="İçerikler yükleniyor…" />
                     <StackPanel x:Name="VodEmpty" Grid.Row="5" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="22,8">
@@ -540,7 +618,7 @@
                     </StackPanel>
                 </Grid>
             </Border>
-            <Grid x:Name="PlayerPane" Grid.Column="2" Margin="22,20,22,16" SizeChanged="OnGuideHostSizeChanged">
+            <Grid x:Name="PlayerPane" Grid.Column="2" Margin="22,20,22,16" SizeChanged="OnPlayerPaneSizeChanged">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
@@ -548,7 +626,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Grid x:Name="PlayerHeader" Margin="1,0,0,17">
+                <Grid x:Name="PlayerHeader" Margin="1,0,0,17" SizeChanged="OnPlayerChromeSizeChanged">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
@@ -559,13 +637,24 @@
                         <TextBlock x:Name="PlayerSubtitle" Style="{StaticResource MutedText}" FontSize="13" Margin="0,5,0,0"
                                    TextTrimming="CharacterEllipsis" Visibility="Collapsed" />
                     </StackPanel>
-                    <Button x:Name="GuideToggle" Grid.Column="1" Click="OnToggleGuide" Margin="7,0,8,0" Padding="12,0" MinHeight="38" local:ButtonChrome.CornerRadius="12"
-                            ToolTip="Yayın rehberi">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Calendar}" FontSize="17" Margin="0,0,6,0" />
-                            <TextBlock x:Name="GuideToggleText" Text="Rehber" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button x:Name="GuideGridButton" Click="OnGuideGrid" Margin="7,0,0,0" Padding="12,0" MinHeight="38" local:ButtonChrome.CornerRadius="12"
+                                ToolTip="Bu listedeki tüm kanalların yayın rehberi: kanallar satır, saatler sütun"
+                                AutomationProperties.Name="Tüm kanalların yayın rehberi"
+                                Visibility="{Binding Visibility, ElementName=GuideToggle}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Television}" FontSize="17" Margin="0,0,6,0" />
+                                <TextBlock x:Name="GuideGridText" Text="Tüm rehber" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="GuideToggle" Click="OnToggleGuide" Margin="7,0,8,0" Padding="12,0" MinHeight="38" local:ButtonChrome.CornerRadius="12"
+                                ToolTip="Seçili kanalın yayın rehberi">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Calendar}" FontSize="17" Margin="0,0,6,0" />
+                                <TextBlock x:Name="GuideToggleText" Text="Rehber" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                     <Button x:Name="HeaderWatchlistButton" Grid.Column="1" Click="OnHeaderWatchlist" Margin="7,0,8,0" Padding="12,0" MinHeight="38"
                             local:ButtonChrome.CornerRadius="12" Visibility="Collapsed">
                         <StackPanel Orientation="Horizontal">
@@ -584,7 +673,14 @@
 
                 <Border x:Name="VideoFrame" Grid.Row="1" CornerRadius="{StaticResource PlayerCornerRadius}" Background="Black"
                         BorderBrush="{StaticResource PlayerEdge}" BorderThickness="1">
-                    <Grid ClipToBounds="True">
+                    <!-- Rounded clip: opaque overlays (first list, sleeping channel) must not paint over the frame's corners. -->
+                    <Grid x:Name="VideoFrameContent">
+                        <Grid.Clip>
+                            <MultiBinding Converter="{x:Static local:RoundedClipConverter.Instance}" ConverterParameter="23">
+                                <Binding ElementName="VideoFrameContent" Path="ActualWidth" />
+                                <Binding ElementName="VideoFrameContent" Path="ActualHeight" />
+                            </MultiBinding>
+                        </Grid.Clip>
                         <Border x:Name="PlayerPlaceholder" CornerRadius="22" Margin="1">
                             <Border.Background>
                                 <RadialGradientBrush Center="0.82,0.52" GradientOrigin="0.82,0.52" RadiusX="0.75" RadiusY="0.78">
@@ -696,16 +792,16 @@
                                                        TextWrapping="Wrap" Margin="0,10,0,0" />
                                             <TextBlock x:Name="VodPreviewSummary" Style="{StaticResource MutedText}" FontSize="14"
                                                        TextWrapping="Wrap" LineHeight="22" MaxHeight="132" TextTrimming="CharacterEllipsis" Margin="0,18,0,0" />
-                                            <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
+                                            <WrapPanel Margin="0,18,0,0">
                                                 <Button x:Name="VodPreviewPlayButton" Click="OnVodPreviewPlay" Style="{StaticResource PlayerAction}"
-                                                        HorizontalAlignment="Left" MinHeight="44" Padding="17,8">
+                                                        HorizontalAlignment="Left" MinHeight="44" Padding="17,8" Margin="0,6,8,0">
                                                     <StackPanel Orientation="Horizontal">
                                                         <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Play}" FontSize="18" />
                                                         <TextBlock x:Name="VodPreviewAction" Foreground="{StaticResource Ink}" Margin="7,0,0,0"
                                                                    VerticalAlignment="Center" />
                                                     </StackPanel>
                                                 </Button>
-                                                <Border Width="44" Height="44" Margin="9,0,0,0" CornerRadius="22" Background="{StaticResource Surface}"
+                                                <Border Width="44" Height="44" Margin="0,6,8,0" CornerRadius="22" Background="{StaticResource Surface}"
                                                         BorderBrush="{StaticResource Line}" BorderThickness="1">
                                                     <Viewbox Width="42" Height="42">
                                                         <controls:FavoriteToggle x:Name="VodFavoriteToggle" IsChannel="False"
@@ -713,14 +809,14 @@
                                                     </Viewbox>
                                                 </Border>
                                                 <Button x:Name="VodWatchlistButton" Click="OnVodWatchlist" Style="{StaticResource PlayerToolButton}" Width="Auto"
-                                                        Height="44" Padding="15,0" Margin="9,0,0,0" local:ButtonChrome.CornerRadius="22">
+                                                        Height="44" Padding="15,0" Margin="0,6,0,0" local:ButtonChrome.CornerRadius="22">
                                                     <StackPanel Orientation="Horizontal">
                                                         <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.History}" FontSize="17" />
                                                         <TextBlock x:Name="VodWatchlistText" Text="Sonra izle" Margin="7,0,0,0" VerticalAlignment="Center"
                                                                    Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                                                     </StackPanel>
                                                 </Button>
-                                            </StackPanel>
+                                            </WrapPanel>
                                             <TextBlock x:Name="VodPreviewError" Visibility="Collapsed" Foreground="{StaticResource Error}"
                                                        TextWrapping="Wrap" Margin="0,12,0,0" AutomationProperties.LiveSetting="Polite" />
                                         </StackPanel>
@@ -771,7 +867,7 @@
                     </Grid>
                 </Border>
 
-                <Border x:Name="PlayerControls" Grid.Row="2" Background="{StaticResource PlayerControlsSurface}" BorderBrush="{StaticResource PlayerEdge}"
+                <Border x:Name="PlayerControls" Grid.Row="2" SizeChanged="OnPlayerChromeSizeChanged" Background="{StaticResource PlayerControlsSurface}" BorderBrush="{StaticResource PlayerEdge}"
                         BorderThickness="1" CornerRadius="27" Padding="8,6" Margin="0,10,0,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -829,7 +925,7 @@
                                 AutomationProperties.Name="İkinci ekranda oynat">
                             <TextBlock x:Name="SecondScreenText" Text="2. ekran" />
                         </Button>
-                        <Button Click="OnFullscreen" Style="{StaticResource BarButton}" Margin="2,0,3,0"
+                        <Button x:Name="FullscreenButton" Click="OnFullscreen" Style="{StaticResource BarButton}" Margin="2,0,3,0"
                                 ToolTip="Tam ekran (F11)" AutomationProperties.Name="Tam ekran">
                             <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Fullscreen}" />
                         </Button>
@@ -984,6 +1080,90 @@
                     </Grid>
                 </Border>
             </Grid>
+
+            <!-- Under the capped player while browsing movies and series: facts of the selection, next episodes, continue watching. -->
+            <Border x:Name="VodInfoPanel" Grid.Column="2" VerticalAlignment="Top" Margin="22,0,22,16" Visibility="Collapsed"
+                    AutomationProperties.Name="Ayrıntılar">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <ScrollViewer x:Name="VodInfoScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+                        <StackPanel Margin="2,0,6,0">
+                            <TextBlock x:Name="VodInfoHeading" Text="Hakkında" Style="{StaticResource SectionLabel}" FontSize="13" Margin="0,0,0,8" />
+                            <TextBlock x:Name="VodInfoHint" Style="{StaticResource MutedText}" FontSize="13" TextWrapping="Wrap" />
+                            <ItemsControl x:Name="VodInfoChips" Focusable="False" Margin="0,0,0,2">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="9"
+                                                Padding="10,4" Margin="0,0,6,6">
+                                            <TextBlock Text="{Binding}" FontSize="12" FontWeight="SemiBold" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock x:Name="VodInfoPlot" FontSize="13" LineHeight="20" TextWrapping="Wrap" Margin="0,2,0,0" />
+                            <Grid x:Name="VodInfoCredits" Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <TextBlock x:Name="VodInfoDirectorLabel" Text="Yönetmen" Style="{StaticResource MutedText}" FontSize="12" Margin="0,0,12,4" />
+                                <TextBlock x:Name="VodInfoDirector" Grid.Column="1" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,4" />
+                                <TextBlock x:Name="VodInfoCastLabel" Grid.Row="1" Text="Oyuncular" Style="{StaticResource MutedText}" FontSize="12" Margin="0,0,12,0" />
+                                <TextBlock x:Name="VodInfoCast" Grid.Row="1" Grid.Column="1" FontSize="12" TextWrapping="Wrap" />
+                            </Grid>
+                            <StackPanel x:Name="VodNextEpisodesPanel" Margin="0,14,0,0">
+                                <TextBlock Text="Sıradaki bölümler" Style="{StaticResource SectionLabel}" FontSize="13" Margin="0,0,0,6" />
+                                <ItemsControl x:Name="VodNextEpisodes" Focusable="False">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Click="OnNextEpisodeRow" Cursor="Hand" Margin="0,0,0,4" HorizontalContentAlignment="Stretch"
+                                                    AutomationProperties.Name="{Binding Title}">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border x:Name="Frame" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1"
+                                                                CornerRadius="10" Padding="10,7">
+                                                            <ContentPresenter />
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="Frame" Property="Background" Value="{StaticResource Hover}" />
+                                                                <Setter TargetName="Frame" Property="BorderBrush" Value="{StaticResource ActiveLine}" />
+                                                            </Trigger>
+                                                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                                                <Setter TargetName="Frame" Property="BorderBrush" Value="{StaticResource Accent}" />
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                                <DockPanel>
+                                                    <TextBlock DockPanel.Dock="Left" Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Play}" FontSize="13"
+                                                               Foreground="{StaticResource Accent}" Margin="0,0,9,0" />
+                                                    <TextBlock DockPanel.Dock="Right" Text="{Binding Item.Detail}" Style="{StaticResource MutedText}" FontSize="12"
+                                                               VerticalAlignment="Center" Margin="8,0,0,0" />
+                                                    <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                                </DockPanel>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                    <Border x:Name="ContinueHostInfo" Grid.Row="1" />
+                </Grid>
+            </Border>
         </Grid>
 
         <Border x:Name="Footer" Grid.Row="2" Style="{StaticResource AmbientPanelSurface}" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="20,6,8,6">

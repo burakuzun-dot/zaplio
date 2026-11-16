@@ -181,15 +181,13 @@
                                                Margin="10,14" TextWrapping="Wrap" />
                                 </Grid>
                             </Border>
-                            <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
-                                <Button Style="{StaticResource Primary}" Click="OnManageSources">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Add}" FontSize="17" Margin="0,0,6,0" />
-                                        <TextBlock Text="Kaynak ekle" Foreground="{StaticResource Ink}" VerticalAlignment="Center" />
-                                    </StackPanel>
-                                </Button>
-                                <Button x:Name="EditSourcesButton" Content="Düzenle veya kaldır" Click="OnManageSources" Margin="8,0,0,0" />
-                            </StackPanel>
+                            <Button Style="{StaticResource Primary}" Click="OnManageSources" HorizontalAlignment="Left" Margin="0,16,0,0"
+                                    AutomationProperties.Name="{Binding Text, ElementName=ManageSourcesText}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock x:Name="ManageSourcesIcon" Style="{StaticResource Glyph}" FontSize="17" Margin="0,0,6,0" />
+                                    <TextBlock x:Name="ManageSourcesText" Foreground="{StaticResource Ink}" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
 
                         <!-- Playback -->

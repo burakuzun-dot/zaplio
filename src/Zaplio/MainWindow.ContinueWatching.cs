@@ -5,7 +5,8 @@ namespace Zaplio;
 /// <summary>"İzlemeye devam et": half-watched movies and episodes above the movie and series lists.</summary>
 public partial class MainWindow
 {
-    private sealed record ContinueRow(Channel Channel, string Title, string Caption, string? Poster, string Tile, string Tooltip);
+    /// <param name="Subtitle">The episode name under a series title; null for a movie.</param>
+    private sealed record ContinueRow(Channel Channel, string Title, string? Subtitle, string Caption, string? Poster, string Tile, string Tooltip);
 
     /// <param name="showRow">Only on the plain list (all items, no category, no search, not inside a series).</param>
     private void UpdateContinueWatching(bool showRow)
@@ -27,7 +28,8 @@ public partial class MainWindow
                     : _vodItems.FirstOrDefault(candidate => candidate.Playable?.Id == channel.Id);
                 var title = item?.Title ?? channel.Name;
                 var time = PlaybackTime.Format(entry.Position);
-                return new ContinueRow(channel, title, $"Devam · {time}", item?.Poster, series ? IconGlyphs.Series : IconGlyphs.Movie,
+                var episode = series && !string.Equals(channel.Name, title, StringComparison.CurrentCultureIgnoreCase) ? channel.Name : null;
+                return new ContinueRow(channel, title, episode, $"Devam et · {time}", item?.Poster, series ? IconGlyphs.Series : IconGlyphs.Movie,
                     $"{title}: kaldığın yerden devam ({time})");
             }).ToArray();
         ContinueList.ItemsSource = rows;

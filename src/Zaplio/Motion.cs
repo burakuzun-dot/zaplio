@@ -170,7 +170,8 @@ internal static class Motion
         {
             if (tabs.Children.OfType<RadioButton>().FirstOrDefault(tab => tab.IsChecked == true) is not { ActualWidth: > 0 } tab ||
                 indicator.Parent is not UIElement host) return;
-            var position = tab.TranslatePoint(new Point(0, 0), host);
+            // Use the arranged position so press feedback on the tab doesn't shift the indicator's target.
+            var position = tabs.TranslatePoint((Point)VisualTreeHelper.GetOffset(tab), host);
             indicator.Height = tab.ActualHeight;
             Canvas.SetTop(indicator, position.Y);
             // Width starts as Auto (NaN) until the first placement. A Width animation without a start value would then try to
@@ -185,8 +186,9 @@ internal static class Motion
                 return;
             }
             var length = TimeSpan.FromMilliseconds(280);
-            shift.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(shift.X, position.X, length) { EasingFunction = Settle });
-            indicator.BeginAnimation(FrameworkElement.WidthProperty, new DoubleAnimation(indicator.ActualWidth, tab.ActualWidth, length) { EasingFunction = EaseOut });
+            // Interpolate both edges at the same rate to keep the highlight inside the tab row throughout the slide.
+            shift.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(shift.X, position.X, length) { EasingFunction = EaseOut });
+            indicator.BeginAnimation(FrameworkElement.WidthProperty, new DoubleAnimation(indicator.Width, tab.ActualWidth, length) { EasingFunction = EaseOut });
             // Keep the base values at the target so nothing is left at Auto when the animation is replaced or stopped.
             shift.X = position.X;
             indicator.Width = tab.ActualWidth;

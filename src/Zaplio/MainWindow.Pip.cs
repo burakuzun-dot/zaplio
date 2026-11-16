@@ -73,7 +73,7 @@ public partial class MainWindow
         ExitFullscreenButton.Visibility = _fullscreen ? Visibility.Visible : Visibility.Collapsed;
         PipControls.Visibility = _pip ? Visibility.Visible : Visibility.Collapsed;
         var visibility = immersive ? Visibility.Collapsed : Visibility.Visible;
-        TitleBar.Visibility = PlayerControls.Visibility = Footer.Visibility = visibility;
+        TitleBar.Visibility = Footer.Visibility = visibility;
         ApplyLibraryLayout();
         // Keep the separate video overlay inside the rounded window and clear of the resize border.
         PlayerPane.Margin = _pip ? new Thickness(8) : immersive ? new Thickness(0) : new Thickness(23, 22, 23, 20);

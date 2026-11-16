@@ -8,11 +8,17 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 ### Eklenenler
 - **Öz denetim** (`tools/SelfTest.ps1`): uygulama ekran dışında, geçici bir veri klasörü ve yerel bir demo listeyle kendi ekranlarını gezip
   yerleşim ve animasyon hatalarını raporlar. Gerçek veriye dokunmaz, ağ isteği yapmaz. Veri klasörü `ZAPLIO_DATA_DIR` ile değiştirilebilir.
+  `-Shots <klasör>` ile gezdiği her ekranın görüntüsünü PNG olarak kaydeder.
 - **İzlemeye devam et:** Filmler ve Diziler'in üstünde yarıda kalan film ve bölümlerin afişli sırası; tıklayınca önizlemesi açılır, *Devam et* ile kaldığın yerden oynar.
   Şerit fareyle sürüklenerek ya da tekerlekle sağa sola kaydırılır.
   Dizilerde her dizinin yalnızca son izlenen bölümü görünür.
-- **Medya tuşları ve görev çubuğu:** klavyedeki oynat/duraklat, durdur, önceki/sonraki tuşları (Zaplio açık penceredeyken);
-  görev çubuğu önizlemesinde önceki kanal, oynat/duraklat ve sonraki kanal düğmeleri.
+- **Windows medya kartı:** oynayan kanalın veya içeriğin adı Windows medya denetimlerinde görünür. Zaplio arka plandayken de
+  desteklenen oynat/duraklat, durdur ve canlı kanallar arasında geçiş komutlarını kullanabilirsin. Görev çubuğu önizlemesinde
+  önceki kanal, oynat/duraklat ve sonraki kanal düğmeleri bulunur.
+- **Ayrıntı paneli:** Filmler ve Diziler'de oynatıcının altındaki boş alanda seçtiğin içeriğin yılı, türü, süresi, puanı, konusu,
+  yönetmeni ve oyuncuları görünür. Dizide bir bölüm seçiliyken sıradaki üç bölüm de listelenir, tıklayınca seçilir. Bilgiler
+  sağlayıcının zaten gönderdiği ayrıntı yanıtından okunur; aynı içeriği yeniden seçince sağlayıcıya tekrar sorulmaz. Pencere
+  yeterince uzunsa *İzlemeye devam et* de bu panele taşınır. Oynatma başlayınca panel çekilir, video sütunu doldurur.
 - Film ya da bölüm oynarken başlıkta da şimşek (favori) ve *Sonra izle* düğmeleri.
 - Film, dizi ve bölümleri seçince afişi ve mevcut detayları oynatma alanında görünür. Oynatmayı karttaki düğmeyle başlatabilirsin.
 - Canlı kanal geçişlerine kısa karıncalanma, pencere kapanışına eski televizyonlardaki gibi sönme efekti eklendi.
@@ -31,6 +37,10 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 - İlk liste ekranı: hiç kaynak yokken "İlk M3U listeni ekle" ekranı gösterilir.
 
 ### Değişenler
+- İzleme geçmişi koyu başlık çubuğuyla açılır. Yarım kalanları ayrı sekmede bulabilir, seçtiğin içeriğe *Devam et* ile dönebilirsin.
+- Ayarlar › Kaynaklar’da kayıtlı kaynakların varsa tek bir *Kaynakları yönet* düğmesi görünür.
+- Film ve dizi kütüphanesi oynatıcıyla alanı dengeli paylaşır. Gezinirken önizleme 16:9 oranına göre boyutlanır.
+- *İzlemeye devam et* kartları büyüdü: afiş daha büyük, başlık okunur boyutta. Dizilerde dizinin adının altında bölüm adı da yazar.
 - **Düzen temizliği:** kaynak seçimi ve *Listeleri yenile* üst çubuktan sol alttaki tek bir *Kaynak* kartına taşındı (Filmler ve Diziler'de
   liste panelinin altında); abonelik bilgisi aynı kartta. Üst çubuk inceldi, yalnızca izleme geçmişi ve ayarlar kaldı. Panel boşlukları,
   başlık boyutları ve köşe yuvarlaklıkları tek ölçeğe bağlandı. *Lisanslar* alt çubuktan Ayarlar › Hakkında'ya taşındı.
@@ -51,6 +61,13 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 - Ana pencere ve oynatma alanının köşeleri yuvarlatıldı. Oynatma çubuğu ve düğmeleri daha yumuşak bir görünüme kavuştu.
 
 ### Düzeltilenler
+- Filmler ve Diziler'de oynatıcı sütunun ortasında yüzmüyor; başlığı kütüphane başlığıyla aynı hizada, üstte duruyor.
+- Dar pencerede kumanda çubuğu taşmıyor: ses kaydırıcısı gizlenir, tam ekran düğmesi görünür kalır. Rehber düğmeleri yalnızca
+  simgeyle gösterilir, böylece başlık kesilmez.
+- Oynatma alanının yuvarlak köşeleri ilk liste ekranında kaybolmuyor.
+- Kanal seçilince oynatma alanı bir sonraki adımı gösterir. Yayın rehberi hazır değilse *Tüm rehber* düğmesi yükleme veya XMLTV kurulumunu açar.
+- Filmler ve Diziler arasında geçerken diğer bölümün seçimi ve durmuş içerik başlığı taşınmaz. Önizleme düğmeleri dar alanda alt satıra geçer.
+- Üstteki Canlı TV, Filmler ve Diziler sekmeleri eşit genişlikte. Seçim vurgusu kapsülün köşelerine uyuyor ve geçişte dışarı taşmıyor.
 - Açılışta üstteki seçili sekmenin (Canlı TV) vurgusu görünmüyordu; ilk sekme değişimine kadar boş kalıyordu.
 - "İzlemeye devam et" şeridini sürükledikten sonra imleç çift oklu kalıyor ve tıklamalar çalışmıyordu.
 - Video ikinci ekrana taşınırken ve geri alınırken yayın bağlantısı, oynatma konumu ve duraklatma durumu korunur.

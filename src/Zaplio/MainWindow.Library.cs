@@ -9,8 +9,10 @@ public partial class MainWindow
 {
     private sealed record VodFilter(string? Category, string Label);
 
-    private sealed record VodRow(VodItem Item, string Caption, string Tile, bool IsFavorite = false, bool CanFavorite = false)
+    private sealed record VodRow(VodItem Item, string Caption, string Tile, bool IsFavorite = false, bool CanFavorite = false) : IVodListItem
     {
+        /// <summary>Movies and series are poster tiles; the episodes of a series are rows.</summary>
+        public bool IsTile => CanFavorite;
         public string Title => Item.Title;
         public override string ToString() => Title;
     }
@@ -39,8 +41,83 @@ public partial class MainWindow
         }
     }
 
+    private VirtualizingTilePanel? _vodPanel;
+
+    private void OnVodPanelLoaded(object sender, RoutedEventArgs e)
+    {
+        _vodPanel = (VirtualizingTilePanel)sender;
+        ApplyVodPanelMode();
+    }
+
+    /// <summary>Poster grid for movies and series, a one-column list for the episodes of a series.</summary>
+    private void ApplyVodPanelMode()
+    {
+        if (_vodPanel is not { } panel) return;
+        var tiles = _selectedSeries is null;
+        panel.MinTileWidth = tiles ? 136 : 100_000;
+        panel.TileAspect = tiles ? 1.5 : 0;
+        panel.TileExtraHeight = tiles ? 56 : 70;
+    }
+
+    /// <summary>
+    /// The catalog and player share the window while browsing. Playback and episode lists give more room to the player.
+    /// </summary>
+    private void ApplyVodPaneWidth()
+    {
+        if (_librarySection == LibrarySection.Live || Immersive) return;
+        var wide = _playingChannel is null && _selectedSeries is null;
+        var maximum = wide ? double.PositiveInfinity : 410;
+        var width = new GridLength(wide ? 2 : 1, GridUnitType.Star);
+        if (!ChannelWidth.MaxWidth.Equals(maximum)) ChannelWidth.MaxWidth = maximum;
+        if (ChannelWidth.Width != width) ChannelWidth.Width = width;
+    }
+
+    private bool _watchingPlayerColumn;
+    private double _playerChromeHeight;
+
+    private void UpdateVodPlayerHeight()
+    {
+        if (!_isReady) return;
+
+        // Cap the browsing panel as a group so the controls stay beside the 16:9 preview when there is extra height.
+        // A short window can still shrink the star-sized video row, and active playback can use the whole pane.
+        var browsing = _librarySection != LibrarySection.Live && _playingChannel is null && !Immersive;
+        var maximum = browsing && PlayerPane.ActualWidth > 0
+            ? PlayerPane.ActualWidth * 9 / 16 + OccupiedHeight(PlayerHeader) + OccupiedHeight(PlayerControls)
+            : double.PositiveInfinity;
+        if (PlayerPane.MaxHeight != maximum) PlayerPane.MaxHeight = maximum;
+
+        // The capped panel sits at the top, level with the library's title, instead of floating in the middle of the column.
+        // A fixed height (not just Top alignment) keeps the star-sized video row from collapsing to its content.
+        if (PlayerPane.Parent is FrameworkElement column && !_watchingPlayerColumn)
+        {
+            _watchingPlayerColumn = true;
+            column.SizeChanged += (_, e) => { if (e.HeightChanged) UpdateVodPlayerHeight(); };
+        }
+        var room = PlayerPane.Parent is FrameworkElement { ActualHeight: > 0 } parent
+            ? parent.ActualHeight - PlayerPane.Margin.Top - PlayerPane.Margin.Bottom : double.PositiveInfinity;
+        var height = double.IsFinite(maximum) && double.IsFinite(room) ? Math.Max(0, Math.Min(maximum, room)) : double.NaN;
+        if (!PlayerPane.Height.Equals(height)) PlayerPane.Height = height;
+        var alignment = double.IsNaN(height) ? VerticalAlignment.Stretch : VerticalAlignment.Top;
+        if (PlayerPane.VerticalAlignment != alignment) PlayerPane.VerticalAlignment = alignment;
+        // Header and controls are hidden while a preview card is shown; remember their height so the browsing layout stays stable.
+        if (PlayerHeader.Visibility == Visibility.Visible && PlayerControls.Visibility == Visibility.Visible && PlayerControls.ActualHeight > 0)
+            _playerChromeHeight = OccupiedHeight(PlayerHeader) + OccupiedHeight(PlayerControls);
+        var browsingHeight = PlayerPane.ActualWidth * 9 / 16 + _playerChromeHeight;
+        PlaceVodInfoPanel(height, PlayerPane.Parent is FrameworkElement { ActualHeight: > 0 } host ? host.ActualHeight : double.NaN, browsingHeight);
+
+        static double OccupiedHeight(FrameworkElement element) => element.Visibility == Visibility.Collapsed
+            ? 0 : element.ActualHeight + element.Margin.Top + element.Margin.Bottom;
+    }
+
+    private void OnPlayerChromeSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (e.HeightChanged) UpdateVodPlayerHeight();
+    }
+
     private void UpdateVodPreview()
     {
+        ApplyVodPaneWidth();
         var preview = SelectedVodPreview;
         VodPreviewPanel.Visibility = preview is null ? Visibility.Collapsed : Visibility.Visible;
         MainVideoSlot.Visibility = preview is null ? Visibility.Visible : Visibility.Hidden;
@@ -48,8 +125,14 @@ public partial class MainWindow
         UpdatePlaceholderVisibility();
         PlayerHeader.Visibility = Immersive || preview is not null ? Visibility.Collapsed : Visibility.Visible;
         PlayButton.Visibility = preview is null || _playingChannel is not null ? Visibility.Visible : Visibility.Collapsed;
+        PlayerControls.Visibility = !Immersive && (preview is null || _playingChannel is not null) ? Visibility.Visible : Visibility.Collapsed;
+        UpdateVodPlayerHeight();
         LogoLoader.SetUrl(VodPreviewPoster, preview?.Poster);
-        if (preview is null) return;
+        if (preview is null)
+        {
+            UpdateVodInfo();
+            return;
+        }
 
         VodPreviewSeries.Text = _selectedSeries?.Title;
         VodPreviewSeries.Visibility = _selectedSeries is null ? Visibility.Collapsed : Visibility.Visible;
@@ -63,6 +146,7 @@ public partial class MainWindow
         VodPreviewError.Text = _vodPreviewError;
         VodPreviewError.Visibility = _vodPreviewError is null ? Visibility.Collapsed : Visibility.Visible;
         UpdateVodListButtons();
+        UpdateVodInfo();
     }
 
     private async void OnVodPreviewPlay(object sender, RoutedEventArgs e)
@@ -81,6 +165,10 @@ public partial class MainWindow
         if (!_isReady) return;
         CancelVodPreviewRequest();
         _librarySection = sender == MoviesTab ? LibrarySection.Movies : sender == SeriesTab ? LibrarySection.Series : LibrarySection.Live;
+        _selectedSeries = null;
+        _seriesFilters = null;
+        _vodItems = [];
+        VodList.SelectedItem = null;
         if (_guideOpen) SetGuideOpen(false);
         ApplyLibraryLayout();
         Motion.Reveal(_librarySection == LibrarySection.Live ? ChannelPane : VodPane, offset: 12);
@@ -91,8 +179,6 @@ public partial class MainWindow
         }
         else
         {
-            _selectedSeries = null;
-            _seriesFilters = null;
             VodSearchBox.Clear();
             _vodListKind = VodListKind.All;
             VodAllTab.IsChecked = true;
@@ -105,8 +191,12 @@ public partial class MainWindow
         var live = _librarySection == LibrarySection.Live;
         NavigationWidth.Width = new GridLength(live && !Immersive ? 218 : 0);
         ChannelWidth.MinWidth = !live && !Immersive ? 280 : 0;
-        ChannelWidth.MaxWidth = live || Immersive ? double.PositiveInfinity : 410;
-        ChannelWidth.Width = Immersive ? new GridLength(0) : live ? new GridLength(318) : new GridLength(1, GridUnitType.Star);
+        if (live || Immersive)
+        {
+            ChannelWidth.MaxWidth = double.PositiveInfinity;
+            ChannelWidth.Width = Immersive ? new GridLength(0) : new GridLength(318);
+        }
+        else ApplyVodPaneWidth();
         NavigationPane.Visibility = ChannelPane.Visibility = live && !Immersive ? Visibility.Visible : Visibility.Collapsed;
         VodPane.Visibility = !live && !Immersive ? Visibility.Visible : Visibility.Collapsed;
         // One source card: under the group list for live TV, under the movie / series list otherwise.
@@ -117,7 +207,6 @@ public partial class MainWindow
             host.Child = SourceCard;
         }
         UpdateSelection();
-        UpdatePlaceholder();
     }
 
     private void CancelVodRequest()
@@ -268,6 +357,7 @@ public partial class MainWindow
                     _librarySection == LibrarySection.Movies ? IconGlyphs.Movie : IconGlyphs.Series,
                     _selectedSeries is null && IsVodFavorite(item), _selectedSeries is null);
             }).ToArray();
+        ApplyVodPanelMode();
         VodList.ItemsSource = rows;
         VodList.SelectedItem = rows.FirstOrDefault(row => row.Item.ProviderId == selectedId);
         VodBack.Visibility = _selectedSeries is null ? Visibility.Collapsed : Visibility.Visible;
@@ -302,16 +392,25 @@ public partial class MainWindow
         if (!_isReady || _closing) return;
         UpdateSelection();
         if (SelectedVodPreview is not { } preview || _selectedSeries is not null || ActiveSource is not { Kind: SourceKind.Xtream } source ||
-            VodList.SelectedItem is not VodRow row || (!string.IsNullOrWhiteSpace(preview.Summary) && !string.IsNullOrWhiteSpace(preview.Poster))) return;
+            VodList.SelectedItem is not VodRow row ||
+            (row.Item.Facts is not null && !string.IsNullOrWhiteSpace(preview.Summary) && !string.IsNullOrWhiteSpace(preview.Poster))) return;
+        if (CachedVodDetails(row.Item) is { } cached)
+        {
+            _vodPreviewDetails = cached;
+            UpdateVodPreview();
+            return;
+        }
 
         using var request = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
         _vodPreviewRequest = request;
+        UpdateVodInfo();
         try
         {
             await Task.Delay(350, request.Token);
             var details = await _loader.LoadVodDetailsAsync(source, row.Item, request.Token);
             if (request.IsCancellationRequested || !ReferenceEquals(VodList.SelectedItem, row) || _activeSourceId != source.Id) return;
             _vodPreviewDetails = details;
+            RememberVodDetails(source.Id, details);
             UpdateVodPreview();
         }
         catch (Exception exception) when (request.IsCancellationRequested ||
@@ -321,7 +420,11 @@ public partial class MainWindow
         }
         finally
         {
-            if (_vodPreviewRequest == request) _vodPreviewRequest = null;
+            if (_vodPreviewRequest == request)
+            {
+                _vodPreviewRequest = null;
+                if (!_closing) UpdateVodInfo();
+            }
         }
     }
 

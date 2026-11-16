@@ -90,7 +90,8 @@ public partial class SettingsWindow : Window
         var sources = _sources();
         SourceList.ItemsSource = sources;
         NoSources.Visibility = sources.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        EditSourcesButton.Visibility = sources.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+        ManageSourcesText.Text = sources.Count == 0 ? "Kaynak ekle" : "Kaynakları yönet";
+        ManageSourcesIcon.Text = sources.Count == 0 ? IconGlyphs.Add : IconGlyphs.Plug;
     }
 
     private void OnManageSources(object sender, RoutedEventArgs e)

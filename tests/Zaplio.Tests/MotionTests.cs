@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media;
 using Xunit;
 
 namespace Zaplio.Tests;
@@ -66,6 +67,31 @@ public sealed class MotionTests
 
             Assert.Equal(90, indicator.Width);
             Assert.Equal(34, indicator.Height);
+        });
+    }
+
+    [Fact]
+    public void Indicator_aligns_to_the_tab_even_during_press_feedback()
+    {
+        OnStaThread(() =>
+        {
+            var indicator = new Border();
+            var first = new RadioButton { Width = 90, Height = 34 };
+            var second = new RadioButton
+            {
+                Width = 80, Height = 34, IsChecked = true,
+                RenderTransform = new ScaleTransform(0.95, 0.95), RenderTransformOrigin = new Point(0.5, 0.5)
+            };
+            var tabs = new StackPanel { Orientation = Orientation.Horizontal, Children = { first, second } };
+            var host = new Grid { Children = { new Canvas { Children = { indicator } }, tabs } };
+            host.Measure(new Size(170, 34));
+            host.Arrange(new Rect(0, 0, 170, 34));
+
+            Motion.TrackSelection(tabs, indicator);
+
+            Assert.Equal(90, Assert.IsType<TranslateTransform>(indicator.RenderTransform).X);
+            Assert.Equal(0, Canvas.GetTop(indicator));
+            Assert.Equal(80, indicator.Width);
         });
     }
 
