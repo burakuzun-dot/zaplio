@@ -5,6 +5,8 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 
 ## Yayınlanmamış
 
+## 0.11.0 — 2026-11-16
+
 ### Eklenenler
 - **Öz denetim** (`tools/SelfTest.ps1`): uygulama ekran dışında, geçici bir veri klasörü ve yerel bir demo listeyle kendi ekranlarını gezip
   yerleşim ve animasyon hatalarını raporlar. Gerçek veriye dokunmaz, ağ isteği yapmaz. Veri klasörü `ZAPLIO_DATA_DIR` ile değiştirilebilir.
