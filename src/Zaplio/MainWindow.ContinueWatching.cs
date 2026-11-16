@@ -15,6 +15,7 @@ public partial class MainWindow
         {
             ContinuePanel.Visibility = Visibility.Collapsed;
             ContinueList.ItemsSource = null;
+            UpdateVodInfo();
             return;
         }
 
@@ -34,6 +35,7 @@ public partial class MainWindow
             }).ToArray();
         ContinueList.ItemsSource = rows;
         ContinuePanel.Visibility = rows.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+        UpdateVodInfo();
     }
 
     /// <summary>

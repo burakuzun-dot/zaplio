@@ -73,7 +73,6 @@ public partial class MainWindow
     }
 
     private bool _watchingPlayerColumn;
-    private double _playerChromeHeight;
 
     private void UpdateVodPlayerHeight()
     {
@@ -100,11 +99,7 @@ public partial class MainWindow
         if (!PlayerPane.Height.Equals(height)) PlayerPane.Height = height;
         var alignment = double.IsNaN(height) ? VerticalAlignment.Stretch : VerticalAlignment.Top;
         if (PlayerPane.VerticalAlignment != alignment) PlayerPane.VerticalAlignment = alignment;
-        // Header and controls are hidden while a preview card is shown; remember their height so the browsing layout stays stable.
-        if (PlayerHeader.Visibility == Visibility.Visible && PlayerControls.Visibility == Visibility.Visible && PlayerControls.ActualHeight > 0)
-            _playerChromeHeight = OccupiedHeight(PlayerHeader) + OccupiedHeight(PlayerControls);
-        var browsingHeight = PlayerPane.ActualWidth * 9 / 16 + _playerChromeHeight;
-        PlaceVodInfoPanel(height, PlayerPane.Parent is FrameworkElement { ActualHeight: > 0 } host ? host.ActualHeight : double.NaN, browsingHeight);
+        PlaceVodInfoPanel(height, PlayerPane.Parent is FrameworkElement { ActualHeight: > 0 } host ? host.ActualHeight : double.NaN);
 
         static double OccupiedHeight(FrameworkElement element) => element.Visibility == Visibility.Collapsed
             ? 0 : element.ActualHeight + element.Margin.Top + element.Margin.Bottom;

@@ -17,8 +17,9 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
   önceki kanal, oynat/duraklat ve sonraki kanal düğmeleri bulunur.
 - **Ayrıntı paneli:** Filmler ve Diziler'de oynatıcının altındaki boş alanda seçtiğin içeriğin yılı, türü, süresi, puanı, konusu,
   yönetmeni ve oyuncuları görünür. Dizide bir bölüm seçiliyken sıradaki üç bölüm de listelenir, tıklayınca seçilir. Bilgiler
-  sağlayıcının zaten gönderdiği ayrıntı yanıtından okunur; aynı içeriği yeniden seçince sağlayıcıya tekrar sorulmaz. Pencere
-  yeterince uzunsa *İzlemeye devam et* de bu panele taşınır. Oynatma başlayınca panel çekilir, video sütunu doldurur.
+  sağlayıcının zaten gönderdiği ayrıntı yanıtından okunur; aynı içeriği yeniden seçince sağlayıcıya tekrar sorulmaz. Hiçbir şey
+  seçili değilken panelde *İzlemeye devam et* kartları durur; bir içerik seçince yer varsa ayrıntıların altında kalır. Oynatma
+  başlayınca panel çekilir, video sütunu doldurur.
 - Film ya da bölüm oynarken başlıkta da şimşek (favori) ve *Sonra izle* düğmeleri.
 - Film, dizi ve bölümleri seçince afişi ve mevcut detayları oynatma alanında görünür. Oynatmayı karttaki düğmeyle başlatabilirsin.
 - Canlı kanal geçişlerine kısa karıncalanma, pencere kapanışına eski televizyonlardaki gibi sönme efekti eklendi.

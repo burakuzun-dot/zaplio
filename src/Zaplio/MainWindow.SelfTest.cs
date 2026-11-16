@@ -196,7 +196,8 @@ public partial class MainWindow
         Check(realized is > 0 and < 60, $"yalnızca görünen karolar oluşturulur ({realized}/60)");
         CheckVodBrowsingDimensions("film kütüphanesi");
         CheckVodInfoPanel("film kütüphanesi");
-        Check(VodInfoHint.IsVisible, "seçim yokken ayrıntı paneli ne göstereceğini anlatır");
+        Check(ReferenceEquals(ContinuePanel.Parent, ContinueHostInfo) && ContinuePanel.IsVisible && !VodInfoScroll.IsVisible,
+            "seçim yokken oynatıcının altında 'izlemeye devam et' kartları görünür");
         var continueHost = ContinuePanel.Parent;
         SelfTest.Snapshot(this, "film ızgarası");
         var continueCard = ContinueList.ItemContainerGenerator.ContainerFromIndex(0) as FrameworkElement;

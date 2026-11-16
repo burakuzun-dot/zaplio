@@ -26,9 +26,10 @@ public partial class MainWindow
     private VodItem? CachedVodDetails(VodItem item) =>
         _activeSourceId is { } source && _vodDetailsCache.TryGetValue((source, _librarySection, item.ProviderId), out var details) ? details : null;
 
+    private bool _continueFitsWithDetails;
+
     /// <param name="playerHeight">The capped player height, or NaN when the player fills the column.</param>
-    /// <param name="browsingHeight">The player height with its title and controls, whether or not a preview hides them now.</param>
-    private void PlaceVodInfoPanel(double playerHeight, double columnHeight, double browsingHeight)
+    private void PlaceVodInfoPanel(double playerHeight, double columnHeight)
     {
         var top = PlayerPane.Margin.Top + playerHeight + VodInfoGap;
         var room = columnHeight - top - VodInfoPanel.Margin.Bottom;
@@ -41,15 +42,14 @@ public partial class MainWindow
             if (!VodInfoPanel.Height.Equals(room)) VodInfoPanel.Height = room;
         }
 
-        // "Continue watching" moves under the player when there is room for it beside the facts; otherwise it stays above the list.
-        // Decided from the browsing layout, so selecting a title (which hides the player's title and controls) does not move it.
-        var browsingRoom = columnHeight - PlayerPane.Margin.Top - browsingHeight - VodInfoGap - VodInfoPanel.Margin.Bottom;
-        var underPlayer = show && browsingRoom >= VodInfoWithContinue;
-        var host = underPlayer ? ContinueHostInfo : ContinueHostList;
+        // Whenever the panel is there, "continue watching" lives in it: alone while nothing is selected, under the facts of a
+        // selection when both fit. The list on the left therefore never jumps when a title is selected.
+        _continueFitsWithDetails = show && room >= VodInfoWithContinue;
+        var host = show ? ContinueHostInfo : ContinueHostList;
         if (!ReferenceEquals(ContinuePanel.Parent, host))
         {
             if (ContinuePanel.Parent is Border previous) previous.Child = null;
-            ContinuePanel.Margin = underPlayer ? new Thickness(0, 12, 0, 0) : new Thickness(0, 0, 0, 8);
+            if (!show) ContinuePanel.Margin = new Thickness(0, 0, 0, 8);
             host.Child = ContinuePanel;
         }
         UpdateVodInfo();
@@ -91,6 +91,14 @@ public partial class MainWindow
                 : "Bir film seç; konusu, türü, süresi ve oyuncuları burada görünür."
             : _vodPreviewRequest is not null ? "Ayrıntılar yükleniyor…" : "Bu içerik için ayrıntı bilgisi yok.";
         VodInfoHint.Visibility = empty ? Visibility.Visible : Visibility.Collapsed;
+
+        // Nothing selected: the panel shows what you can pick up again instead of the "select something" hint.
+        var idle = item is null;
+        var continueFirst = idle && ContinuePanel.Visibility == Visibility.Visible;
+        VodInfoScroll.Visibility = continueFirst ? Visibility.Collapsed : Visibility.Visible;
+        Grid.SetRow(ContinueHostInfo, continueFirst ? 0 : 1);
+        ContinueHostInfo.Visibility = idle || _continueFitsWithDetails ? Visibility.Visible : Visibility.Collapsed;
+        ContinuePanel.Margin = continueFirst ? new Thickness(0) : new Thickness(0, 12, 0, 0);
 
         // The plot is shown in full here, so the preview card does not repeat it.
         if (plot is not null) VodPreviewSummary.Visibility = Visibility.Collapsed;
