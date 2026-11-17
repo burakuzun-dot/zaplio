@@ -77,7 +77,8 @@
 İki paket de .NET ve VLC'yi içinde taşır, ayrıca bir şey kurman gerekmez.
 
 > [!NOTE]
-> Paketler henüz kod imzalı değil. Windows *Akıllı Uygulama Denetimi* açıksa uygulamayı engelleyebilir.
+> Paketler henüz kod imzalı değil. Windows *Akıllı Uygulama Denetimi* açıksa uygulamayı engelleyebilir. Ücretsiz açık kaynak
+> imzası için SignPath Foundation'a başvuruldu; bkz. [kod imzalama politikası](docs/code-signing.md).
 
 ## 🏁 3 adımda başla
 
@@ -174,6 +175,7 @@ Zaplio'yu kaldırmak bu klasörü silmez; tamamen temizlemek istersen klasörü 
 - **Kullanım verisi toplanmaz.** Zaplio'nun kendi sunucusu yoktur.
 - Yalnızca şunlarla iletişim kurulur: eklediğin kaynaklar, kaynak listelerinde adı geçen logo/afiş sunucuları
   (Ayarlar'dan kapatılır) ve sürüm denetimi için GitHub (Ayarlar'dan kapatılır). Bu sunucular IP adresini görebilir.
+- Sürüm dosyalarının nasıl imzalanacağı: [Kod imzalama politikası](docs/code-signing.md).
 - Telif, markalar ve sorumluluk: [Hukuki bilgilendirme](docs/legal.md).
 
 ## 🛠️ Geliştirme

@@ -5,6 +5,10 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 
 ## Yayınlanmamış
 
+### Belgeler
+- Kod imzalama politikası eklendi (SignPath Foundation başvurusu). `LICENSE` dosyası yalnızca MIT metnini içeriyor;
+  üçüncü taraf lisans notu README ve `Licenses` klasöründe.
+
 ## 0.13.0 — 2026-11-18
 
 ### Eklenenler
