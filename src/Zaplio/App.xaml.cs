@@ -8,6 +8,8 @@ public partial class App : Application
     private bool _reportedCrash;
 
     private string[] _startupFiles = [];
+    private SingleInstance? _instance;
+    private readonly CancellationTokenSource _instanceListener = new();
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -30,8 +32,24 @@ public partial class App : Application
         base.OnStartup(e);
         _startupFiles = e.Args.Where(arg => !arg.StartsWith("--", StringComparison.Ordinal) &&
             (System.IO.File.Exists(arg) || System.IO.Directory.Exists(arg))).ToArray();
-        if (SelfTest.Active) RunSelfTest();
-        else ShowMainWindow();
+        if (SelfTest.Active)
+        {
+            RunSelfTest();
+            return;
+        }
+
+        // One Zaplio per data folder: a second launch hands its files to the open window and leaves.
+        _instance = new SingleInstance(AppPaths.Root);
+        if (!_instance.IsFirst && _instance.SendToFirst(_startupFiles))
+        {
+            AppLog.Info("Zaplio zaten açık; dosyalar açık pencereye gönderildi.");
+            Shutdown(0);
+            return;
+        }
+        ShowMainWindow();
+        if (e.Args.Contains("--updated")) (MainWindow as MainWindow)?.AnnounceUpdated();
+        _ = _instance.ListenAsync(paths => Dispatcher.BeginInvoke(() => (MainWindow as MainWindow)?.OpenFromAnotherLaunch(paths)),
+            _instanceListener.Token);
     }
 
     /// <summary>Walks through the screens off screen with a demo list, writes the report and exits (see <see cref="SelfTest"/>).</summary>
@@ -96,6 +114,8 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _instanceListener.Cancel();
+        _instance?.Dispose();
         AppLog.Info("Zaplio kapatıldı.");
         base.OnExit(e);
     }

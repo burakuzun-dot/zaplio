@@ -57,5 +57,8 @@
 
 ## Bakım
 - Hata günlüğü (`%LocalAppData%\Zaplio\logs`, 14 gün), şifreler maskelenir.
-- Açılışta isteğe bağlı güncelleme denetimi (GitHub Releases).
+- Açılışta isteğe bağlı güncelleme denetimi (GitHub Releases). Kurulumla yüklenen Zaplio güncellemeyi kendisi indirir, GitHub'ın
+  verdiği boyut ve SHA-256 özetiyle doğrular, sessizce kurar ve yeniden açılır (yönetici izni gerekmez). ZIP sürümünde sürüm
+  sayfası açılır.
+- Tek pencere: Zaplio açıkken Windows'ta bir videoyu "Birlikte aç" ile açınca ikinci pencere açılmaz, video açık olanda oynar.
 - Önbelleği temizle ve günlük klasörünü aç düğmeleri.

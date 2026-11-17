@@ -77,6 +77,26 @@ public partial class MainWindow
         if (dialog.ShowDialog(this) == true) await OpenLocalAsync(dialog.FileNames);
     }
 
+    /// <summary>
+    /// Zaplio was started again (for example "Birlikte aç" on a video) while this window is open: come forward, and play the
+    /// files it was given, if any.
+    /// </summary>
+    internal void OpenFromAnotherLaunch(IReadOnlyList<string> paths)
+    {
+        if (_closing) return;
+        if (!IsLoaded || !IsVisible)
+        {
+            OpenWhenShown(paths); // still behind the intro animation
+            return;
+        }
+        if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+        Activate();
+        Topmost = true; // a short nudge so Windows lets the window come to the front
+        Topmost = false;
+        Focus();
+        if (paths.Count > 0) _ = OpenLocalAsync(paths);
+    }
+
     /// <summary>Files given on the command line ("Birlikte aç" in Windows) open once the window is on screen.</summary>
     internal void OpenWhenShown(IReadOnlyList<string> paths)
     {

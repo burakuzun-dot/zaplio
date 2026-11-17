@@ -41,7 +41,15 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 - **Daha ince hız ayarı ve yavaş oynatma:** film, bölüm ve dosyalarda **,** yavaşlatır, **.** hızlandırır (0,25× ile 3× arası,
   yavaş çekimde ince adımlar). Hız tek seferde değil kısa bir geçişle değişir; ses perdesi korunur. **E** kare kare ilerletir.
 
+- **Uygulama içinden güncelleme:** alttaki "Yeni sürüm hazır" düğmesine iki kez bas; Zaplio yeni sürümün kurulum dosyasını
+  GitHub'dan kendisi indirir, GitHub'ın verdiği boyut ve SHA-256 özetiyle doğrular (tutmazsa siler, çalıştırmaz), küçük bir ilerleme
+  penceresiyle sessizce kurar ve yeniden açılır. Kurulum kullanıcıya özel olduğu için yönetici izni istemez. ZIP sürümünde eskisi
+  gibi sürüm sayfası açılır. Windows imzasız kurulumu engellerse Zaplio kapanmaz, nedenini söyler. (Bu özellik 0.12.0 ile gelir;
+  0.11.0'dan 0.12.0'a bir kez elle geçmek gerekir.)
+
 ### Değişenler
+- **Tek pencere:** Zaplio açıkken Windows'ta bir videoyu "Birlikte aç" ile açınca ikinci bir pencere açılmaz; video açık olan
+  pencerede oynar ve pencere öne gelir. İki pencerenin aynı ayar dosyasına yazıp birbirinin değişikliğini silmesi de böylece önlendi.
 - **Duraklatıp devam ettirmek anında:** her duraklatma ve devamda oynatıcı alanı baştan kuruluyor, konum hemen diske yazılıyor
   ve görüntü ayarları yeniden uygulanıyordu (VLC'nin görüntü çıkışını yeniden kurmasına yol açıyordu, 4K'da belirgindi). Artık
   yalnızca oynat/duraklat düğmesi değişir; konum, duraklama iki saniye sürerse kaydedilir.

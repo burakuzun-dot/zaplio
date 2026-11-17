@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace Zaplio;
 
-internal sealed record UpdateInfo(Version Version, string Tag, Uri Page);
+internal sealed record UpdateInfo(Version Version, string Tag, Uri Page, UpdatePackage? Installer = null);
 
 /// <summary>Looks up the latest GitHub release. Release tags are expected to look like "v0.8.0" or "0.8.0".</summary>
 internal static class UpdateChecker
@@ -37,7 +37,7 @@ internal static class UpdateChecker
         var text = tag.TrimStart('v', 'V').Split('-', '+')[0];
         if (!Version.TryParse(text, out var version)) return null;
         version = Normalize(version);
-        return version > CurrentVersion ? new UpdateInfo(version, tag, page) : null;
+        return version > CurrentVersion ? new UpdateInfo(version, tag, page, UpdateInstaller.FindInstaller(root, version)) : null;
     }
 
     private static Version Normalize(Version version) =>

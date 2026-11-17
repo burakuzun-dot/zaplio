@@ -54,5 +54,7 @@ Name: "{autodesktop}\{#AppName}"; Filename: "{app}\Zaplio.exe"; Tasks: desktopic
 
 [Run]
 Filename: "{app}\Zaplio.exe"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
+; An update started from inside Zaplio runs silently; Zaplio is opened again when it is done.
+Filename: "{app}\Zaplio.exe"; Parameters: "--updated"; Flags: nowait; Check: WizardSilent
 
 ; User data (%LocalAppData%\Zaplio: sources, cache, logs) is kept on uninstall on purpose.
