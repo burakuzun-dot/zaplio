@@ -5,6 +5,8 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 
 ## Yayınlanmamış
 
+## 0.12.0 — 2026-11-17
+
 ### Eklenenler
 - **Şansıma:** kanal ve film/dizi listelerinin başlığındaki şimşeğe basınca listedeki içerikler kayan bir makarada döner,
   yavaşlar ve rastgele birinde durur. Film ya da dizi seçilirse önizlemesi açılır, kanal seçilirse oynamaya başlar. Liste

@@ -27,7 +27,7 @@ Testler M3U ayrıştırıcıyı, arşiv adreslerini, günlük maskelemeyi, bağl
 ## Paket
 
 ```powershell
-dotnet publish src/Zaplio -c Release -r win-x64 --self-contained true -o artifacts\Zaplio-0.11.0-win-x64
+dotnet publish src/Zaplio -c Release -r win-x64 --self-contained true -o artifacts\Zaplio-0.12.0-win-x64
 ```
 
 Kurulum dosyası için [Inno Setup 6](https://jrsoftware.org/isinfo.php) ile `installer\Zaplio.iss` derlenir.
@@ -37,8 +37,8 @@ Kurulum dosyası için [Inno Setup 6](https://jrsoftware.org/isinfo.php) ile `in
 1. `CHANGELOG.md` dosyasındaki *Yayınlanmamış* bölümünü yeni sürüm numarasıyla adlandır.
 2. Etiketi gönder:
    ```powershell
-   git tag v0.11.0
-   git push origin v0.11.0
+   git tag v0.12.0
+   git push origin v0.12.0
    ```
 3. *Release* iş akışı testleri çalıştırır, taşınabilir ZIP ve kurulum dosyasını üretir ve GitHub sürümünü oluşturur.
    Sürüm notları `CHANGELOG.md` dosyasındaki o sürümün bölümünden alınır; bölüm yoksa sürüm oluşturulmaz.
