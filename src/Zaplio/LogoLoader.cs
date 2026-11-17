@@ -30,6 +30,16 @@ public static class LogoLoader
 
     public static string Folder { get; } = Path.Combine(CatalogCache.Folder, "logos");
 
+    /// <summary>
+    /// Width images are stored at: the widest DecodeWidth in use (the preview poster), so nothing on screen loses detail.
+    /// Providers' full-size posters (often 100 KB–2 MB) shrink by about 60 %, the folder holds far more of them and
+    /// scrolling decodes much less.
+    /// </summary>
+    internal const int StoredWidth = 360;
+
+    /// <summary>Files smaller than this are left as they are; shrinking them would gain little.</summary>
+    internal const int ShrinkAbove = 48 * 1024;
+
     /// <summary>Upper limit for the logo and poster files on disk; large lists otherwise grow the folder without end.</summary>
     internal const long DiskLimitBytes = 200L * 1024 * 1024;
 
@@ -132,7 +142,17 @@ public static class LogoLoader
         {
             byte[]? bytes = null;
             if (File.Exists(file) && DateTime.Now - File.GetLastWriteTime(file) < DiskMaxAge)
+            {
                 bytes = await File.ReadAllBytesAsync(file).ConfigureAwait(false);
+                // Saved by an older version at full size: store it small from now on, keeping its age.
+                if (bytes.Length > ShrinkAbove && Shrink(bytes, StoredWidth) is { } smaller && smaller.Length < bytes.Length)
+                {
+                    var written = File.GetLastWriteTimeUtc(file);
+                    bytes = smaller;
+                    await WriteAtomicAsync(file, bytes).ConfigureAwait(false);
+                    File.SetLastWriteTimeUtc(file, written);
+                }
+            }
 
             if (bytes is null)
             {
@@ -142,10 +162,8 @@ public static class LogoLoader
                 if (bytes.Length == 0 || bytes.Length > MaxBytes) return null;
                 var decoded = Decode(bytes, width);
                 if (decoded is null) return null;
-                Directory.CreateDirectory(Folder);
-                var temporary = $"{file}.{Guid.NewGuid():N}.tmp";
-                await File.WriteAllBytesAsync(temporary, bytes).ConfigureAwait(false);
-                File.Move(temporary, file, overwrite: true);
+                if (bytes.Length > ShrinkAbove && Shrink(bytes, StoredWidth) is { } smaller && smaller.Length < bytes.Length) bytes = smaller;
+                await WriteAtomicAsync(file, bytes).ConfigureAwait(false);
                 return decoded;
             }
             return Decode(bytes, width);
@@ -156,6 +174,67 @@ public static class LogoLoader
             return null;
         }
     }
+
+    private static async Task WriteAtomicAsync(string file, byte[] bytes)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+        var temporary = $"{file}.{Guid.NewGuid():N}.tmp";
+        try
+        {
+            await File.WriteAllBytesAsync(temporary, bytes).ConfigureAwait(false);
+            File.Move(temporary, file, overwrite: true);
+        }
+        finally
+        {
+            if (File.Exists(temporary)) File.Delete(temporary);
+        }
+    }
+
+    /// <summary>
+    /// The image scaled down to <paramref name="maxWidth"/> pixels wide: PNG when it has transparency (logos), otherwise
+    /// JPEG. Null when it cannot be read or is already that narrow; the caller then keeps the original, as it also does
+    /// when the result is not smaller.
+    /// </summary>
+    internal static byte[]? Shrink(byte[] original, int maxWidth)
+    {
+        try
+        {
+            var decoder = BitmapDecoder.Create(new MemoryStream(original, writable: false),
+                BitmapCreateOptions.IgnoreColorProfile | BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+            var frame = decoder.Frames[0];
+            if (frame.PixelWidth <= maxWidth) return null;
+
+            var scale = (double)maxWidth / frame.PixelWidth;
+            BitmapSource scaled = new TransformedBitmap(frame, new ScaleTransform(scale, scale));
+            var transparent = HasAlpha(frame.Format) ||
+                frame.Palette?.Colors.Any(color => color.A < 255) == true;
+            BitmapEncoder encoder;
+            if (transparent)
+            {
+                encoder = new PngBitmapEncoder();
+                if (!HasAlpha(scaled.Format)) scaled = new FormatConvertedBitmap(scaled, PixelFormats.Bgra32, null, 0);
+            }
+            else
+            {
+                encoder = new JpegBitmapEncoder { QualityLevel = 80 };
+                if (scaled.Format != PixelFormats.Bgr24 && scaled.Format != PixelFormats.Gray8)
+                    scaled = new FormatConvertedBitmap(scaled, PixelFormats.Bgr24, null, 0);
+            }
+            encoder.Frames.Add(BitmapFrame.Create(scaled));
+            using var output = new MemoryStream();
+            encoder.Save(output);
+            return output.ToArray();
+        }
+        catch (Exception exception) when (exception is NotSupportedException or FileFormatException or ArgumentException or
+            InvalidOperationException or IOException or OverflowException or System.Runtime.InteropServices.COMException)
+        {
+            return null;
+        }
+    }
+
+    private static bool HasAlpha(PixelFormat format) =>
+        format == PixelFormats.Bgra32 || format == PixelFormats.Pbgra32 || format == PixelFormats.Rgba64 ||
+        format == PixelFormats.Prgba64 || format == PixelFormats.Rgba128Float || format == PixelFormats.Prgba128Float;
 
     private static ImageSource? Decode(byte[] bytes, int width)
     {

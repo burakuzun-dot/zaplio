@@ -78,6 +78,7 @@ public partial class MainWindow
             {
                 MarkSeek();
                 player.Time = target;
+                TimeSeek(player, target);
                 return;
             }
         }

@@ -572,7 +572,12 @@ public partial class MainWindow : Window
 
     private async void OnPlayToggle(object sender, RoutedEventArgs e)
     {
-        if (CanPausePlayback && _player is { } player) player.SetPause(player.State != VLCState.Paused);
+        if (CanPausePlayback && _player is { } player)
+        {
+            var pausing = player.State != VLCState.Paused;
+            player.SetPause(pausing);
+            TimePause(player, pausing);
+        }
         else if (_playingChannel is not null) await StopPlaybackAsync("Durduruldu");
         else if (DisplayedChannel is Channel channel) await PlayChannelAsync(channel);
     }

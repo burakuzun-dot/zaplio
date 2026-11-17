@@ -31,6 +31,7 @@ public partial class MainWindow
             case SpaceAction.TogglePause when _player is { } player:
                 var pause = player.State != VLCState.Paused;
                 player.SetPause(pause);
+                TimePause(player, pause);
                 FlashPlayPause(paused: pause);
                 break;
             case SpaceAction.ResumeLast when last is not null:

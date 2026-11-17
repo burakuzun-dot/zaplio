@@ -6,6 +6,12 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 ## Yayınlanmamış
 
 ### İyileştirmeler
+- **Daha hafif afiş ve logo önbelleği:** Sağlayıcıların tam boyutlu afişleri artık ekranda gösterilen en büyük boyuta
+  (360 piksel) küçültülerek saklanıyor; ekranda görünen bir şey değişmiyor. Önbellek yaklaşık %60 küçülüyor, aynı alana çok
+  daha fazla görsel sığıyor, liste kaydırılırken daha az çözülüyor ve görsel sunucularına daha az istek gidiyor. Eski büyük
+  dosyalar okundukça küçültülür.
+- **Oynatma süreleri günlükte:** Duraklatma, devam ettirme ve sarmanın kaç milisaniye sürdüğü günlüğe yazılıyor; bir gecikme
+  olduğunda sebebi günlükten görülebiliyor.
 - **Film ve dizilerde sarma ve duraklatma yeniden hızlı:** "Kayda hazır tut" yayının arka planda bir kopyasını
   çıkarıyordu. Bu kopya film, dizi ve arşiv programlarında her sarmada ve duraklatmada gecikmeye yol açıyordu. Artık yalnızca
   canlı yayınlarda kullanılıyor. Film ve dizide kayıt yine kalitesini bozmadan alınır; kayda başlarken ve bitirirken görüntü

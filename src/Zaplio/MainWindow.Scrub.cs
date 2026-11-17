@@ -91,6 +91,7 @@ public partial class MainWindow
         _pendingVodPosition = 0;
         MarkSeek();
         player.Time = (long)VodSeek.Value;
+        TimeSeek(player, (long)VodSeek.Value);
     }
 
     /// <summary>The wheel over the timeline: five seconds a notch, one second with Shift.</summary>
@@ -110,6 +111,7 @@ public partial class MainWindow
         MarkSeek();
         var target = Math.Clamp(player.Time + delta, 0, player.Length);
         player.Time = target;
+        TimeSeek(player, target);
         _updatingVodSeek = true;
         VodSeek.Value = target;
         _updatingVodSeek = false;

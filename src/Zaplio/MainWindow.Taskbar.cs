@@ -91,9 +91,11 @@ public partial class MainWindow
         {
             case MediaCommand.Play when CanPausePlayback && player.State == VLCState.Paused:
                 player.SetPause(false);
+                TimePause(player, pausing: false);
                 break;
             case MediaCommand.Pause when CanPausePlayback && player.State != VLCState.Paused:
                 player.SetPause(true);
+                TimePause(player, pausing: true);
                 break;
             case MediaCommand.Stop:
                 _zapDelay.Stop();
