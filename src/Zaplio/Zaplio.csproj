@@ -20,6 +20,27 @@
     <!-- Only downloaded (not referenced) so tools\Sign-Zaplio.ps1 (repository root) has signtool.exe without a Windows SDK install. -->
     <PackageDownload Include="Microsoft.Windows.SDK.BuildTools" Version="[10.0.26100.1742]" />
   </ItemGroup>
+  <!--
+    VLC plugins Zaplio can never reach, left out of the build and the packages (≈20 MB). Sources only accept http(s), rtsp,
+    rtmp(s), udp and rtp addresses and local videos open as files, so other access methods (SRT, RIST, SMB, NFS, SFTP,
+    Blu-ray, DCP, CD/VCD, TV tuners, screen capture) are unreachable. Recording copies streams untouched, so encoders
+    (x264, QuickSync, MP2) and streaming outputs other than file/http are unused, as are network discovery (UPnP, mDNS),
+    audio visualisations, Chromecast, audio fingerprinting and the add-on manager. Decoders, demuxers, subtitles,
+    TLS and the stream_out modules recording uses (duplicate, standard, record, transcode) all stay.
+  -->
+  <ItemGroup>
+    <VlcWindowsX64ExcludeFiles Include="plugins\access\libaccess_srt_plugin.dll;plugins\access\librist_plugin.dll;plugins\access\libdcp_plugin.dll" />
+    <VlcWindowsX64ExcludeFiles Include="plugins\access\liblibbluray_plugin.dll;plugins\access\libbluray-awt-j2se-1.4.1.jar;plugins\access\libbluray-j2se-1.4.1.jar" />
+    <VlcWindowsX64ExcludeFiles Include="plugins\access\libsftp_plugin.dll;plugins\access\libnfs_plugin.dll;plugins\access\libsmb_plugin.dll" />
+    <VlcWindowsX64ExcludeFiles Include="plugins\access\libcdda_plugin.dll;plugins\access\libvcd_plugin.dll;plugins\access\libdtv_plugin.dll" />
+    <VlcWindowsX64ExcludeFiles Include="plugins\access\libscreen_plugin.dll;plugins\access\libshm_plugin.dll;plugins\access\libvdr_plugin.dll;plugins\access\libaccess_wasapi_plugin.dll" />
+    <VlcWindowsX64ExcludeFiles Include="plugins\access_output\libaccess_output_srt_plugin.dll;plugins\access_output\libaccess_output_rist_plugin.dll" />
+    <VlcWindowsX64ExcludeFiles Include="plugins\access_output\libaccess_output_livehttp_plugin.dll;plugins\access_output\libaccess_output_shout_plugin.dll" />
+    <VlcWindowsX64ExcludeFiles Include="plugins\stream_out\libstream_out_chromaprint_plugin.dll;plugins\stream_out\libstream_out_chromecast_plugin.dll" />
+    <VlcWindowsX64ExcludeFiles Include="plugins\codec\libx26410b_plugin.dll;plugins\codec\libqsv_plugin.dll;plugins\codec\libtwolame_plugin.dll" />
+    <VlcWindowsX64ExcludeFiles Include="plugins\misc\libaddonsfsstorage_plugin.dll;plugins\misc\libaddonsvorepository_plugin.dll;plugins\misc\libfingerprinter_plugin.dll" />
+    <VlcWindowsX64ExcludeFiles Include="plugins\services_discovery\%2A;plugins\visualization\%2A" />
+  </ItemGroup>
   <ItemGroup>
     <None Remove="Assets\Fonts\*.ttf;Assets\Zaplio.ico;Assets\Brand\*.png;Assets\Splash.png;Assets\Intro.mp4;Assets\Intro-transparent.frames.zip" />
     <Resource Include="Assets\Fonts\*.ttf;Assets\Zaplio.ico;Assets\Brand\*.png;Assets\Splash.png" />

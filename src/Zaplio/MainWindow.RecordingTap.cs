@@ -24,7 +24,7 @@ public partial class MainWindow
     /// <summary>The copy's option for a stream about to start, and the address to read it from; nothing for local files.</summary>
     private (string? Option, string? Address) PrepareTap(Channel channel)
     {
-        if (LocalMedia.IsLocal(channel) || !_state.Settings.RecordReady) return (null, null);
+        if (!RecordingPlan.UsesTap(channel, _state.Settings.RecordReady)) return (null, null);
         var port = RecordingPlan.FreeLoopbackPort();
         var secret = Guid.NewGuid().ToString("N");
         return (RecordingPlan.TapOutput(port, secret), $"http://127.0.0.1:{port}/{secret}.ts");

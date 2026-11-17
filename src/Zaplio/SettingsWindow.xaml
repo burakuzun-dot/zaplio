@@ -223,7 +223,7 @@
                             <Grid Style="{StaticResource SettingRow}">
                                 <StackPanel Margin="0,0,60,0">
                                     <TextBlock Text="Kayda hazır tut" Style="{StaticResource SettingTitle}" />
-                                    <TextBlock Text="Kayıt tuşuna basınca ya da kaydı bitirince yayın durmaz, yeniden yüklenmez. Yayının bir kopyası yalnızca bu bilgisayarda Zaplio'ya akar; kayıt yokken diske bir şey yazılmaz. Bir sonraki yayından itibaren geçerli." Style="{StaticResource SettingHint}" />
+                                    <TextBlock Text="Canlı yayında kayıt tuşuna basınca ya da kaydı bitirince yayın durmaz, yeniden yüklenmez. Yayının bir kopyası yalnızca bu bilgisayarda Zaplio'ya akar; kayıt yokken diske bir şey yazılmaz. Film, dizi ve arşivde kullanılmaz, çünkü sarmayı ve duraklatmayı yavaşlatır. Bir sonraki yayından itibaren geçerli." Style="{StaticResource SettingHint}" />
                                 </StackPanel>
                                 <CheckBox x:Name="RecordReady" Style="{StaticResource SettingsSwitch}" AutomationProperties.Name="Kayda hazır tut" />
                             </Grid>

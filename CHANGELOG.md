@@ -5,6 +5,16 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 
 ## Yayınlanmamış
 
+### İyileştirmeler
+- **Film ve dizilerde sarma ve duraklatma yeniden hızlı:** "Kayda hazır tut" yayının arka planda bir kopyasını
+  çıkarıyordu. Bu kopya film, dizi ve arşiv programlarında her sarmada ve duraklatmada gecikmeye yol açıyordu. Artık yalnızca
+  canlı yayınlarda kullanılıyor. Film ve dizide kayıt yine kalitesini bozmadan alınır; kayda başlarken ve bitirirken görüntü
+  bir an yeniden yüklenir.
+- **Daha küçük paket:** Zaplio'nun hiçbir yoldan ulaşamadığı VLC eklentileri (SRT, RIST, SMB, NFS, SFTP, Blu-ray, DCP,
+  CD/VCD, TV kartı ve ekran yakalama erişimleri; x264, QuickSync ve MP2 kodlayıcıları; ağda kaynak bulma, müzik
+  görselleştirmeleri, Chromecast, ses parmak izi ve eklenti yöneticisi) artık pakete girmiyor. Uygulama klasörü yaklaşık
+  33 MB, ZIP yaklaşık 18 MB küçüldü. Çözücüler, altyazı, şifreli bağlantı ve kaydın kullandığı modüller olduğu gibi duruyor.
+
 ### Belgeler
 - Kod imzalama politikası eklendi (SignPath Foundation başvurusu). `LICENSE` dosyası yalnızca MIT metnini içeriyor;
   üçüncü taraf lisans notu README ve `Licenses` klasöründe.

@@ -55,6 +55,23 @@ public sealed class RecordingPlanTests
     }
 
     [Fact]
+    public void OnlyLiveProviderStreamsGetTheReadyCopy()
+    {
+        var source = Guid.NewGuid();
+        var live = new Channel("k1", source, "Kanal A", "Ulusal", new Uri("http://ornek.test/canli/1.ts"));
+        var movie = live with { Id = "m1", Stream = new Uri("http://ornek.test/movie/1.mp4"), IsOnDemand = true };
+        var episode = movie with { Id = "e1", SeriesId = 7, EpisodeId = 9 };
+        var local = new Channel("f1", Guid.Empty, "Video", "", new Uri(@"C:\Videolar\video.mp4"), IsOnDemand: true);
+
+        Assert.True(RecordingPlan.UsesTap(live, recordReady: true));
+        Assert.False(RecordingPlan.UsesTap(live, recordReady: false));
+        Assert.False(RecordingPlan.UsesTap(movie, recordReady: true)); // pausing and seeking would be slow
+        Assert.False(RecordingPlan.UsesTap(episode, recordReady: true));
+        Assert.False(RecordingPlan.UsesTap(local, recordReady: true));
+        Assert.False(RecordingPlan.UsesTap(local with { IsOnDemand = false }, recordReady: true));
+    }
+
+    [Fact]
     public void TheFinishedStreamIsCopiedIntoMatroskaUnchanged() =>
         Assert.Equal(":sout=#std{access=file,mux=mkv,dst=\"C:/v/kayıt.mkv\"}", RecordingPlan.MkvOutput(@"C:\v\kayıt.mkv"));
 

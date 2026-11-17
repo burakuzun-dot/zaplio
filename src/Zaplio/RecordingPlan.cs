@@ -55,6 +55,14 @@ internal static class RecordingPlan
     ];
 
     /// <summary>
+    /// Whether a stream gets the "Kayda hazır" copy: live provider streams only. Movies, episodes and archive programmes can
+    /// be paused and sought, and with a stream-output copy attached VLC has to stop and realign that copy on every pause and
+    /// jump, which makes both noticeably slow. Local files are never copied either.
+    /// </summary>
+    internal static bool UsesTap(Channel channel, bool recordReady) =>
+        recordReady && !channel.IsOnDemand && !channel.Stream.IsFile;
+
+    /// <summary>
     /// "Kayda hazır": shows the stream and serves an untouched MPEG-TS copy of it on 127.0.0.1 only, under a random secret
     /// path, for Zaplio to read (see TsRecorder). Nothing leaves this computer; when nobody reads, VLC drops the copy.
     /// </summary>
