@@ -5,6 +5,8 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 
 ## Yayınlanmamış
 
+## 0.13.0 — 2026-11-18
+
 ### Eklenenler
 - **Açık tema ve vurgu rengi:** Ayarlar › Görünüm'de koyu, açık ya da "Windows ile aynı" temayı ve altı vurgu renginden birini
   seçebilirsin. Değişiklik pencereyi yeniden açmadan hemen görünür; Vazgeç'e basarsan eski görünüm geri gelir. Açık temada da

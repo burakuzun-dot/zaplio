@@ -3,6 +3,7 @@ using Xunit;
 
 namespace Zaplio.Tests;
 
+[Collection(WpfCollection.Name)]
 public sealed class SettingsWindowTests
 {
     [Fact]

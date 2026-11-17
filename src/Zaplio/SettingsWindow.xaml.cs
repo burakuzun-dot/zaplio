@@ -16,6 +16,8 @@ public partial class SettingsWindow : Window
     private sealed record ThemeChoice(AppTheme Mode, string Label);
     private sealed record AccentSwatch(string Key, string Name, System.Windows.Media.Brush Swatch, bool IsSelected);
     private string _accent = "purple";
+    /// <summary>Set once the look was tried out here; only then does closing without Kaydet put the saved look back.</summary>
+    private bool _lookPreviewed;
 
     private readonly PlaybackSettings _original;
     private readonly Func<IReadOnlyList<Source>> _sources;
@@ -59,7 +61,7 @@ public partial class SettingsWindow : Window
         Closed += (_, _) =>
         {
             // Kaydet keeps what the window shows; Vazgeç (or closing) puts the saved look back.
-            if (DialogResult != true) ThemeManager.Apply(Application.Current.Resources, _original.Theme, _original.Accent);
+            if (DialogResult != true && _lookPreviewed) ThemeManager.Apply(Application.Current.Resources, _original.Theme, _original.Accent);
         };
         CheckForUpdates.IsChecked = settings.CheckForUpdates;
         ShowLogos.IsChecked = settings.ShowLogos;
@@ -222,6 +224,7 @@ public partial class SettingsWindow : Window
     private void OnLookPreview(object sender, RoutedEventArgs e)
     {
         if (!IsLoaded || ThemePicker?.SelectedItem is not ThemeChoice theme) return; // filling the picker on open is not a choice
+        _lookPreviewed = true;
         ThemeManager.Apply(Application.Current.Resources, theme.Mode, _accent);
     }
 

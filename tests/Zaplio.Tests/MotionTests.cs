@@ -6,6 +6,7 @@ using Xunit;
 
 namespace Zaplio.Tests;
 
+[Collection(WpfCollection.Name)]
 public sealed class MotionTests
 {
     private static void OnStaThread(Action test)
