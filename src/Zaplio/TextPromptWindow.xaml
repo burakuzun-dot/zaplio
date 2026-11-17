@@ -5,13 +5,13 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Zaplio" Width="470" SizeToContent="Height"
         WindowStartupLocation="CenterOwner" WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False"
-        Background="{StaticResource Panel}" Foreground="{StaticResource Text}" FontFamily="{StaticResource UiFont}" UseLayoutRounding="True">
+        Background="{DynamicResource Panel}" Foreground="{DynamicResource Text}" FontFamily="{StaticResource UiFont}" UseLayoutRounding="True">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="0" CornerRadius="0" ResizeBorderThickness="0" GlassFrameThickness="0" />
     </shell:WindowChrome.WindowChrome>
-    <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1">
+    <Border Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1">
         <StackPanel>
-            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleMouseDown">
+            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleMouseDown">
                 <Grid Height="60" Margin="23,0,13,0">
                     <TextBlock x:Name="Heading" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Button Style="{StaticResource WindowButton}" HorizontalAlignment="Right" Click="OnClose"
@@ -28,7 +28,7 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
                     <Button Content="Vazgeç" Click="OnClose" IsCancel="True" Margin="0,0,8,0" />
                     <Button Style="{StaticResource Primary}" Click="OnSave" IsDefault="True">
-                        <TextBlock Text="Kaydet" Foreground="{StaticResource Ink}" />
+                        <TextBlock Text="Kaydet" Foreground="{DynamicResource Ink}" />
                     </Button>
                 </StackPanel>
             </StackPanel>

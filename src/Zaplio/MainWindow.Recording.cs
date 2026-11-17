@@ -320,7 +320,8 @@ public partial class MainWindow
         var recording = _recordFile is not null;
         RecordBadge.Visibility = recording ? Visibility.Visible : Visibility.Collapsed;
         RecordTime.Text = PlaybackTime.Format(recording ? Environment.TickCount64 - _recordStartedAt : 0);
-        RecordDot.Fill = recording ? RecordRed : (System.Windows.Media.Brush)FindResource("Muted");
+        if (recording) RecordDot.Fill = RecordRed;
+        else RecordDot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "Muted");
         RecordButton.ToolTip = recording ? "Kaydı durdur (R)" : "Kaydet: oynayanı kalitesini bozmadan kaydet (R)";
         System.Windows.Automation.AutomationProperties.SetName(RecordButton, recording ? "Kaydı durdur" : "Kaydet");
         if (recording && Motion.Enabled && RecordBadgeDot.Opacity >= 1)

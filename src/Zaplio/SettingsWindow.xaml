@@ -4,44 +4,15 @@
         xmlns:local="clr-namespace:Zaplio"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Ayarlar · Zaplio" Width="800" Height="580" WindowStartupLocation="CenterOwner"
-        WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False" Background="{StaticResource Panel}"
-        Foreground="{StaticResource Text}" FontFamily="{StaticResource UiFont}" UseLayoutRounding="True">
+        WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False" Background="{DynamicResource Panel}"
+        Foreground="{DynamicResource Text}" FontFamily="{StaticResource UiFont}" UseLayoutRounding="True">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="0" CornerRadius="0" ResizeBorderThickness="0" GlassFrameThickness="0" />
     </shell:WindowChrome.WindowChrome>
     <Window.Resources>
-        <Style x:Key="SettingsSwitch" TargetType="CheckBox">
-            <Setter Property="Width" Value="40" />
-            <Setter Property="Height" Value="24" />
-            <Setter Property="HorizontalAlignment" Value="Right" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="CheckBox">
-                        <Border x:Name="Track" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1"
-                                CornerRadius="12" Padding="3">
-                            <Ellipse x:Name="Knob" Width="14" Height="14" HorizontalAlignment="Left" Fill="{StaticResource Muted}" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Track" Property="Background" Value="{StaticResource Active}" />
-                                <Setter TargetName="Track" Property="BorderBrush" Value="{StaticResource ActiveLine}" />
-                                <Setter TargetName="Knob" Property="HorizontalAlignment" Value="Right" />
-                                <Setter TargetName="Knob" Property="Fill" Value="{StaticResource Accent}" />
-                            </Trigger>
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="Track" Property="BorderBrush" Value="{StaticResource Accent}" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <!-- Left menu item -->
         <Style x:Key="SettingsNav" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="{StaticResource Muted}" />
+            <Setter Property="Foreground" Value="{DynamicResource Muted}" />
             <Setter Property="FontFamily" Value="{StaticResource UiFont}" />
             <Setter Property="FontSize" Value="14" />
             <Setter Property="FontWeight" Value="SemiBold" />
@@ -60,16 +31,16 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Frame" Property="Background" Value="{StaticResource Hover}" />
-                                <Setter Property="Foreground" Value="{StaticResource Text}" />
+                                <Setter TargetName="Frame" Property="Background" Value="{DynamicResource Hover}" />
+                                <Setter Property="Foreground" Value="{DynamicResource Text}" />
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Frame" Property="Background" Value="{StaticResource Active}" />
-                                <Setter TargetName="Frame" Property="BorderBrush" Value="{StaticResource ActiveLine}" />
-                                <Setter Property="Foreground" Value="{StaticResource Accent}" />
+                                <Setter TargetName="Frame" Property="Background" Value="{DynamicResource Active}" />
+                                <Setter TargetName="Frame" Property="BorderBrush" Value="{DynamicResource ActiveLine}" />
+                                <Setter Property="Foreground" Value="{DynamicResource Accent}" />
                             </Trigger>
                             <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="Frame" Property="BorderBrush" Value="{StaticResource Accent}" />
+                                <Setter TargetName="Frame" Property="BorderBrush" Value="{DynamicResource Accent}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -102,7 +73,7 @@
         </Style>
     </Window.Resources>
 
-    <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1">
+    <Border Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -111,11 +82,11 @@
             </Grid.RowDefinitions>
 
             <!-- Title -->
-            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleMouseDown" Background="Transparent">
+            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleMouseDown" Background="Transparent">
                 <Grid Height="60" Margin="22,0,12,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="{x:Static local:IconGlyphs.Settings}" FontFamily="{StaticResource GlyphFont}"
-                                   FontSize="21" Foreground="{StaticResource Accent}" VerticalAlignment="Center" Margin="0,0,9,0" />
+                                   FontSize="21" Foreground="{DynamicResource Accent}" VerticalAlignment="Center" Margin="0,0,9,0" />
                         <TextBlock Text="Ayarlar" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
                     </StackPanel>
                     <Button Style="{StaticResource WindowButton}" HorizontalAlignment="Right" Click="OnCancel"
@@ -132,7 +103,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Menu -->
-                <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,1,0" Background="{StaticResource Canvas}">
+                <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,1,0" Background="{DynamicResource Canvas}">
                     <StackPanel Margin="12,16,12,12">
                         <RadioButton x:Name="SourcesNav" Style="{StaticResource SettingsNav}" Content="Kaynaklar" Tag="{x:Static local:IconGlyphs.Plug}"
                                      Checked="OnPageChanged" />
@@ -155,7 +126,7 @@
                             <TextBlock Text="Kaynaklar" Style="{StaticResource PageTitle}" />
                             <TextBlock Style="{StaticResource PageIntro}"
                                        Text="M3U listelerin ve Xtream hesapların. Kullanmak istediğin kaynağa tıkla. Seçim, ekleme ve kaldırma hemen uygulanır; Kaydet'e basman gerekmez." />
-                            <Border Background="{StaticResource Canvas}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="6">
+                            <Border Background="{DynamicResource Canvas}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="12" Padding="6">
                                 <Grid>
                                     <ListBox x:Name="SourceList" Background="Transparent" BorderThickness="0" SelectionChanged="OnSourceSelected"
                                              ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Aktif kaynak">
@@ -167,16 +138,16 @@
                                                         <ColumnDefinition Width="*" />
                                                         <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
-                                                    <Border Width="32" Height="32" CornerRadius="9" Background="{StaticResource Active}" HorizontalAlignment="Left">
+                                                    <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource Active}" HorizontalAlignment="Left">
                                                         <TextBlock Text="{Binding Icon}" FontFamily="{StaticResource GlyphFont}" FontSize="16"
-                                                                   Foreground="{StaticResource Accent}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                                   Foreground="{DynamicResource Accent}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                     </Border>
                                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                                         <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
                                                         <TextBlock Text="{Binding TypeLabel}" Style="{StaticResource MutedText}" FontSize="12" Margin="0,2,0,0" />
                                                     </StackPanel>
                                                     <Border Grid.Column="2" CornerRadius="9" Padding="9,3" VerticalAlignment="Center" Margin="8,0,2,0"
-                                                            Background="{StaticResource Surface}" BorderBrush="{StaticResource ActiveLine}" BorderThickness="1">
+                                                            Background="{DynamicResource Surface}" BorderBrush="{DynamicResource ActiveLine}" BorderThickness="1">
                                                         <Border.Style>
                                                             <Style TargetType="Border">
                                                                 <Setter Property="Visibility" Value="Collapsed" />
@@ -187,7 +158,7 @@
                                                                 </Style.Triggers>
                                                             </Style>
                                                         </Border.Style>
-                                                        <TextBlock Text="Kullanılıyor" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Accent}" />
+                                                        <TextBlock Text="Kullanılıyor" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Accent}" />
                                                     </Border>
                                                 </Grid>
                                             </DataTemplate>
@@ -198,12 +169,12 @@
                                 </Grid>
                             </Border>
                             <Border x:Name="AccountPanel" Margin="0,12,0,0" Padding="12,10" CornerRadius="12" Visibility="Collapsed"
-                                    Background="{StaticResource Canvas}" BorderBrush="{StaticResource Line}" BorderThickness="1">
+                                    Background="{DynamicResource Canvas}" BorderBrush="{DynamicResource Line}" BorderThickness="1">
                                 <DockPanel>
                                     <Button x:Name="CheckAccountButton" DockPanel.Dock="Right" Content="Aboneliği kontrol et" Click="OnCheckAccount"
                                             VerticalAlignment="Center" Margin="10,0,0,0" />
                                     <TextBlock DockPanel.Dock="Left" FontFamily="{StaticResource GlyphFont}" Text="{x:Static local:IconGlyphs.Server}"
-                                               FontSize="16" Foreground="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                               FontSize="16" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="0,0,10,0" />
                                     <StackPanel VerticalAlignment="Center">
                                         <TextBlock Text="Abonelik" FontSize="12" FontWeight="SemiBold" />
                                         <TextBlock x:Name="AccountText" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0" Style="{StaticResource MutedText}" />
@@ -215,7 +186,7 @@
                                         AutomationProperties.Name="{Binding Text, ElementName=ManageSourcesText}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock x:Name="ManageSourcesIcon" Style="{StaticResource Glyph}" FontSize="17" Margin="0,0,6,0" />
-                                        <TextBlock x:Name="ManageSourcesText" Foreground="{StaticResource Ink}" VerticalAlignment="Center" />
+                                        <TextBlock x:Name="ManageSourcesText" Foreground="{DynamicResource Ink}" VerticalAlignment="Center" />
                                     </StackPanel>
                                 </Button>
                                 <Button x:Name="RefreshListsButton" Click="OnRefreshLists" AutomationProperties.Name="Listeleri yenile"
@@ -303,6 +274,51 @@
                             <TextBlock Style="{StaticResource PageIntro}" Text="Uygulamanın nasıl görüneceği." />
 
                             <Grid Style="{StaticResource SettingRow}">
+                                <StackPanel Margin="0,0,180,0">
+                                    <TextBlock Text="Tema" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Açık temada video alanı ve üstündekiler koyu kalır; ortam ışığı yalnızca koyu temada yanar." Style="{StaticResource SettingHint}" />
+                                </StackPanel>
+                                <ComboBox x:Name="ThemePicker" Style="{StaticResource LibraryPicker}" Width="160" HorizontalAlignment="Right"
+                                          DisplayMemberPath="Label" SelectionChanged="OnLookPreview" AutomationProperties.Name="Tema" />
+                            </Grid>
+                            <Grid Style="{StaticResource SettingRow}">
+                                <StackPanel Margin="0,0,0,0">
+                                    <TextBlock Text="Vurgu rengi" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Seçili satırlar, sekmeler, düğmeler ve çubuklar bu renge bürünür." Style="{StaticResource SettingHint}" />
+                                    <ItemsControl x:Name="AccentPicker" Margin="0,10,0,0" Focusable="False">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <RadioButton GroupName="Accent" IsChecked="{Binding IsSelected, Mode=OneWay}" Checked="OnAccentPicked"
+                                                             Margin="0,0,10,6" Cursor="Hand" ToolTip="{Binding Name}" AutomationProperties.Name="{Binding Name}">
+                                                    <RadioButton.Template>
+                                                        <ControlTemplate TargetType="RadioButton">
+                                                            <Grid Width="34" Height="34">
+                                                                <Ellipse x:Name="Ring" Stroke="{DynamicResource Text}" StrokeThickness="2" Opacity="0" />
+                                                                <Ellipse Margin="5" Fill="{Binding Swatch}" />
+                                                            </Grid>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsChecked" Value="True">
+                                                                    <Setter TargetName="Ring" Property="Opacity" Value="1" />
+                                                                </Trigger>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter TargetName="Ring" Property="Opacity" Value="0.5" />
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </RadioButton.Template>
+                                                </RadioButton>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Style="{StaticResource SettingRow}">
                                 <StackPanel Margin="0,0,60,0">
                                     <TextBlock Text="Logolar ve afişler" Style="{StaticResource SettingTitle}" />
                                     <TextBlock Text="Kapalıyken internetten görsel indirilmez; liste daha sade görünür." Style="{StaticResource SettingHint}" />
@@ -352,9 +368,46 @@
                             <Grid Style="{StaticResource SettingRow}">
                                 <StackPanel Margin="0,0,60,0">
                                     <TextBlock Text="Yeni sürümü denetle" Style="{StaticResource SettingTitle}" />
-                                    <TextBlock Text="Açılışta GitHub'daki son sürüme bakar; yalnızca haber verir, kendiliğinden kurmaz." Style="{StaticResource SettingHint}" />
+                                    <TextBlock Text="Açılışta GitHub'daki son sürüme bakar. Yeni sürüm varsa alttaki düğmeyle uygulamanın içinden kurabilirsin; sen istemeden kurulmaz." Style="{StaticResource SettingHint}" />
                                 </StackPanel>
                                 <CheckBox x:Name="CheckForUpdates" Style="{StaticResource SettingsSwitch}" AutomationProperties.Name="Yeni sürümü denetle" />
+                            </Grid>
+                            <Grid x:Name="ChildRow" Style="{StaticResource SettingRow}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,0,16,0">
+                                    <TextBlock Text="Çocuk profili" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Style="{StaticResource SettingHint}"
+                                               Text="Yalnızca izin verdiğin kategoriler görünür; ayarlar, kaynaklar ve profilden çıkmak PIN ister. Değişiklik hemen uygulanır." />
+                                    <TextBlock x:Name="ChildStatusText" Style="{StaticResource MutedText}" FontSize="12" Margin="0,6,0,0" />
+                                </StackPanel>
+                                <Button x:Name="ChildButton" Grid.Column="1" Content="Düzenle" Click="OnChildProfile" VerticalAlignment="Center" />
+                            </Grid>
+                            <Grid x:Name="BackupRow" Style="{StaticResource SettingRow}">
+                                <StackPanel>
+                                    <TextBlock Text="Yedekle ve taşı" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Style="{StaticResource SettingHint}"
+                                               Text="Kaynaklar (kullanıcı adı ve şifreleriyle), favoriler, listeler, kaldığın yerler, geçmiş ve ayarlar tek bir dosyada toplanır ve belirlediğin parolayla şifrelenir. Yeni bilgisayarda bu dosyayla kaldığın yerden devam edersin." />
+                                    <WrapPanel Margin="0,10,0,0">
+                                        <Button x:Name="BackupButton" Content="Yedek oluştur" Click="OnBackup" Margin="0,0,8,0" />
+                                        <Button x:Name="RestoreButton" Content="Yedekten geri yükle" Click="OnRestore" />
+                                    </WrapPanel>
+                                    <TextBlock x:Name="BackupStatus" Style="{StaticResource MutedText}" FontSize="12" TextWrapping="Wrap" Margin="0,8,0,0"
+                                               Visibility="Collapsed" />
+                                    <Border x:Name="RestoreConfirm" Visibility="Collapsed" Margin="0,10,0,0" Padding="12,10" CornerRadius="10"
+                                            Background="{DynamicResource Canvas}" BorderBrush="{DynamicResource ActiveLine}" BorderThickness="1">
+                                        <StackPanel>
+                                            <TextBlock x:Name="RestoreSummary" FontSize="12" TextWrapping="Wrap" />
+                                            <TextBlock Style="{StaticResource MutedText}" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0"
+                                                       Text="Geri yükleme bu bilgisayardaki kaynakların, listelerin ve ayarların yerine geçer; Zaplio yeniden açılır." />
+                                            <Button Style="{StaticResource Primary}" Click="OnRestoreConfirmed" HorizontalAlignment="Left" Margin="0,10,0,0">
+                                                <TextBlock Text="Geri yükle ve yeniden aç" Foreground="{DynamicResource Ink}" />
+                                            </Button>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
                             </Grid>
                         </StackPanel>
 
@@ -363,7 +416,7 @@
                             <TextBlock Text="Hakkında" Style="{StaticResource PageTitle}" />
                             <TextBlock Style="{StaticResource PageIntro}" Text="Sürüm, yardım ve bakım." />
 
-                            <Border Background="{StaticResource Canvas}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12"
+                            <Border Background="{DynamicResource Canvas}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="12"
                                     Padding="16,14" Margin="0,0,0,22">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="Assets/Brand/zaplio-128.png" Width="40" Height="40" RenderOptions.BitmapScalingMode="HighQuality" />
@@ -394,11 +447,11 @@
             </Grid>
 
             <!-- Footer -->
-            <Border Grid.Row="2" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="22,12">
+            <Border Grid.Row="2" BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="22,12">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="Vazgeç" Click="OnCancel" IsCancel="True" Margin="0,0,8,0" />
                     <Button x:Name="SaveButton" Style="{StaticResource Primary}" Click="OnSave" IsDefault="True">
-                        <TextBlock Text="Kaydet" Foreground="{StaticResource Ink}" />
+                        <TextBlock Text="Kaydet" Foreground="{DynamicResource Ink}" />
                     </Button>
                 </StackPanel>
             </Border>

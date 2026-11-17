@@ -118,6 +118,8 @@ public partial class MainWindow : Window
         LogoLoader.PruneDiskCache();
         Motion.TrackSelection(LibraryTabsPanel, LibraryIndicator);
         HookTimeline();
+        VideoFrame.Resources.MergedDictionaries.Add(ThemeManager.DarkIsland);
+        ChildBadge.Visibility = ChildMode ? Visibility.Visible : Visibility.Collapsed; // the video area stays dark in the light theme
         Motion.TrackSelection(VodListTabsPanel, VodListIndicator);
         UpdateMuteIcon();
         UpdateSourcePicker();
@@ -147,6 +149,8 @@ public partial class MainWindow : Window
     /// <summary>Opens the sources window over <paramref name="owner"/> (the main window or the settings window).</summary>
     private void ManageSources(Window owner)
     {
+        // From Settings the PIN was already asked for.
+        if (owner == this && !UnlockChild(this, "Kaynakları yönetmek")) return;
         if (!ConfirmLegalNotice(owner)) return;
         var dialog = new SourcesWindow(_state.Sources, AddSourceAsync, RemoveSourceAsync, _librarySection != LibrarySection.Live) { Owner = owner };
         dialog.ShowDialog();
@@ -154,6 +158,7 @@ public partial class MainWindow : Window
 
     private void OnSettings(object sender, RoutedEventArgs e)
     {
+        if (!UnlockChild(this, "Ayarları açmak")) return;
         var dialog = new SettingsWindow(_state.Settings, _state.Volume, () => _state.Sources.ToArray(), ManageSources, host: SourceSettings) { Owner = this };
         if (dialog.ShowDialog() != true) return;
         var previousSettings = _state.Settings;
@@ -871,8 +876,9 @@ public partial class MainWindow : Window
 
     private void SetPlaybackStatus(string message, bool live = false, bool isError = false)
     {
-        var brush = (Brush)FindResource(isError ? "Error" : live ? "LiveColor" : "Muted");
-        PlaybackLight.Fill = PlaybackStatus.Foreground = brush;
+        var key = isError ? "Error" : live ? "LiveColor" : "Muted";
+        PlaybackLight.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, key);
+        PlaybackStatus.SetResourceReference(TextBlock.ForegroundProperty, key);
         PlaybackStatus.Text = message;
     }
 
@@ -880,11 +886,12 @@ public partial class MainWindow : Window
     {
         FooterStatus.Text = message;
         FooterStatus.ToolTip = message;
-        FooterStatus.Foreground = (Brush)FindResource(isError ? "Error" : "Muted");
+        FooterStatus.SetResourceReference(TextBlock.ForegroundProperty, isError ? "Error" : "Muted");
     }
 
     private void SaveState()
     {
+        if (_restartingWithoutSave) return; // a restored backup is already saved; this session must not overwrite it
         try
         {
             _store.Save(_state);

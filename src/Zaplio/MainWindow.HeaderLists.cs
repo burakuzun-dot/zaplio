@@ -55,8 +55,9 @@ public partial class MainWindow
         HeaderFavorite.IsChannel = vod is null;
         HeaderFavorite.ChannelName = name ?? "";
         HeaderFavorite.IsFavorite = favorite;
-        FavoriteButton.Background = (Brush)FindResource(favorite ? "Active" : "Surface");
-        FavoriteButton.BorderBrush = (Brush)FindResource(favorite ? "ActiveLine" : "Line");
+        // Resource references (not a brush fetched once) so the button follows a theme change.
+        FavoriteButton.SetResourceReference(System.Windows.Controls.Border.BackgroundProperty, favorite ? "Active" : "Surface");
+        FavoriteButton.SetResourceReference(System.Windows.Controls.Border.BorderBrushProperty, favorite ? "ActiveLine" : "Line");
 
         HeaderWatchlistButton.Visibility = vod is null ? Visibility.Collapsed : Visibility.Visible;
         if (vod is null) return;
@@ -64,9 +65,9 @@ public partial class MainWindow
         var whole = channel?.SeriesId > 0 ? "Diziyi " : "";
         var tooltip = later ? $"{whole}izleme listemden çıkar" : $"{whole}sonra izlemek için ekle";
         HeaderWatchlistText.Text = later ? "Listemde" : "Sonra izle";
-        HeaderWatchlistButton.Foreground = (Brush)FindResource(later ? "Accent" : "Text");
-        HeaderWatchlistButton.Background = (Brush)FindResource(later ? "Active" : "Surface");
-        HeaderWatchlistButton.BorderBrush = (Brush)FindResource(later ? "ActiveLine" : "Line");
+        HeaderWatchlistButton.SetResourceReference(ForegroundProperty, later ? "Accent" : "Text");
+        HeaderWatchlistButton.SetResourceReference(BackgroundProperty, later ? "Active" : "Surface");
+        HeaderWatchlistButton.SetResourceReference(BorderBrushProperty, later ? "ActiveLine" : "Line");
         HeaderWatchlistButton.ToolTip = tooltip;
         AutomationProperties.SetName(HeaderWatchlistButton, tooltip);
     }

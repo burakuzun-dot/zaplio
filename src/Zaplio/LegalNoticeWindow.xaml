@@ -5,14 +5,14 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Hukuki bilgilendirme · Zaplio" Width="540" SizeToContent="Height"
         WindowStartupLocation="CenterOwner" WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False"
-        Background="{StaticResource Panel}" Foreground="{StaticResource Text}" FontFamily="{StaticResource UiFont}"
+        Background="{DynamicResource Panel}" Foreground="{DynamicResource Text}" FontFamily="{StaticResource UiFont}"
         UseLayoutRounding="True" KeyDown="OnKeyDown">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="0" CornerRadius="0" ResizeBorderThickness="0" GlassFrameThickness="0" />
     </shell:WindowChrome.WindowChrome>
-    <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1">
+    <Border Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1">
         <StackPanel>
-            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleMouseDown">
+            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleMouseDown">
                 <Grid Height="60" Margin="23,0,13,0">
                     <TextBlock x:Name="Heading" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <Button x:Name="CloseButton" Style="{StaticResource WindowButton}" HorizontalAlignment="Right" Click="OnCancel"
@@ -27,7 +27,7 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
                     <Button x:Name="CancelButton" Content="Vazgeç" Click="OnCancel" Margin="0,0,8,0" />
                     <Button x:Name="AcceptButton" Style="{StaticResource Primary}" Click="OnAccept" IsDefault="True">
-                        <TextBlock x:Name="AcceptText" Foreground="{StaticResource Ink}" />
+                        <TextBlock x:Name="AcceptText" Foreground="{DynamicResource Ink}" />
                     </Button>
                 </StackPanel>
             </StackPanel>

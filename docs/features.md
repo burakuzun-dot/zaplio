@@ -55,6 +55,18 @@
 - Alt çubukta **bağlantı durumu** (Stabil / Dalgalı / Zayıf) ve bilgisayarın anlık **indirme / yükleme hızı**.
 - 401 / 403 / 429 gibi sağlayıcı yanıtları için anlaşılır mesajlar (ör. VPN uyarısı).
 
+## Görünüm
+- Koyu, açık ya da Windows'u izleyen tema; altı vurgu rengi. Değişiklik hemen uygulanır, video alanı her temada koyu kalır.
+
+## Çocuk profili
+- PIN'le korunan izin listesi: her bölümde yalnızca izin verilen kategoriler görünür, yeni kategoriler izin verilene kadar gizlidir.
+- Ayarlar, kaynaklar ve profilden çıkmak PIN ister; yanlış denemeler giderek uzayan beklemeyle yavaşlatılır.
+- PIN düz metin olarak saklanmaz (PBKDF2 özeti).
+
+## Yedekle ve taşı
+- Tüm kaynaklar, listeler, kaldığın yerler, geçmiş ve ayarlar tek bir `.zaplio` dosyasında, senin parolanla
+  (PBKDF2 + AES-256-GCM) şifrelenmiş olarak. Geri yüklemeden önce içeriğin özeti gösterilir.
+
 ## Bakım
 - Hata günlüğü (`%LocalAppData%\Zaplio\logs`, 14 gün), şifreler maskelenir.
 - Açılışta isteğe bağlı güncelleme denetimi (GitHub Releases). Kurulumla yüklenen Zaplio güncellemeyi kendisi indirir, GitHub'ın

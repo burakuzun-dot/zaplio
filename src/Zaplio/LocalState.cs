@@ -28,6 +28,7 @@ internal sealed class LocalState
     public Guid? LastSourceId { get; set; }
     public PlaybackSettings Settings { get; set; } = new();
     public int Volume { get; set; } = 75;
+    public ChildProfile Child { get; set; } = new();
 }
 
 internal sealed record WatchEntry(Channel Channel, DateTimeOffset WatchedAt);
@@ -48,6 +49,9 @@ internal sealed record PlaybackSettings
     public QualityMode QualityMode { get; init; } = QualityMode.Auto;
     /// <summary>Provider streams carry a local copy so recording starts and stops without restarting them.</summary>
     public bool RecordReady { get; init; } = true;
+    public AppTheme Theme { get; init; } = AppTheme.Dark;
+    /// <summary>A <see cref="ThemePalette.Accents"/> key; unknown or missing means the original purple.</summary>
+    public string Accent { get; init; } = "purple";
 }
 
 internal sealed class LocalStateStore

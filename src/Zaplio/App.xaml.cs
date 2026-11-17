@@ -30,6 +30,7 @@ public partial class App : Application
         AppLog.Info($"Zaplio {UpdateChecker.CurrentVersion} başlatıldı · {Environment.OSVersion}");
         Motion.InstallPressFeedback();
         base.OnStartup(e);
+        if (!SelfTest.Active) ApplySavedTheme(); // the self test starts from the default theme and switches it itself
         _startupFiles = e.Args.Where(arg => !arg.StartsWith("--", StringComparison.Ordinal) &&
             (System.IO.File.Exists(arg) || System.IO.Directory.Exists(arg))).ToArray();
         if (SelfTest.Active)
@@ -99,6 +100,20 @@ public partial class App : Application
         intro.Show();
     }
 
+    /// <summary>The saved theme and accent, applied before the first window opens.</summary>
+    private void ApplySavedTheme()
+    {
+        try
+        {
+            var settings = new LocalStateStore().Load().Settings;
+            ThemeManager.Apply(Resources, settings.Theme, settings.Accent);
+        }
+        catch (Exception exception)
+        {
+            AppLog.Warn("Tema ayarı okunamadı; varsayılan tema kullanılıyor.", exception);
+        }
+    }
+
     private static bool IntroEnabled()
     {
         try
@@ -110,6 +125,17 @@ public partial class App : Application
             AppLog.Warn("Ayarlar okunamadı; açılış animasyonu varsayılan olarak gösteriliyor.", exception);
             return true;
         }
+    }
+
+    /// <summary>Starts a fresh Zaplio and closes this one (after a backup is restored).</summary>
+    internal void Restart()
+    {
+        _instanceListener.Cancel();
+        _instance?.Dispose(); // free the single-window lock first, or the new Zaplio would hand itself back to this one
+        _instance = null;
+        if (Environment.ProcessPath is { } program)
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(program) { UseShellExecute = false });
+        MainWindow?.Close();
     }
 
     protected override void OnExit(ExitEventArgs e)

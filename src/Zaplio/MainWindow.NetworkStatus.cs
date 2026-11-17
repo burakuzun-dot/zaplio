@@ -154,10 +154,9 @@ public partial class MainWindow
 
     private void SetStability(string brush, string label, string detail)
     {
-        var color = (Brush)FindResource(brush);
-        StabilityLight.Fill = color;
+        StabilityLight.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, brush);
         StabilityText.Text = label;
-        StabilityText.Foreground = brush == "Muted" ? color : (Brush)FindResource("Text");
+        StabilityText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, brush == "Muted" ? "Muted" : "Text");
         StabilityPanel.ToolTip = detail;
     }
 

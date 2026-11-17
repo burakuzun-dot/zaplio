@@ -5,23 +5,23 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Yayın kaynakları · Zaplio" Width="635" SizeToContent="Height"
         WindowStartupLocation="CenterOwner" WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False"
-        Background="{StaticResource Panel}" Foreground="{StaticResource Text}" FontFamily="{StaticResource UiFont}" UseLayoutRounding="True">
+        Background="{DynamicResource Panel}" Foreground="{DynamicResource Text}" FontFamily="{StaticResource UiFont}" UseLayoutRounding="True">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="0" CornerRadius="0" ResizeBorderThickness="0" GlassFrameThickness="0" />
     </shell:WindowChrome.WindowChrome>
-    <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1">
+    <Border Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleMouseDown">
+            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleMouseDown">
                 <Grid Height="72" Margin="25,0,15,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Width="37" Height="37" Background="{StaticResource Active}" BorderBrush="{StaticResource ActiveLine}"
+                        <Border Width="37" Height="37" Background="{DynamicResource Active}" BorderBrush="{DynamicResource ActiveLine}"
                                 BorderThickness="1" CornerRadius="10" Margin="0,0,11,0">
                             <TextBlock Text="{x:Static local:IconGlyphs.Server}" FontFamily="{StaticResource GlyphFont}"
-                                       FontSize="21" Foreground="{StaticResource Accent}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                       FontSize="21" Foreground="{DynamicResource Accent}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <TextBlock Text="Yayın kaynakları" FontSize="23" FontWeight="SemiBold" VerticalAlignment="Center" />
                     </StackPanel>
@@ -42,7 +42,7 @@
                         <Button x:Name="EditButton" Content="Düzenle" Click="OnEdit" IsEnabled="False" Margin="0,0,8,0" />
                         <Button x:Name="RemoveButton" Content="Kaldır" Click="OnRemove" IsEnabled="False" />
                     </StackPanel>
-                    <Border Grid.Row="1" Background="{StaticResource Canvas}" BorderBrush="{StaticResource Line}" BorderThickness="1"
+                    <Border Grid.Row="1" Background="{DynamicResource Canvas}" BorderBrush="{DynamicResource Line}" BorderThickness="1"
                             CornerRadius="10" Margin="0,8,0,0" Padding="5">
                         <ListBox x:Name="SavedSources" MaxHeight="112" SelectionChanged="OnSourceSelectionChanged"
                                  AutomationProperties.Name="Kayıtlı kaynaklar">
@@ -60,7 +60,7 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="{Binding Icon}" FontFamily="{StaticResource GlyphFont}" FontSize="17"
-                                                   Foreground="{StaticResource Accent}" VerticalAlignment="Center" />
+                                                   Foreground="{DynamicResource Accent}" VerticalAlignment="Center" />
                                         <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
                                                    VerticalAlignment="Center" />
                                         <TextBlock Grid.Column="2" Text="{Binding TypeLabel}" Style="{StaticResource MutedText}" FontSize="12"
@@ -146,7 +146,7 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="Kapat" Click="OnCancel" IsCancel="True" Margin="0,0,8,0" />
                     <Button x:Name="AddButton" Style="{StaticResource Primary}" Click="OnAdd" IsDefault="True">
-                        <TextBlock Text="Bağla ve ekle" Foreground="{StaticResource Ink}" />
+                        <TextBlock Text="Bağla ve ekle" Foreground="{DynamicResource Ink}" />
                     </Button>
                 </StackPanel>
             </StackPanel>

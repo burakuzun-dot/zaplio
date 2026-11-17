@@ -18,6 +18,18 @@ internal sealed class SourceSettingsHost
     public required Func<AccountLine?> Account { get; init; }
     public required Func<Task> CheckAccount { get; init; }
 
+    /// <summary>Everything Zaplio keeps, for a backup (null hides the backup buttons).</summary>
+    public Func<LocalState>? CurrentState { get; init; }
+
+    /// <summary>Puts a restored backup in place of everything and restarts Zaplio.</summary>
+    public Action<LocalState>? Restore { get; init; }
+
+    /// <summary>Opens the kids profile setup over the given window (null hides the row).</summary>
+    public Func<System.Windows.Window, Task>? EditChildProfile { get; init; }
+
+    /// <summary>One line on the kids profile for Settings › Genel.</summary>
+    public Func<string>? ChildStatus { get; init; }
+
     /// <summary>Raised by the main window when the active source, its lists or its subscription changed.</summary>
     public event Action? Changed;
 

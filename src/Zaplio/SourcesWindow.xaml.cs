@@ -141,7 +141,7 @@ public partial class SourcesWindow : Window
     private void ShowMessage(string text, bool isError = false)
     {
         Message.Text = text;
-        Message.Foreground = (Brush)FindResource(isError ? "Error" : "Muted");
+        Message.SetResourceReference(TextBlock.ForegroundProperty, isError ? "Error" : "Muted");
     }
 
     private void OnSourceSelectionChanged(object sender, SelectionChangedEventArgs e) =>
@@ -171,7 +171,9 @@ public partial class SourcesWindow : Window
         }
         UpdateSections();
         SetBusy(false);
-        AddButton.Content = new TextBlock { Text = "Değişiklikleri kaydet", Foreground = (Brush)FindResource("Ink") };
+        var label = new TextBlock { Text = "Değişiklikleri kaydet" };
+        label.SetResourceReference(TextBlock.ForegroundProperty, "Ink");
+        AddButton.Content = label;
         ShowMessage($"{source.Name} düzenleniyor.");
     }
 

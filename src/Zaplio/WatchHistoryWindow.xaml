@@ -4,12 +4,12 @@
         xmlns:local="clr-namespace:Zaplio"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="İzleme geçmişi · Zaplio" Width="610" Height="490" MinHeight="340" MinWidth="450"
-        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Background="{StaticResource Panel}"
-        Foreground="{StaticResource Text}" FontFamily="{StaticResource UiFont}" WindowStyle="None" UseLayoutRounding="True">
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Background="{DynamicResource Panel}"
+        Foreground="{DynamicResource Text}" FontFamily="{StaticResource UiFont}" WindowStyle="None" UseLayoutRounding="True">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="0" CornerRadius="0" ResizeBorderThickness="6" GlassFrameThickness="0" />
     </shell:WindowChrome.WindowChrome>
-    <Border BorderBrush="{StaticResource Line}" BorderThickness="1">
+    <Border BorderBrush="{DynamicResource Line}" BorderThickness="1">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -17,14 +17,14 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Border x:Name="HistoryTitleBar" Background="Transparent" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1"
+        <Border x:Name="HistoryTitleBar" Background="Transparent" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1"
                 MouseLeftButtonDown="OnTitleMouseDown">
             <DockPanel Margin="22,10,12,10">
                 <Button DockPanel.Dock="Right" Style="{StaticResource WindowButton}" Click="OnClose" ToolTip="Kapat" AutomationProperties.Name="İzleme geçmişini kapat">
                     <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Close}" FontSize="17" />
                 </Button>
                 <TextBlock DockPanel.Dock="Left" Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.History}" FontSize="21"
-                           Foreground="{StaticResource Accent}" Margin="0,0,9,0" />
+                           Foreground="{DynamicResource Accent}" Margin="0,0,9,0" />
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="İzleme geçmişi" FontSize="20" FontWeight="SemiBold" />
                     <TextBlock x:Name="SourceLabel" Style="{StaticResource MutedText}" FontSize="12" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" />
@@ -47,14 +47,14 @@
             </ListBox.ItemTemplate>
         </ListBox>
         <StackPanel x:Name="EmptyHistory" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="22,12">
-            <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.History}" FontSize="30" Foreground="{StaticResource Accent}" />
+            <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.History}" FontSize="30" Foreground="{DynamicResource Accent}" />
             <TextBlock x:Name="EmptyMessage" Style="{StaticResource MutedText}" TextAlignment="Center" TextWrapping="Wrap" Margin="0,10,0,0" />
         </StackPanel>
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="22,13,22,16">
             <Button Content="Kapat" IsCancel="True" Margin="0,0,8,0" />
             <Button x:Name="PlayHistoryButton" Click="OnPlay" IsDefault="True" Style="{StaticResource Primary}"
                     AutomationProperties.Name="{Binding Text, ElementName=PlayHistoryText}">
-                <TextBlock x:Name="PlayHistoryText" Text="Oynat" Foreground="{StaticResource Ink}" />
+                <TextBlock x:Name="PlayHistoryText" Text="Oynat" Foreground="{DynamicResource Ink}" />
             </Button>
         </StackPanel>
     </Grid>

@@ -1,0 +1,122 @@
+<Window x:Class="Zaplio.ChildProfileWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Zaplio"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="Çocuk profili · Zaplio" Width="560" Height="640"
+        WindowStartupLocation="CenterOwner" WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False"
+        Background="{DynamicResource Panel}" Foreground="{DynamicResource Text}" FontFamily="{StaticResource UiFont}" UseLayoutRounding="True">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" CornerRadius="0" ResizeBorderThickness="0" GlassFrameThickness="0" />
+    </shell:WindowChrome.WindowChrome>
+    <Border Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1">
+        <DockPanel>
+            <Border DockPanel.Dock="Top" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleMouseDown">
+                <Grid Height="60" Margin="23,0,13,0">
+                    <TextBlock Text="Çocuk profili" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Button Style="{StaticResource WindowButton}" HorizontalAlignment="Right" Click="OnClose"
+                            ToolTip="Kapat" AutomationProperties.Name="Kapat">
+                        <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Close}" FontSize="17" />
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Footer -->
+            <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="23,13">
+                <DockPanel>
+                    <Button x:Name="StopButton" DockPanel.Dock="Left" Content="Çocuk profilinden çık" Click="OnStop" Visibility="Collapsed" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Vazgeç" Click="OnClose" IsCancel="True" Margin="0,0,8,0" />
+                        <Button x:Name="SaveButton" Content="Kaydet" Click="OnSave" Margin="0,0,8,0" />
+                        <Button x:Name="StartButton" Style="{StaticResource Primary}" Click="OnStart" IsDefault="True">
+                            <TextBlock x:Name="StartText" Text="Çocuk profilini aç" Foreground="{DynamicResource Ink}" />
+                        </Button>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <DockPanel Margin="23,15,23,0">
+                <StackPanel DockPanel.Dock="Top">
+                    <TextBlock Style="{StaticResource MutedText}" FontSize="12" TextWrapping="Wrap"
+                               Text="Çocuk profili açıkken yalnızca izin verdiğin kategoriler görünür. Sağlayıcının sonradan eklediği kategoriler sen izin verene kadar gizli kalır. Ayarlar, kaynaklar ve profilden çıkmak PIN ister." />
+
+                    <!-- PIN -->
+                    <Grid Margin="0,12,0,0">
+                        <TextBlock x:Name="PinState" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <Button x:Name="ChangePinButton" Style="{StaticResource TextButton}" Content="PIN'i değiştir" HorizontalAlignment="Right"
+                                Click="OnChangePin" />
+                    </Grid>
+                    <Grid x:Name="PinPanel" Margin="0,6,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="10" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="PIN (4–8 rakam)" FontSize="12" Margin="0,0,0,4" />
+                            <PasswordBox x:Name="Pin" MaxLength="8" AutomationProperties.Name="PIN" PasswordChanged="OnPinChanged" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="PIN'i yeniden yaz" FontSize="12" Margin="0,0,0,4" />
+                            <PasswordBox x:Name="PinAgain" MaxLength="8" AutomationProperties.Name="PIN'i yeniden yaz" PasswordChanged="OnPinChanged" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Categories -->
+                    <Grid Margin="0,16,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="10" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="SectionPicker" DisplayMemberPath="Label" Style="{StaticResource LibraryPicker}"
+                                  SelectionChanged="OnSectionChanged" AutomationProperties.Name="Bölüm" />
+                        <TextBox x:Name="Search" Grid.Column="2" Padding="36,8,10,8" TextChanged="OnSearch" AutomationProperties.Name="Kategori ara" />
+                        <TextBlock Grid.Column="2" FontFamily="{StaticResource GlyphFont}" Text="{x:Static local:IconGlyphs.Search}"
+                                   Foreground="{DynamicResource Muted}" FontSize="16" Margin="12,0,0,0" VerticalAlignment="Center"
+                                   HorizontalAlignment="Left" IsHitTestVisible="False" />
+                        <TextBlock Grid.Column="2" Text="Kategori ara" Margin="37,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource MutedText}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=Search}" Value="">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                    <DockPanel Margin="0,8,0,4">
+                        <TextBlock x:Name="AllowedCount" Style="{StaticResource MutedText}" FontSize="12" VerticalAlignment="Center" />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button x:Name="AllowAll" Style="{StaticResource TextButton}" Content="Tümüne izin ver" Click="OnAllowAll" />
+                            <Button x:Name="AllowNone" Style="{StaticResource TextButton}" Content="Hiçbirine" Click="OnAllowNone" Margin="4,0,0,0" />
+                        </StackPanel>
+                    </DockPanel>
+                </StackPanel>
+                <TextBlock x:Name="Problem" DockPanel.Dock="Bottom" Foreground="{DynamicResource Error}" FontSize="12" TextWrapping="Wrap"
+                           Margin="0,8,0,10" Visibility="Collapsed" />
+                <Grid>
+                    <ScrollViewer x:Name="CategoryScroll" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl x:Name="Categories">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,6,0" MinHeight="36">
+                                        <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" />
+                                        <TextBlock Text="{Binding Label}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,56,0" />
+                                        <CheckBox Style="{StaticResource SettingsSwitch}" IsChecked="{Binding IsAllowed, Mode=TwoWay}"
+                                                  AutomationProperties.Name="{Binding Label}" Checked="OnToggled" Unchecked="OnToggled" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    <TextBlock x:Name="EmptyText" Style="{StaticResource MutedText}" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,0"
+                               Visibility="Collapsed" />
+                </Grid>
+            </DockPanel>
+        </DockPanel>
+    </Border>
+</Window>

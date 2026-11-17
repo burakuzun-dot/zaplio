@@ -16,8 +16,34 @@ public partial class MainWindow
         CanRefresh = CanRefreshLists,
         Refresh = () => LoadActiveSectionAsync(refresh: true),
         Account = CurrentAccountLine,
-        CheckAccount = CheckAccountAsync
+        CheckAccount = CheckAccountAsync,
+        CurrentState = () => _state,
+        Restore = RestoreFromBackup,
+        EditChildProfile = EditChildProfileAsync,
+        ChildStatus = ChildStatus
     };
+
+    private bool _restartingWithoutSave;
+
+    /// <summary>
+    /// A restored backup replaces everything: it is written as the saved state and Zaplio restarts on it. Nothing from this
+    /// session is saved over it on the way out.
+    /// </summary>
+    private void RestoreFromBackup(LocalState restored)
+    {
+        try
+        {
+            new LocalStateStore().Save(restored);
+        }
+        catch (Exception exception) when (IsStorageError(exception))
+        {
+            SetFooter("Yedek bu bilgisayara yazılamadı.", isError: true);
+            return;
+        }
+        _restartingWithoutSave = true;
+        foreach (var window in OwnedWindows.Cast<Window>().ToArray()) window.Close();
+        ((App)Application.Current).Restart();
+    }
 
     /// <summary>The active Xtream subscription (expiry, connections), shown in Settings › Kaynaklar.</summary>
     private AccountLine? CurrentAccountLine()

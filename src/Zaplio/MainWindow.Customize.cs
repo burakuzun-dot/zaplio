@@ -38,8 +38,9 @@ public partial class MainWindow
         var prefix = $"{sourceId:N}:";
         var hidden = _state.HiddenGroups.Where(key => key.StartsWith(prefix, StringComparison.Ordinal))
             .Select(key => key[prefix.Length..]).ToHashSet(CategoryComparer);
-        var visible = hidden.Count == 0 ? catalog.Channels
+        IReadOnlyList<Channel> visible = hidden.Count == 0 ? catalog.Channels
             : catalog.Channels.Where(channel => channel.Categories.Length == 0 || !channel.Categories.All(hidden.Contains)).ToList();
+        if (ChildMode) visible = visible.Where(_state.Child.AllowsChannel).ToList();
 
         var rows = new List<Channel>(visible.Count);
         var rowIds = new Dictionary<string, string>(visible.Count);

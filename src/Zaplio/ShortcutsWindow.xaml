@@ -4,22 +4,22 @@
         xmlns:local="clr-namespace:Zaplio"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Kısayollar · Zaplio" Width="560" Height="640" WindowStartupLocation="CenterOwner"
-        WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False" Background="{StaticResource Panel}"
-        Foreground="{StaticResource Text}" FontFamily="{StaticResource UiFont}" UseLayoutRounding="True" KeyDown="OnKeyDown">
+        WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False" Background="{DynamicResource Panel}"
+        Foreground="{DynamicResource Text}" FontFamily="{StaticResource UiFont}" UseLayoutRounding="True" KeyDown="OnKeyDown">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="0" CornerRadius="0" ResizeBorderThickness="0" GlassFrameThickness="0" />
     </shell:WindowChrome.WindowChrome>
-    <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1">
+    <Border Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleMouseDown">
+            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleMouseDown">
                 <Grid Height="62" Margin="23,0,13,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="Klavye kısayolları" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" />
-                        <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="5"
+                        <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="5"
                                 Padding="6,1" Margin="10,2,0,0" VerticalAlignment="Center">
                             <TextBlock Text="F1" FontSize="11" Style="{StaticResource MutedText}" />
                         </Border>
@@ -44,7 +44,7 @@
                                                     <ColumnDefinition Width="175" />
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
-                                                <Border HorizontalAlignment="Left" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}"
+                                                <Border HorizontalAlignment="Left" Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}"
                                                         BorderThickness="1" CornerRadius="6" Padding="8,3">
                                                     <TextBlock Text="{Binding Keys}" FontSize="12" FontWeight="SemiBold" />
                                                 </Border>

@@ -155,6 +155,71 @@ public partial class MainWindow
             Check(RecordingPlan.Folder.EndsWith("Zaplio", StringComparison.Ordinal), "kayıtlar Videolar\\Zaplio klasörüne gider");
             await CheckLocalClipAsync();
 
+            // ── themes: the light palette and another accent reach the open window at once, then the default comes back
+            var resources = Application.Current.Resources;
+            ThemeManager.Apply(resources, AppTheme.Light, "teal");
+            await SettleAsync(300);
+            var footer = (Footer.Background as System.Windows.Media.SolidColorBrush)?.Color;
+            Check(ThemeManager.IsLight && footer is { R: > 200, G: > 200, B: > 200 },
+                $"açık tema açık duran pencereye yeniden başlatmadan geçer (alt bilgi {footer}, aynı nesne " +
+                $"{ReferenceEquals(Footer.Background, resources["Panel"])}, donmuş {(resources["Panel"] as System.Windows.Freezable)?.IsFrozen}, " +
+                $"alt bilgi donmuş {Footer.Background?.IsFrozen}, kaynağın rengi {(resources["Panel"] as System.Windows.Media.SolidColorBrush)?.Color})");
+            Check((resources["Accent"] as System.Windows.Media.SolidColorBrush)?.Color == ThemePalette.Accent("teal").Deep,
+                "vurgu rengi değişir");
+            var onVideo = (PlaceholderTitle.Foreground as System.Windows.Media.SolidColorBrush)?.Color;
+            Check(onVideo is { R: > 200, G: > 200, B: > 200 }, $"açık temada video alanındaki yazı açık renk kalır ({onVideo})");
+            SelfTest.Snapshot(this, "açık tema turkuaz");
+            MoviesTab.IsChecked = true;
+            await SettleAsync(500);
+            SelfTest.Snapshot(this, "açık tema filmler");
+            var lightSettings = new SettingsWindow(_state.Settings, _state.Volume, () => _state.Sources.ToArray(), _ => { }, SettingsPage.Look, SourceSettings)
+                { Owner = this, ShowActivated = false };
+            lightSettings.Show();
+            await SettleAsync(300);
+            SelfTest.Snapshot(lightSettings, "açık tema ayarlar");
+            lightSettings.Close();
+            LiveTab.IsChecked = true;
+            await SettleAsync(400);
+            ThemeManager.Apply(resources, AppTheme.Dark, "orange");
+            await SettleAsync(300);
+            SelfTest.Snapshot(this, "koyu tema turuncu");
+            ThemeManager.Apply(resources, AppTheme.Dark, "purple");
+            await SettleAsync(200);
+            Check(!ThemeManager.IsLight && (resources["Panel"] as System.Windows.Media.SolidColorBrush)?.Color ==
+                System.Windows.Media.Color.FromRgb(0x12, 0x16, 0x21), "varsayılan koyu mor tema geri gelir");
+
+            // ── kids profile (state only in memory; nothing is saved)
+            if (_activeSourceId is Guid kidsSource && _catalog.GetValueOrDefault(kidsSource) is { } kidsCatalog)
+            {
+                var everything = ActiveChannels.Count;
+                var groups = kidsCatalog.Channels.SelectMany(channel => channel.Categories).Distinct(CategoryComparer).ToList();
+                _state.Child.SetPin("2468");
+                _state.Child.SetAllowed(kidsSource, LibrarySection.Live, groups.Take(1));
+                _state.Child.Active = true;
+                ApplyChildProfile();
+                await SettleAsync(300);
+                Check(ChildBadge.IsVisible, "çocuk profili açıkken üst çubukta işareti görünür");
+                Check(ActiveChannels.Count > 0 && ActiveChannels.All(_state.Child.AllowsChannel) &&
+                      (groups.Count < 2 || ActiveChannels.Count < everything),
+                    $"çocuk profilinde yalnızca izin verilen kategori listelenir ({ActiveChannels.Count}/{everything})");
+                SelfTest.Snapshot(this, "çocuk profili");
+                var kids = new ChildProfileWindow("Demo", _state.Child, kidsSource,
+                    new Dictionary<LibrarySection, IReadOnlyList<string>?> { [LibrarySection.Live] = groups, [LibrarySection.Movies] = null })
+                    { Owner = this, ShowActivated = false };
+                kids.Show();
+                await SettleAsync(300);
+                Check(kids.Categories.Items.Count == groups.Count && kids.StopButton.IsVisible, "çocuk profili penceresi kategorileri listeler");
+                SelfTest.Snapshot(kids, "çocuk profili ayarları");
+                kids.SectionPicker.SelectedIndex = 1;
+                await SettleAsync(200);
+                Check(kids.EmptyText.IsVisible, "yüklenmemiş bölüm için açıklama görünür");
+                kids.Close();
+                _state.Child = new ChildProfile();
+                ApplyChildProfile();
+                await SettleAsync(300);
+                Check(!ChildBadge.IsVisible && ActiveChannels.Count == everything, "çocuk profili kapanınca tüm liste geri gelir");
+            }
+
             // ── full-window screens and loading placeholders
             OfflineView.Visibility = Visibility.Visible;
             await SettleAsync();

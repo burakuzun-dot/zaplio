@@ -13,6 +13,9 @@ public partial class SettingsWindow : Window
     private sealed record StartupChoice(LibrarySection Section, string Label);
     private sealed record QualityChoice(QualityMode Mode, string Label);
     private sealed record SourceRow(Guid Id, string Name, string TypeLabel, string Icon, bool IsActive);
+    private sealed record ThemeChoice(AppTheme Mode, string Label);
+    private sealed record AccentSwatch(string Key, string Name, System.Windows.Media.Brush Swatch, bool IsSelected);
+    private string _accent = "purple";
 
     private readonly PlaybackSettings _original;
     private readonly Func<IReadOnlyList<Source>> _sources;
@@ -45,6 +48,19 @@ public partial class SettingsWindow : Window
         ResumeOnDemand.IsChecked = settings.ResumeOnDemand;
         AutoReconnect.IsChecked = settings.AutoReconnect;
         RecordReady.IsChecked = settings.RecordReady;
+        ThemeChoice[] themes = [new(AppTheme.Dark, "Koyu"), new(AppTheme.Light, "Açık"), new(AppTheme.System, "Windows ile aynı")];
+        ThemePicker.ItemsSource = themes;
+        ThemePicker.SelectedItem = themes.FirstOrDefault(choice => choice.Mode == settings.Theme) ?? themes[0];
+        _accent = ThemePalette.Accent(settings.Accent).Key;
+        BackupRow.Visibility = host?.CurrentState is null || host.Restore is null ? Visibility.Collapsed : Visibility.Visible;
+        ChildRow.Visibility = host?.EditChildProfile is null ? Visibility.Collapsed : Visibility.Visible;
+        ShowChildStatus();
+        ShowAccents();
+        Closed += (_, _) =>
+        {
+            // Kaydet keeps what the window shows; Vazgeç (or closing) puts the saved look back.
+            if (DialogResult != true) ThemeManager.Apply(Application.Current.Resources, _original.Theme, _original.Accent);
+        };
         CheckForUpdates.IsChecked = settings.CheckForUpdates;
         ShowLogos.IsChecked = settings.ShowLogos;
         ShowIntro.IsChecked = settings.ShowIntro;
@@ -76,6 +92,8 @@ public partial class SettingsWindow : Window
         ResumeOnDemand = ResumeOnDemand.IsChecked == true,
         AutoReconnect = AutoReconnect.IsChecked == true,
         RecordReady = RecordReady.IsChecked == true,
+        Theme = ((ThemeChoice)ThemePicker.SelectedItem).Mode,
+        Accent = _accent,
         CheckForUpdates = CheckForUpdates.IsChecked == true,
         ShowLogos = ShowLogos.IsChecked == true,
         ShowIntro = ShowIntro.IsChecked == true,
@@ -95,6 +113,116 @@ public partial class SettingsWindow : Window
         GeneralPage.Visibility = sender == GeneralNav ? Visibility.Visible : Visibility.Collapsed;
         AboutPage.Visibility = sender == AboutNav ? Visibility.Visible : Visibility.Collapsed;
         PageScroller.ScrollToTop();
+    }
+
+    private LocalState? _pendingRestore;
+
+    private void ShowChildStatus()
+    {
+        ChildStatusText.Text = _host?.ChildStatus?.Invoke() ?? "";
+        ChildButton.IsEnabled = _host?.ActiveSourceId() is not null;
+        ChildButton.ToolTip = ChildButton.IsEnabled ? null : "Önce bir kaynak seç.";
+    }
+
+    private async void OnChildProfile(object sender, RoutedEventArgs e)
+    {
+        if (_host?.EditChildProfile is not { } edit) return;
+        ChildButton.IsEnabled = false;
+        try { await edit(this); }
+        finally { ShowChildStatus(); }
+    }
+
+    private async void OnBackup(object sender, RoutedEventArgs e)
+    {
+        if (_host?.CurrentState is not { } current) return;
+        var prompt = new PasswordPromptWindow("Yedek parolası",
+            "Bu parolayı unutma: yedek onsuz açılamaz ve parola hiçbir yerde saklanmaz.", "Yedek oluştur", confirm: true,
+            minimum: BackupFile.MinimumPassword) { Owner = this };
+        if (prompt.ShowDialog() != true) return;
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Title = "Yedeği kaydet", Filter = $"Zaplio yedeği|*{BackupFile.Extension}",
+            FileName = $"Zaplio-yedek-{DateTime.Now:yyyyMMdd}{BackupFile.Extension}",
+            InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+        };
+        if (dialog.ShowDialog(this) != true) return;
+        ShowBackupStatus("Yedek hazırlanıyor…", error: false);
+        var password = prompt.Value;
+        var state = current();
+        try
+        {
+            var bytes = await Task.Run(() => BackupFile.Create(state, password));
+            await File.WriteAllBytesAsync(dialog.FileName, bytes);
+            ShowBackupStatus($"Yedek kaydedildi: {Path.GetFileName(dialog.FileName)} ({BackupFile.Summary(state)}).", error: false);
+            AppLog.Info("Yedek oluşturuldu.");
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or BackupException)
+        {
+            ShowBackupStatus(exception is BackupException ? exception.Message : "Yedek kaydedilemedi.", error: true);
+        }
+    }
+
+    private async void OnRestore(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog { Title = "Yedeği seç", Filter = $"Zaplio yedeği|*{BackupFile.Extension}" };
+        if (dialog.ShowDialog(this) != true) return;
+        var prompt = new PasswordPromptWindow("Yedeği aç", $"{Path.GetFileName(dialog.FileName)} dosyasının parolası.", "Aç", confirm: false)
+            { Owner = this };
+        if (prompt.ShowDialog() != true) return;
+        var password = prompt.Value;
+        ShowBackupStatus("Yedek açılıyor…", error: false);
+        try
+        {
+            var bytes = await File.ReadAllBytesAsync(dialog.FileName);
+            _pendingRestore = await Task.Run(() => BackupFile.Open(bytes, password));
+            BackupStatus.Visibility = Visibility.Collapsed;
+            RestoreSummary.Text = $"Yedekte: {BackupFile.Summary(_pendingRestore)}.";
+            RestoreConfirm.Visibility = Visibility.Visible;
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or BackupException)
+        {
+            _pendingRestore = null;
+            RestoreConfirm.Visibility = Visibility.Collapsed;
+            ShowBackupStatus(exception is BackupException ? exception.Message : "Yedek dosyası okunamadı.", error: true);
+        }
+    }
+
+    private void OnRestoreConfirmed(object sender, RoutedEventArgs e)
+    {
+        if (_pendingRestore is not { } restored || _host?.Restore is not { } restore) return;
+        AppLog.Info("Yedek geri yükleniyor.");
+        restore(restored);
+    }
+
+    private void ShowBackupStatus(string text, bool error)
+    {
+        BackupStatus.Text = text;
+        BackupStatus.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, error ? "Error" : "Muted");
+        BackupStatus.Visibility = Visibility.Visible;
+    }
+
+    private void ShowAccents() => AccentPicker.ItemsSource = ThemePalette.Accents
+        .Select(accent => new AccentSwatch(accent.Key, accent.Name, Freeze(new System.Windows.Media.SolidColorBrush(accent.Strong)), accent.Key == _accent))
+        .ToArray();
+
+    private static System.Windows.Media.Brush Freeze(System.Windows.Media.SolidColorBrush brush)
+    {
+        brush.Freeze();
+        return brush;
+    }
+
+    private void OnAccentPicked(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not AccentSwatch swatch || swatch.Key == _accent) return;
+        _accent = swatch.Key;
+        OnLookPreview(sender, e);
+    }
+
+    /// <summary>The theme and accent show at once, in this window and behind it; Vazgeç takes them back.</summary>
+    private void OnLookPreview(object sender, RoutedEventArgs e)
+    {
+        if (!IsLoaded || ThemePicker?.SelectedItem is not ThemeChoice theme) return; // filling the picker on open is not a choice
+        ThemeManager.Apply(Application.Current.Resources, theme.Mode, _accent);
     }
 
     private void UpdateSources()
@@ -117,7 +245,7 @@ public partial class SettingsWindow : Window
         var account = _host?.Account();
         AccountPanel.Visibility = account is null ? Visibility.Collapsed : Visibility.Visible;
         AccountText.Text = account?.Text;
-        AccountText.Foreground = (System.Windows.Media.Brush)FindResource(account?.BrushKey ?? "Muted");
+        AccountText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, account?.BrushKey ?? "Muted");
         AccountPanel.ToolTip = account?.Details;
         CheckAccountButton.IsEnabled = account?.CanCheck == true;
     }

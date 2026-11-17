@@ -7,7 +7,7 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Zaplio" Icon="Assets/Zaplio.ico" Width="1380" Height="830" MinWidth="950" MinHeight="590"
         WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize"
-        Background="{StaticResource Canvas}" Foreground="{StaticResource Text}" FontFamily="{StaticResource UiFont}"
+        Background="{DynamicResource Canvas}" Foreground="{DynamicResource Text}" FontFamily="{StaticResource UiFont}"
         UseLayoutRounding="True" Loaded="OnLoaded" Closing="OnClosing" PreviewKeyDown="OnWindowKeyDown"
         AllowDrop="True" DragOver="OnFileDragOver" DragLeave="OnFileDragLeave" Drop="OnFileDrop">
     <shell:WindowChrome.WindowChrome>
@@ -15,7 +15,7 @@
     </shell:WindowChrome.WindowChrome>
     <Window.Resources>
         <Style x:Key="AmbientPanelSurface" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource Panel}" />
+            <Setter Property="Background" Value="{DynamicResource Panel}" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Visibility, ElementName=AmbientLightPanel}" Value="Visible">
                     <Setter Property="Background" Value="#A0121621" />
@@ -23,7 +23,7 @@
             </Style.Triggers>
         </Style>
         <Style x:Key="AmbientCanvasSurface" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource Canvas}" />
+            <Setter Property="Background" Value="{DynamicResource Canvas}" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Visibility, ElementName=AmbientLightPanel}" Value="Visible">
                     <Setter Property="Background" Value="Transparent" />
@@ -31,7 +31,7 @@
             </Style.Triggers>
         </Style>
     </Window.Resources>
-    <Grid x:Name="WindowLayout" Background="{StaticResource Canvas}">
+    <Grid x:Name="WindowLayout" Background="{DynamicResource Canvas}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -42,7 +42,7 @@
         <Border x:Name="AmbientLightPanel" Grid.RowSpan="3" Visibility="Collapsed" IsHitTestVisible="False" Opacity="0.6">
             <local:AmbientGlow x:Name="AmbientGlow" />
         </Border>
-        <Border x:Name="TitleBar" Style="{StaticResource AmbientPanelSurface}" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1"
+        <Border x:Name="TitleBar" Style="{StaticResource AmbientPanelSurface}" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1"
                 MouseLeftButtonDown="OnTitleMouseDown">
             <Grid Height="58" Margin="20,0,10,0">
                 <Grid.ColumnDefinitions>
@@ -55,11 +55,11 @@
                            AutomationProperties.Name="Zaplio" />
                     <TextBlock Text="Zaplio" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0" />
                 </StackPanel>
-                <Border x:Name="LibraryTabs" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{StaticResource Canvas}"
-                        BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="21" Padding="4">
+                <Border x:Name="LibraryTabs" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{DynamicResource Canvas}"
+                        BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="21" Padding="4">
                     <Grid>
                         <Canvas ClipToBounds="True">
-                            <Border x:Name="LibraryIndicator" Background="{StaticResource Active}" BorderBrush="{StaticResource ActiveLine}"
+                            <Border x:Name="LibraryIndicator" Background="{DynamicResource Active}" BorderBrush="{DynamicResource ActiveLine}"
                                     BorderThickness="1" CornerRadius="{StaticResource LibraryNavigationTabRadius}" />
                         </Canvas>
                         <UniformGrid x:Name="LibraryTabsPanel" Rows="1">
@@ -73,6 +73,11 @@
                     </Grid>
                 </Border>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="ChildBadge" Style="{StaticResource TextButton}" Click="OnChildBadge" Visibility="Collapsed" Margin="0,0,8,0"
+                            Background="{DynamicResource Active}" BorderBrush="{DynamicResource ActiveLine}" FontSize="12"
+                            ToolTip="Çocuk profili açık. Çıkmak için tıkla (PIN ister)." AutomationProperties.Name="Çocuk profili açık">
+                        <TextBlock Text="Çocuk profili" Foreground="{DynamicResource Text}" />
+                    </Button>
                     <Button x:Name="WatchHistoryButton" Style="{StaticResource IconButton}" Click="OnWatchHistory" ToolTip="İzleme geçmişi"
                             AutomationProperties.Name="İzleme geçmişi" Margin="0,0,4,0">
                         <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.History}" />
@@ -81,7 +86,7 @@
                             ToolTip="Ayarlar ve kaynaklar" AutomationProperties.Name="Ayarlar ve kaynaklar">
                         <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Settings}" />
                     </Button>
-                    <Border Width="1" Height="22" Background="{StaticResource Line}" Margin="0,0,7,0" />
+                    <Border Width="1" Height="22" Background="{DynamicResource Line}" Margin="0,0,7,0" />
                     <Button Style="{StaticResource WindowButton}" Click="OnMinimize" ToolTip="Simge durumuna küçült" AutomationProperties.Name="Simge durumuna küçült">
                         <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Minimize}" FontSize="16" />
                     </Button>
@@ -101,7 +106,7 @@
                 <ColumnDefinition x:Name="ChannelWidth" Width="318" />
                 <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
-            <Border x:Name="NavigationPane" Style="{StaticResource AmbientPanelSurface}" BorderBrush="{StaticResource Line}" BorderThickness="0,0,1,0">
+            <Border x:Name="NavigationPane" Style="{StaticResource AmbientPanelSurface}" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,1,0">
                 <Grid Margin="12,20,12,14">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -123,7 +128,7 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Glyph}" FontFamily="{StaticResource GlyphFont}" FontSize="17"
-                                               Foreground="{StaticResource Muted}" VerticalAlignment="Center" />
+                                               Foreground="{DynamicResource Muted}" VerticalAlignment="Center" />
                                     <TextBlock Grid.Column="1" Text="{Binding Label, Converter={x:Static local:CleanLabelConverter.Instance}}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" FontSize="13" />
                                     <TextBlock Grid.Column="2" Text="{Binding Count}" Style="{StaticResource MutedText}" VerticalAlignment="Center"
                                                FontSize="11" Margin="7,0,0,0" />
@@ -134,7 +139,7 @@
                 </Grid>
             </Border>
 
-            <Border x:Name="ChannelPane" Grid.Column="1" Style="{StaticResource AmbientCanvasSurface}" BorderBrush="{StaticResource Line}" BorderThickness="0,0,1,0">
+            <Border x:Name="ChannelPane" Grid.Column="1" Style="{StaticResource AmbientCanvasSurface}" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,1,0">
                 <Grid Margin="16,20,16,14">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -148,7 +153,7 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBlock x:Name="ChannelHeading" Text="Tüm kanallar" FontSize="22" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                        <Border Grid.Column="1" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1"
+                        <Border Grid.Column="1" Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1"
                                 CornerRadius="7" Padding="7,3" VerticalAlignment="Center" Margin="8,0,0,0">
                             <TextBlock x:Name="ChannelCount" Text="0" Style="{StaticResource MutedText}" FontSize="11" />
                         </Border>
@@ -159,7 +164,7 @@
                     </Grid>
                     <Grid Grid.Row="1" Margin="2,0,2,12">
                         <TextBox x:Name="SearchBox" Padding="36,8,42,8" TextChanged="OnSearchChanged" AutomationProperties.Name="Kanal ara" />
-                        <TextBlock FontFamily="{StaticResource GlyphFont}" Text="{x:Static local:IconGlyphs.Search}" Foreground="{StaticResource Muted}" FontSize="16"
+                        <TextBlock FontFamily="{StaticResource GlyphFont}" Text="{x:Static local:IconGlyphs.Search}" Foreground="{DynamicResource Muted}" FontSize="16"
                                    Margin="12,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" IsHitTestVisible="False" />
                         <TextBlock Text="Kanal ara" Margin="37,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False">
                             <TextBlock.Style>
@@ -174,7 +179,7 @@
                             </TextBlock.Style>
                         </TextBlock>
                         <Border Margin="0,0,8,0" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="4,3" CornerRadius="4"
-                                Background="{StaticResource Canvas}" BorderBrush="{StaticResource Line}" BorderThickness="1" IsHitTestVisible="False">
+                                Background="{DynamicResource Canvas}" BorderBrush="{DynamicResource Line}" BorderThickness="1" IsHitTestVisible="False">
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Setter Property="Visibility" Value="Collapsed" />
@@ -239,7 +244,7 @@
                                         </Border.Style>
                                         <Grid>
                                             <TextBlock Text="{Binding Initial}" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                       FontWeight="SemiBold" FontSize="14" Foreground="{StaticResource Accent}">
+                                                       FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Accent}">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
                                                         <Setter Property="Visibility" Value="Collapsed" />
@@ -251,7 +256,7 @@
                                                     </Style>
                                                 </TextBlock.Style>
                                             </TextBlock>
-                                            <Border CornerRadius="10" Background="{StaticResource Surface}">
+                                            <Border CornerRadius="10" Background="{DynamicResource Surface}">
                                                 <Border.Style>
                                                     <Style TargetType="Border">
                                                         <Style.Triggers>
@@ -269,7 +274,7 @@
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0">
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" />
                                         <DockPanel Margin="0,3,0,0">
-                                            <Border DockPanel.Dock="Left" Background="{StaticResource Active}" CornerRadius="4" Padding="5,0,5,1"
+                                            <Border DockPanel.Dock="Left" Background="{DynamicResource Active}" CornerRadius="4" Padding="5,0,5,1"
                                                     Margin="0,0,6,0" VerticalAlignment="Center"
                                                     ToolTip="Bu kanalın birden fazla kalitesi var; sağ tıkla → Kalite / yayın">
                                                 <Border.Style>
@@ -281,14 +286,14 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Border.Style>
-                                                <TextBlock Text="{Binding Badge}" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource Accent}" />
+                                                <TextBlock Text="{Binding Badge}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource Accent}" />
                                             </Border>
                                             <TextBlock Text="{Binding GroupLabel}" Style="{StaticResource MutedText}" FontSize="11" TextTrimming="CharacterEllipsis" />
                                         </DockPanel>
                                     </StackPanel>
                                     <controls:FavoriteBadge HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="26,0,0,-3"
                                                             IsFavorite="{Binding Converter={x:Static local:ChannelFavoriteConverter.Instance}, Mode=OneWay}"
-                                                            CutoutBrush="{StaticResource Panel}" />
+                                                            CutoutBrush="{DynamicResource Panel}" />
                                     <Viewbox Grid.Column="2" Width="32" Height="32" Margin="4,0,0,0" VerticalAlignment="Center">
                                         <Viewbox.Style>
                                             <Style TargetType="Viewbox">
@@ -319,7 +324,7 @@
             </Border>
 
             <Border x:Name="VodPane" Grid.ColumnSpan="2" Visibility="Collapsed" Style="{StaticResource AmbientCanvasSurface}"
-                    BorderBrush="{StaticResource Line}" BorderThickness="0,0,1,0">
+                    BorderBrush="{DynamicResource Line}" BorderThickness="0,0,1,0">
                 <Grid Margin="16,20,16,14">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -341,11 +346,11 @@
                         <TextBlock x:Name="VodCount" DockPanel.Dock="Right" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="10,0,0,0" />
                         <TextBlock x:Name="VodHeading" Text="Filmler" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                     </DockPanel>
-                    <Border x:Name="VodListTabs" Grid.Row="1" Margin="0,0,0,10" Background="{StaticResource Canvas}"
-                            BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="3">
+                    <Border x:Name="VodListTabs" Grid.Row="1" Margin="0,0,0,10" Background="{DynamicResource Canvas}"
+                            BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="12" Padding="3">
                         <Grid>
                         <Canvas ClipToBounds="True">
-                            <Border x:Name="VodListIndicator" Background="{StaticResource Active}" BorderBrush="{StaticResource ActiveLine}"
+                            <Border x:Name="VodListIndicator" Background="{DynamicResource Active}" BorderBrush="{DynamicResource ActiveLine}"
                                     BorderThickness="1" CornerRadius="8" />
                         </Canvas>
                         <UniformGrid x:Name="VodListTabsPanel" Rows="1">
@@ -393,18 +398,18 @@
                                                 AutomationProperties.Name="{Binding Tooltip}">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="Frame" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}"
+                                                    <Border x:Name="Frame" Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}"
                                                             BorderThickness="1" CornerRadius="12" Padding="7">
                                                         <ContentPresenter />
                                                     </Border>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="Frame" Property="Background" Value="{StaticResource Hover}" />
-                                                            <Setter TargetName="Frame" Property="BorderBrush" Value="{StaticResource ActiveLine}" />
+                                                            <Setter TargetName="Frame" Property="Background" Value="{DynamicResource Hover}" />
+                                                            <Setter TargetName="Frame" Property="BorderBrush" Value="{DynamicResource ActiveLine}" />
                                                         </Trigger>
                                                         <Trigger Property="IsKeyboardFocused" Value="True">
-                                                            <Setter TargetName="Frame" Property="Background" Value="{StaticResource Hover}" />
-                                                            <Setter TargetName="Frame" Property="BorderBrush" Value="{StaticResource Accent}" />
+                                                            <Setter TargetName="Frame" Property="Background" Value="{DynamicResource Hover}" />
+                                                            <Setter TargetName="Frame" Property="BorderBrush" Value="{DynamicResource Accent}" />
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
@@ -414,11 +419,11 @@
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
-                                                <Border x:Name="ContinuePoster" CornerRadius="7" Background="{StaticResource Active}" Margin="0,0,10,0"
+                                                <Border x:Name="ContinuePoster" CornerRadius="7" Background="{DynamicResource Active}" Margin="0,0,10,0"
                                                         Width="{Binding Tag.PosterWidth, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         Height="{Binding Tag.PosterHeight, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
                                                     <Grid>
-                                                        <TextBlock Text="{Binding Tile}" FontFamily="{StaticResource GlyphFont}" Foreground="{StaticResource Accent}"
+                                                        <TextBlock Text="{Binding Tile}" FontFamily="{StaticResource GlyphFont}" Foreground="{DynamicResource Accent}"
                                                                    FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                         <Image Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"
                                                                local:LogoLoader.Url="{Binding Poster}" local:LogoLoader.DecodeWidth="160">
@@ -447,8 +452,8 @@
                                                     </TextBlock>
                                                     <StackPanel Orientation="Horizontal" Margin="0,7,0,0">
                                                         <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Play}" FontSize="12"
-                                                                   Foreground="{StaticResource Accent}" Margin="0,0,5,0" />
-                                                        <TextBlock Text="{Binding Caption}" Foreground="{StaticResource Accent}" FontSize="12" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource Accent}" Margin="0,0,5,0" />
+                                                        <TextBlock Text="{Binding Caption}" Foreground="{DynamicResource Accent}" FontSize="12" FontWeight="SemiBold"
                                                                    VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                                                     </StackPanel>
                                                 </StackPanel>
@@ -465,7 +470,7 @@
                               SelectionChanged="OnVodFilterChanged" AutomationProperties.Name="İçerik kategorisi" />
                     <Grid Grid.Row="3" Margin="158,0,0,10">
                         <TextBox x:Name="VodSearchBox" Padding="36,8,10,8" TextChanged="OnVodSearchChanged" AutomationProperties.Name="İçerik ara" />
-                        <TextBlock FontFamily="{StaticResource GlyphFont}" Text="{x:Static local:IconGlyphs.Search}" Foreground="{StaticResource Muted}"
+                        <TextBlock FontFamily="{StaticResource GlyphFont}" Text="{x:Static local:IconGlyphs.Search}" Foreground="{DynamicResource Muted}"
                                    FontSize="16" Margin="12,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" IsHitTestVisible="False" />
                         <TextBlock Text="İçerik ara" Margin="37,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False">
                             <TextBlock.Style>
@@ -506,7 +511,7 @@
                                         <RowDefinition Height="*" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
-                                    <Border x:Name="Poster" CornerRadius="10" Background="{StaticResource Active}">
+                                    <Border x:Name="Poster" CornerRadius="10" Background="{DynamicResource Active}">
                                         <Grid>
                                             <Grid.Clip>
                                                 <MultiBinding Converter="{x:Static local:RoundedClipConverter.Instance}" ConverterParameter="10">
@@ -514,7 +519,7 @@
                                                     <Binding ElementName="Poster" Path="ActualHeight" />
                                                 </MultiBinding>
                                             </Grid.Clip>
-                                            <TextBlock Text="{Binding Tile}" FontFamily="{StaticResource GlyphFont}" Foreground="{StaticResource Accent}"
+                                            <TextBlock Text="{Binding Tile}" FontFamily="{StaticResource GlyphFont}" Foreground="{DynamicResource Accent}"
                                                        FontSize="34" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                             <Image Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"
                                                    local:LogoLoader.Url="{Binding Item.Poster}" local:LogoLoader.DecodeWidth="200" />
@@ -555,10 +560,10 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <Border Width="38" Height="54" HorizontalAlignment="Left" Background="{StaticResource Active}" CornerRadius="7"
+                                    <Border Width="38" Height="54" HorizontalAlignment="Left" Background="{DynamicResource Active}" CornerRadius="7"
                                             ClipToBounds="True">
                                         <Grid>
-                                            <TextBlock Text="{Binding Tile}" FontFamily="{StaticResource GlyphFont}" Foreground="{StaticResource Accent}"
+                                            <TextBlock Text="{Binding Tile}" FontFamily="{StaticResource GlyphFont}" Foreground="{DynamicResource Accent}"
                                                        FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                             <Image Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"
                                                    local:LogoLoader.Url="{Binding Item.Poster}" local:LogoLoader.DecodeWidth="96">
@@ -573,7 +578,7 @@
                                         <TextBlock Text="{Binding Caption}" Style="{StaticResource MutedText}" FontSize="11" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" />
                                     </StackPanel>
                                     <controls:FavoriteBadge HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="26,0,0,-3"
-                                                            IsFavorite="{Binding IsFavorite, Mode=OneWay}" CutoutBrush="{StaticResource Canvas}" />
+                                                            IsFavorite="{Binding IsFavorite, Mode=OneWay}" CutoutBrush="{DynamicResource Canvas}" />
                                     <Viewbox Grid.Column="2" Width="32" Height="32" VerticalAlignment="Center">
                                         <Viewbox.Style>
                                             <Style TargetType="Viewbox">
@@ -604,7 +609,7 @@
                     </ListBox>
                     <local:SkeletonList x:Name="VodSkeleton" Grid.Row="5" Visibility="Collapsed" Posters="True" Text="İçerikler yükleniyor…" />
                     <StackPanel x:Name="VodEmpty" Grid.Row="5" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="22,8">
-                        <TextBlock Text="{x:Static local:IconGlyphs.Movie}" FontFamily="{StaticResource GlyphFont}" Foreground="{StaticResource Accent}"
+                        <TextBlock Text="{x:Static local:IconGlyphs.Movie}" FontFamily="{StaticResource GlyphFont}" Foreground="{DynamicResource Accent}"
                                    FontSize="36" HorizontalAlignment="Center" />
                         <TextBlock x:Name="VodMessage" Style="{StaticResource MutedText}" TextAlignment="Center" TextWrapping="Wrap" Margin="0,11,0,0" />
                         <Button x:Name="VodConnect" Content="Xtream kaynağı ekle" Click="OnSources" HorizontalAlignment="Center" Margin="0,13,0,0" />
@@ -658,7 +663,7 @@
                         </StackPanel>
                     </Button>
                     <Border x:Name="FavoriteButton" Grid.Column="2" Width="38" Height="38" CornerRadius="12" BorderThickness="1"
-                            Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" IsEnabled="False">
+                            Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" IsEnabled="False">
                         <Viewbox Width="36" Height="36">
                             <controls:FavoriteToggle x:Name="HeaderFavorite" FavoriteToggled="OnHeaderFavoriteToggled" />
                         </Viewbox>
@@ -666,7 +671,7 @@
                 </Grid>
 
                 <Border x:Name="VideoFrame" Grid.Row="1" CornerRadius="{StaticResource PlayerCornerRadius}" Background="Black"
-                        BorderBrush="{StaticResource PlayerEdge}" BorderThickness="1">
+                        BorderBrush="{DynamicResource PlayerEdge}" BorderThickness="1">
                     <!-- Rounded clip: opaque overlays (first list, sleeping channel) must not paint over the frame's corners. -->
                     <Grid x:Name="VideoFrameContent">
                         <Grid.Clip>
@@ -704,7 +709,7 @@
                                         <Border Canvas.Left="138" Canvas.Top="138" Width="124" Height="124" Background="#422F67"
                                                 BorderBrush="#8E79C4" BorderThickness="1.5" CornerRadius="33">
                                             <TextBlock Text="{x:Static local:IconGlyphs.Live}" FontFamily="{StaticResource GlyphFont}"
-                                                       Foreground="{StaticResource Accent}" FontSize="64"
+                                                       Foreground="{DynamicResource Accent}" FontSize="64"
                                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </Border>
                                     </Canvas>
@@ -717,7 +722,7 @@
                                             HorizontalAlignment="Left" Margin="0,22,0,0">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{x:Static local:IconGlyphs.Add}" Style="{StaticResource Glyph}" FontSize="18" Margin="0,0,6,0" />
-                                            <TextBlock Text="Kaynak ekle" Foreground="{StaticResource Ink}" VerticalAlignment="Center" />
+                                            <TextBlock Text="Kaynak ekle" Foreground="{DynamicResource Ink}" VerticalAlignment="Center" />
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -762,12 +767,12 @@
                                             <ColumnDefinition Width="26" />
                                             <ColumnDefinition Width="5*" />
                                         </Grid.ColumnDefinitions>
-                                        <Border Background="{StaticResource Active}" BorderBrush="{StaticResource ActiveLine}"
+                                        <Border Background="{DynamicResource Active}" BorderBrush="{DynamicResource ActiveLine}"
                                                 BorderThickness="1" CornerRadius="10" VerticalAlignment="Center">
                                             <Viewbox Stretch="Uniform">
                                                 <Grid Width="184" Height="260">
                                                     <TextBlock x:Name="VodPreviewIcon" FontFamily="{StaticResource GlyphFont}" FontSize="36"
-                                                               Foreground="{StaticResource Accent}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                               Foreground="{DynamicResource Accent}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                     <Image x:Name="VodPreviewPoster" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"
                                                            local:LogoLoader.DecodeWidth="360">
                                                         <Image.Clip>
@@ -778,7 +783,7 @@
                                             </Viewbox>
                                         </Border>
                                         <StackPanel Grid.Column="2" MaxWidth="510" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                            <TextBlock x:Name="VodPreviewSeries" Foreground="{StaticResource Accent}" FontSize="14"
+                                            <TextBlock x:Name="VodPreviewSeries" Foreground="{DynamicResource Accent}" FontSize="14"
                                                        FontWeight="SemiBold" TextWrapping="Wrap" />
                                             <TextBlock x:Name="VodPreviewTitle" FontSize="37" FontWeight="Bold"
                                                        TextWrapping="Wrap" Margin="0,8,0,0" />
@@ -791,12 +796,12 @@
                                                         HorizontalAlignment="Left" MinHeight="44" Padding="17,8" Margin="0,6,8,0">
                                                     <StackPanel Orientation="Horizontal">
                                                         <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Play}" FontSize="18" />
-                                                        <TextBlock x:Name="VodPreviewAction" Foreground="{StaticResource Ink}" Margin="7,0,0,0"
+                                                        <TextBlock x:Name="VodPreviewAction" Foreground="{DynamicResource Ink}" Margin="7,0,0,0"
                                                                    VerticalAlignment="Center" />
                                                     </StackPanel>
                                                 </Button>
-                                                <Border Width="44" Height="44" Margin="0,6,8,0" CornerRadius="22" Background="{StaticResource Surface}"
-                                                        BorderBrush="{StaticResource Line}" BorderThickness="1">
+                                                <Border Width="44" Height="44" Margin="0,6,8,0" CornerRadius="22" Background="{DynamicResource Surface}"
+                                                        BorderBrush="{DynamicResource Line}" BorderThickness="1">
                                                     <Viewbox Width="42" Height="42">
                                                         <controls:FavoriteToggle x:Name="VodFavoriteToggle" IsChannel="False"
                                                                                  FavoriteToggled="OnVodPreviewFavoriteToggled" />
@@ -811,7 +816,7 @@
                                                     </StackPanel>
                                                 </Button>
                                             </WrapPanel>
-                                            <TextBlock x:Name="VodPreviewError" Visibility="Collapsed" Foreground="{StaticResource Error}"
+                                            <TextBlock x:Name="VodPreviewError" Visibility="Collapsed" Foreground="{DynamicResource Error}"
                                                        TextWrapping="Wrap" Margin="0,12,0,0" AutomationProperties.LiveSetting="Polite" />
                                         </StackPanel>
                                     </Grid>
@@ -850,7 +855,7 @@
                                     </Border>
                                     <Border x:Name="ChannelOsd" Visibility="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Top"
                                             Margin="18" Padding="14,9" CornerRadius="10" Background="#D9121621"
-                                            BorderBrush="{StaticResource Line}" BorderThickness="1" IsHitTestVisible="False" MaxWidth="460">
+                                            BorderBrush="{DynamicResource Line}" BorderThickness="1" IsHitTestVisible="False" MaxWidth="460">
                                         <StackPanel>
                                             <TextBlock x:Name="ChannelOsdTitle" FontSize="19" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
                                             <TextBlock x:Name="ChannelOsdSubtitle" Style="{StaticResource MutedText}" FontSize="12"
@@ -883,7 +888,7 @@
                     </Grid>
                 </Border>
 
-                <Border x:Name="PlayerControls" Grid.Row="2" SizeChanged="OnPlayerChromeSizeChanged" Background="{StaticResource PlayerControlsSurface}" BorderBrush="{StaticResource PlayerEdge}"
+                <Border x:Name="PlayerControls" Grid.Row="2" SizeChanged="OnPlayerChromeSizeChanged" Background="{DynamicResource PlayerControlsSurface}" BorderBrush="{DynamicResource PlayerEdge}"
                         BorderThickness="1" CornerRadius="27" Padding="8,6" Margin="0,10,0,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -898,7 +903,7 @@
                                 AutomationProperties.Name="Oynat" IsEnabled="False">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock x:Name="PlayIcon" Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Play}" FontSize="17" />
-                                <TextBlock x:Name="PlayText" Text="Oynat" Foreground="{StaticResource Ink}" VerticalAlignment="Center" Margin="5,0,0,0" />
+                                <TextBlock x:Name="PlayText" Text="Oynat" Foreground="{DynamicResource Ink}" VerticalAlignment="Center" Margin="5,0,0,0" />
                             </StackPanel>
                         </Button>
                         <Button x:Name="VodStop" Style="{StaticResource PlayerToolButton}" Visibility="Collapsed" Click="OnVodStop"
@@ -907,12 +912,12 @@
                         </Button>
                         </StackPanel>
                         <DockPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,5,0">
-                            <Ellipse x:Name="PlaybackLight" Width="6" Height="6" Fill="{StaticResource Muted}" Margin="0,0,6,0" VerticalAlignment="Center" />
+                            <Ellipse x:Name="PlaybackLight" Width="6" Height="6" Fill="{DynamicResource Muted}" Margin="0,0,6,0" VerticalAlignment="Center" />
                             <TextBlock x:Name="PlaybackStatus" Text="Hazır" FontSize="12" Style="{StaticResource MutedText}" VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
                         </DockPanel>
                         <Border Grid.Column="2" Grid.ColumnSpan="3" Height="38" VerticalAlignment="Center" CornerRadius="19" IsHitTestVisible="False"
-                                Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" />
+                                Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1" />
                         <Button x:Name="MuteButton" Grid.Column="2" Click="OnMute" Style="{StaticResource BarButton}" Margin="3,0,0,0" ToolTip="Sesi kapat / aç"
                                 AutomationProperties.Name="Sesi kapat veya aç">
                             <TextBlock x:Name="MuteIcon" Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Volume}" />
@@ -932,7 +937,7 @@
                                 ToolTip="Kaydet: oynayanı kalitesini bozmadan kaydet (R)" AutomationProperties.Name="Kaydet">
                             <Grid Width="16" Height="16">
                                 <Ellipse Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" />
-                                <Ellipse x:Name="RecordDot" Width="8" Height="8" Fill="{StaticResource Muted}" />
+                                <Ellipse x:Name="RecordDot" Width="8" Height="8" Fill="{DynamicResource Muted}" />
                             </Grid>
                         </Button>
                         <Button x:Name="CinemaButton" Click="OnCinema" Style="{StaticResource BarButton}" IsEnabled="False" Margin="2,0,0,0"
@@ -959,8 +964,8 @@
                         </StackPanel>
                     </Grid>
                 </Border>
-                <Border x:Name="VodTimeline" Grid.Row="3" Visibility="Collapsed" Background="{StaticResource Panel}"
-                        BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="18" Margin="0,8,0,0" Padding="12,5">
+                <Border x:Name="VodTimeline" Grid.Row="3" Visibility="Collapsed" Background="{DynamicResource Panel}"
+                        BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="18" Margin="0,8,0,0" Padding="12,5">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -977,15 +982,15 @@
                         <TextBlock x:Name="VodDuration" Grid.Column="2" Text="—" Style="{StaticResource MutedText}" FontSize="11" VerticalAlignment="Center" />
                     </Grid>
                 </Border>
-                <Border x:Name="GuideSummary" Grid.Row="3" Visibility="Collapsed" Background="{StaticResource Panel}"
-                        BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Margin="0,10,0,0" Padding="13,10">
+                <Border x:Name="GuideSummary" Grid.Row="3" Visibility="Collapsed" Background="{DynamicResource Panel}"
+                        BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="12" Margin="0,10,0,0" Padding="13,10">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <StackPanel x:Name="NowProgramme" Margin="0,0,10,0">
-                            <TextBlock Text="ŞİMDİ" Foreground="{StaticResource LiveColor}" FontSize="10" FontWeight="SemiBold" />
+                            <TextBlock Text="ŞİMDİ" Foreground="{DynamicResource LiveColor}" FontSize="10" FontWeight="SemiBold" />
                             <TextBlock x:Name="NowProgrammeTitle" TextTrimming="CharacterEllipsis" FontSize="13" Margin="0,4,0,0" />
                         </StackPanel>
                         <StackPanel x:Name="NextProgramme" Grid.Column="1" Margin="6,0,0,0">
@@ -995,7 +1000,7 @@
                     </Grid>
                 </Border>
                 <Border x:Name="GuidePane" Grid.Row="4" Height="240" Margin="0,10,0,0" Visibility="Collapsed"
-                        Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="15">
+                        Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="15">
                     <Grid Margin="15,8,15,7">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -1055,7 +1060,7 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="{Binding StartTime}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"
-                                                   Foreground="{StaticResource Accent}" />
+                                                   Foreground="{DynamicResource Accent}" />
                                         <TextBlock Grid.Column="1" Text="{Binding Title}" FontWeight="SemiBold" FontSize="13"
                                                    VerticalAlignment="Center" Margin="0,0,4,0" TextTrimming="CharacterEllipsis" />
                                         <Border Grid.Column="2" Background="#213735" CornerRadius="6" Padding="6,4" VerticalAlignment="Center">
@@ -1069,9 +1074,9 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
-                                            <TextBlock Text="YAYINDA" Foreground="{StaticResource LiveColor}" FontSize="10" FontWeight="SemiBold" />
+                                            <TextBlock Text="YAYINDA" Foreground="{DynamicResource LiveColor}" FontSize="10" FontWeight="SemiBold" />
                                         </Border>
-                                        <Border Grid.Column="2" Background="{StaticResource Active}" CornerRadius="6" Padding="6,4" VerticalAlignment="Center"
+                                        <Border Grid.Column="2" Background="{DynamicResource Active}" CornerRadius="6" Padding="6,4" VerticalAlignment="Center"
                                                 ToolTip="Arşivden izlenebilir · çift tıkla">
                                             <Border.Style>
                                                 <Style TargetType="Border">
@@ -1083,17 +1088,17 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
-                                            <TextBlock Text="ARŞİV" Foreground="{StaticResource Accent}" FontSize="10" FontWeight="SemiBold" />
+                                            <TextBlock Text="ARŞİV" Foreground="{DynamicResource Accent}" FontSize="10" FontWeight="SemiBold" />
                                         </Border>
                                     </Grid>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-                        <Border x:Name="GuideDetails" Grid.Column="1" BorderBrush="{StaticResource Line}" BorderThickness="1,0,0,0"
+                        <Border x:Name="GuideDetails" Grid.Column="1" BorderBrush="{DynamicResource Line}" BorderThickness="1,0,0,0"
                                 Margin="8,0,0,0" Padding="11,4,0,3">
                             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                                 <StackPanel Margin="0,0,5,0">
-                                    <TextBlock Text="{Binding Time}" Foreground="{StaticResource Accent}" FontSize="11" />
+                                    <TextBlock Text="{Binding Time}" Foreground="{DynamicResource Accent}" FontSize="11" />
                                     <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14" TextWrapping="Wrap" Margin="0,4,0,5" />
                                     <TextBlock x:Name="GuideDescription" Style="{StaticResource MutedText}" FontSize="12" TextWrapping="Wrap" />
                                 </StackPanel>
@@ -1130,7 +1135,7 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="9"
+                                        <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="9"
                                                 Padding="10,4" Margin="0,0,6,6">
                                             <TextBlock Text="{Binding}" FontSize="12" FontWeight="SemiBold" />
                                         </Border>
@@ -1161,24 +1166,24 @@
                                                     AutomationProperties.Name="{Binding Title}">
                                                 <Button.Template>
                                                     <ControlTemplate TargetType="Button">
-                                                        <Border x:Name="Frame" Background="{StaticResource Surface}" BorderBrush="{StaticResource Line}" BorderThickness="1"
+                                                        <Border x:Name="Frame" Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1"
                                                                 CornerRadius="10" Padding="10,7">
                                                             <ContentPresenter />
                                                         </Border>
                                                         <ControlTemplate.Triggers>
                                                             <Trigger Property="IsMouseOver" Value="True">
-                                                                <Setter TargetName="Frame" Property="Background" Value="{StaticResource Hover}" />
-                                                                <Setter TargetName="Frame" Property="BorderBrush" Value="{StaticResource ActiveLine}" />
+                                                                <Setter TargetName="Frame" Property="Background" Value="{DynamicResource Hover}" />
+                                                                <Setter TargetName="Frame" Property="BorderBrush" Value="{DynamicResource ActiveLine}" />
                                                             </Trigger>
                                                             <Trigger Property="IsKeyboardFocused" Value="True">
-                                                                <Setter TargetName="Frame" Property="BorderBrush" Value="{StaticResource Accent}" />
+                                                                <Setter TargetName="Frame" Property="BorderBrush" Value="{DynamicResource Accent}" />
                                                             </Trigger>
                                                         </ControlTemplate.Triggers>
                                                     </ControlTemplate>
                                                 </Button.Template>
                                                 <DockPanel>
                                                     <TextBlock DockPanel.Dock="Left" Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Play}" FontSize="13"
-                                                               Foreground="{StaticResource Accent}" Margin="0,0,9,0" />
+                                                               Foreground="{DynamicResource Accent}" Margin="0,0,9,0" />
                                                     <TextBlock DockPanel.Dock="Right" Text="{Binding Item.Detail}" Style="{StaticResource MutedText}" FontSize="12"
                                                                VerticalAlignment="Center" Margin="8,0,0,0" />
                                                     <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
@@ -1195,7 +1200,7 @@
             </Border>
         </Grid>
 
-        <Border x:Name="Footer" Grid.Row="2" Style="{StaticResource AmbientPanelSurface}" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="20,6,8,6">
+        <Border x:Name="Footer" Grid.Row="2" Style="{StaticResource AmbientPanelSurface}" BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="20,6,8,6">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -1207,18 +1212,18 @@
                            TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
                 <Button x:Name="UpdateButton" Grid.Column="1" Style="{StaticResource TextButton}" Click="OnUpdate" Visibility="Collapsed"
                         Margin="0,0,8,0">
-                    <TextBlock x:Name="UpdateText" Foreground="{StaticResource Accent}" VerticalAlignment="Center" FontSize="12" />
+                    <TextBlock x:Name="UpdateText" Foreground="{DynamicResource Accent}" VerticalAlignment="Center" FontSize="12" />
                 </Button>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0">
                     <StackPanel x:Name="StabilityPanel" Orientation="Horizontal" Visibility="Collapsed" Background="Transparent"
                                 Margin="0,0,16,0" ToolTipService.InitialShowDelay="200">
-                        <Ellipse x:Name="StabilityLight" Width="7" Height="7" Fill="{StaticResource Muted}" Margin="0,0,6,0" VerticalAlignment="Center" />
+                        <Ellipse x:Name="StabilityLight" Width="7" Height="7" Fill="{DynamicResource Muted}" Margin="0,0,6,0" VerticalAlignment="Center" />
                         <TextBlock x:Name="StabilityText" FontSize="11" VerticalAlignment="Center" FontWeight="SemiBold" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Background="Transparent" ToolTip="Bilgisayarın anlık toplam indirme ve yükleme hızı">
-                        <TextBlock Text="↓" FontSize="12" Foreground="{StaticResource LiveColor}" VerticalAlignment="Center" Margin="0,0,4,0" />
+                        <TextBlock Text="↓" FontSize="12" Foreground="{DynamicResource LiveColor}" VerticalAlignment="Center" Margin="0,0,4,0" />
                         <TextBlock x:Name="DownloadSpeed" Text="—" Style="{StaticResource MutedText}" FontSize="11" MinWidth="64" VerticalAlignment="Center" />
-                        <TextBlock Text="↑" FontSize="12" Foreground="{StaticResource Accent}" VerticalAlignment="Center" Margin="6,0,4,0" />
+                        <TextBlock Text="↑" FontSize="12" Foreground="{DynamicResource Accent}" VerticalAlignment="Center" Margin="6,0,4,0" />
                         <TextBlock x:Name="UploadSpeed" Text="—" Style="{StaticResource MutedText}" FontSize="11" MinWidth="64" VerticalAlignment="Center" />
                     </StackPanel>
                 </StackPanel>

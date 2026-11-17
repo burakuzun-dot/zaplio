@@ -4,13 +4,13 @@
         xmlns:local="clr-namespace:Zaplio"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Yayın rehberi · Zaplio" Width="1180" Height="720" MinWidth="720" MinHeight="420" WindowStartupLocation="CenterOwner"
-        WindowStyle="None" ResizeMode="CanResize" ShowInTaskbar="False" Background="{StaticResource Panel}"
-        Foreground="{StaticResource Text}" FontFamily="{StaticResource UiFont}" UseLayoutRounding="True"
+        WindowStyle="None" ResizeMode="CanResize" ShowInTaskbar="False" Background="{DynamicResource Panel}"
+        Foreground="{DynamicResource Text}" FontFamily="{StaticResource UiFont}" UseLayoutRounding="True"
         PreviewKeyDown="OnPreviewKeyDown" PreviewMouseWheel="OnPreviewMouseWheel">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="0" CornerRadius="0" ResizeBorderThickness="6" GlassFrameThickness="0" />
     </shell:WindowChrome.WindowChrome>
-    <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1">
+    <Border Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -25,12 +25,12 @@
             </Grid.ColumnDefinitions>
 
             <!-- Title -->
-            <Border Grid.ColumnSpan="2" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleMouseDown"
+            <Border Grid.ColumnSpan="2" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleMouseDown"
                     Background="Transparent">
                 <Grid Height="58" Margin="20,0,10,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="{x:Static local:IconGlyphs.Calendar}" FontFamily="{StaticResource GlyphFont}" FontSize="21"
-                                   Foreground="{StaticResource Accent}" VerticalAlignment="Center" Margin="0,0,9,0" />
+                                   Foreground="{DynamicResource Accent}" VerticalAlignment="Center" Margin="0,0,9,0" />
                         <TextBlock x:Name="Heading" Text="Yayın rehberi" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
                         <TextBlock x:Name="Subheading" Style="{StaticResource MutedText}" FontSize="13" VerticalAlignment="Center" Margin="12,3,0,0" />
                     </StackPanel>
@@ -44,11 +44,11 @@
             </Border>
 
             <!-- Ruler -->
-            <Border Grid.Row="1" BorderBrush="{StaticResource Line}" BorderThickness="0,0,1,1" Background="{StaticResource Canvas}">
+            <Border Grid.Row="1" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,1,1" Background="{DynamicResource Canvas}">
                 <TextBlock Text="KANAL" Style="{StaticResource SectionLabel}" Margin="20,0,0,0" VerticalAlignment="Center" />
             </Border>
-            <Border x:Name="TimelineHost" Grid.Row="1" Grid.Column="1" Height="34" ClipToBounds="True" BorderBrush="{StaticResource Line}"
-                    BorderThickness="0,0,0,1" Background="{StaticResource Canvas}" SizeChanged="OnTimelineSizeChanged">
+            <Border x:Name="TimelineHost" Grid.Row="1" Grid.Column="1" Height="34" ClipToBounds="True" BorderBrush="{DynamicResource Line}"
+                    BorderThickness="0,0,0,1" Background="{DynamicResource Canvas}" SizeChanged="OnTimelineSizeChanged">
                 <Canvas x:Name="Ruler" Loaded="OnTimelineLoaded" HorizontalAlignment="Left" />
             </Border>
 
@@ -74,16 +74,16 @@
                                 <ColumnDefinition Width="220" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,1,1" Background="Transparent" Cursor="Hand"
+                            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,1,1" Background="Transparent" Cursor="Hand"
                                     MouseLeftButtonUp="OnChannelClick" ToolTip="Kanalı oynat">
                                 <Grid Margin="16,0,10,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="44" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <Border Width="36" Height="36" CornerRadius="10" Background="{StaticResource Active}" HorizontalAlignment="Left">
+                                    <Border Width="36" Height="36" CornerRadius="10" Background="{DynamicResource Active}" HorizontalAlignment="Left">
                                         <Grid>
-                                            <TextBlock Text="{Binding Initial}" FontWeight="SemiBold" FontSize="14" Foreground="{StaticResource Accent}"
+                                            <TextBlock Text="{Binding Initial}" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Accent}"
                                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                                             <Image Margin="4" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"
                                                    local:LogoLoader.Url="{Binding Logo}" local:LogoLoader.DecodeWidth="72" />
@@ -93,7 +93,7 @@
                                                TextTrimming="CharacterEllipsis" />
                                 </Grid>
                             </Border>
-                            <Border Grid.Column="1" ClipToBounds="True" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1">
+                            <Border Grid.Column="1" ClipToBounds="True" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1">
                                 <ItemsControl ItemsSource="{Binding Cells}" Loaded="OnTimelineLoaded" HorizontalAlignment="Left">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
@@ -120,18 +120,18 @@
                                                 </Border.ToolTip>
                                                 <Border.Style>
                                                     <Style TargetType="Border">
-                                                        <Setter Property="Background" Value="{StaticResource Surface}" />
-                                                        <Setter Property="BorderBrush" Value="{StaticResource Line}" />
+                                                        <Setter Property="Background" Value="{DynamicResource Surface}" />
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource Line}" />
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding IsPast}" Value="True">
                                                                 <Setter Property="Opacity" Value="0.55" />
                                                             </DataTrigger>
                                                             <DataTrigger Binding="{Binding IsOnAir}" Value="True">
-                                                                <Setter Property="Background" Value="{StaticResource Active}" />
-                                                                <Setter Property="BorderBrush" Value="{StaticResource ActiveLine}" />
+                                                                <Setter Property="Background" Value="{DynamicResource Active}" />
+                                                                <Setter Property="BorderBrush" Value="{DynamicResource ActiveLine}" />
                                                             </DataTrigger>
                                                             <Trigger Property="IsMouseOver" Value="True">
-                                                                <Setter Property="BorderBrush" Value="{StaticResource Accent}" />
+                                                                <Setter Property="BorderBrush" Value="{DynamicResource Accent}" />
                                                                 <Setter Property="Opacity" Value="1" />
                                                             </Trigger>
                                                         </Style.Triggers>
@@ -155,7 +155,7 @@
             <!-- "Now" line over the rows -->
             <Border Grid.Row="2" Grid.Column="1" ClipToBounds="True" IsHitTestVisible="False">
                 <Canvas Loaded="OnTimelineLoaded" HorizontalAlignment="Left">
-                    <Rectangle x:Name="NowLine" Width="2" Fill="{StaticResource Error}" Opacity="0.85"
+                    <Rectangle x:Name="NowLine" Width="2" Fill="{DynamicResource Error}" Opacity="0.85"
                                Height="{Binding ActualHeight, ElementName=Rows}" />
                 </Canvas>
             </Border>
@@ -166,7 +166,7 @@
 
             <ScrollBar x:Name="TimeScroll" Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Height="12" ValueChanged="OnTimeScroll"
                        AutomationProperties.Name="Saat" />
-            <Border Grid.Row="4" Grid.ColumnSpan="2" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="20,7">
+            <Border Grid.Row="4" Grid.ColumnSpan="2" BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="20,7">
                 <TextBlock x:Name="Status" Style="{StaticResource MutedText}" FontSize="12" TextTrimming="CharacterEllipsis"
                            Text="Programa tıkla: yayındaysa kanal açılır, geçmişteyse arşivden oynar. Saatler arasında Shift + tekerlek ya da ← → ile gez."
                            AutomationProperties.LiveSetting="Polite" />

@@ -12,7 +12,7 @@ public partial class MainWindow
     private long _nextAmbientSampleAt;
     private AmbientPalette? _ambientShown;
 
-    private bool CanShowAmbientLight => _state.Settings.AmbientLight && !_closing && IsVisible &&
+    private bool CanShowAmbientLight => _state.Settings.AmbientLight && !ThemeManager.IsLight && !_closing && IsVisible &&
         WindowState != WindowState.Minimized && !Immersive && !IsSecondScreenActive &&
         MainVideoSlot.Visibility == Visibility.Visible && VideoView.Visibility == Visibility.Visible;
 

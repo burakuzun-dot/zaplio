@@ -31,7 +31,7 @@ public partial class MainWindow
     private async void OnWatchHistory(object sender, RoutedEventArgs e)
     {
         var source = ActiveSource;
-        var entries = _state.WatchHistory.Where(entry => entry.Channel.SourceId == source?.Id);
+        var entries = _state.WatchHistory.Where(entry => entry.Channel.SourceId == source?.Id && ChildMayWatch(entry.Channel));
         var dialog = new WatchHistoryWindow(source?.Name ?? "Aktif kaynak yok", entries, _state.WatchPositions,
             _state.Settings.ResumeOnDemand) { Owner = this };
         if (dialog.ShowDialog() != true || dialog.SelectedChannel is not { } selected) return;

@@ -21,6 +21,7 @@ public partial class MainWindow
 
         var series = _librarySection == LibrarySection.Series;
         var rows = ContinueWatching.Select(_state.WatchHistory, source, _librarySection, _state.WatchPositions, _state.CompletedItems)
+            .Where(entry => ChildMayWatch(entry.Channel))
             .Select(entry =>
             {
                 var channel = entry.Channel;

@@ -221,7 +221,7 @@ public partial class MainWindow
         var series = _selectedSeries;
         if (!refresh && series is null && _vodCatalogs.TryGetValue(key, out var cached))
         {
-            _vodItems = cached;
+            _vodItems = ForChild(cached, source.Id, key.Item2);
             ResetVodCategories();
             UpdateVodRows();
             return;
@@ -236,7 +236,8 @@ public partial class MainWindow
                 _selectedSeries is not null || _vodCatalogs.ContainsKey(key)) return;
             if (stored is not null)
             {
-                _vodCatalogs[key] = _vodItems = stored.Value;
+                _vodCatalogs[key] = stored.Value;
+                _vodItems = ForChild(stored.Value, source.Id, key.Item2);
                 ResetVodCategories();
                 UpdateVodRows();
                 SetFooter($"{source.Name} · {stored.Value.Count.ToString("N0", Turkish)} içerik · " +
@@ -266,7 +267,7 @@ public partial class MainWindow
                 _vodCatalogs[key] = items;
                 _ = Task.Run(() => _catalogCache.SaveVod(source, key.Item2, items));
             }
-            _vodItems = items;
+            _vodItems = series is null ? ForChild(items, source.Id, key.Item2) : items;
         }
         catch (Exception exception) when (!request.IsCancellationRequested)
         {

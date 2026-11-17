@@ -5,6 +5,21 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 
 ## Yayınlanmamış
 
+### Eklenenler
+- **Açık tema ve vurgu rengi:** Ayarlar › Görünüm'de koyu, açık ya da "Windows ile aynı" temayı ve altı vurgu renginden birini
+  seçebilirsin. Değişiklik pencereyi yeniden açmadan hemen görünür; Vazgeç'e basarsan eski görünüm geri gelir. Açık temada da
+  video alanı koyu kalır. Her tema ve renk için yazıların okunabilirliği (kontrast) testlerle denetlenir.
+- **Yedekle ve taşı:** Ayarlar › Genel'den kaynakları (kullanıcı adı ve şifreleriyle), favorileri, listeleri, kaldığın yerleri,
+  geçmişi ve ayarları tek bir `.zaplio` dosyasına alabilirsin. Dosya senin belirlediğin parolayla (en az 8 karakter)
+  AES-256-GCM ile şifrelenir; parola hiçbir yerde saklanmaz. Başka bir bilgisayarda "Yedekten geri yükle" ile önce yedekte ne
+  olduğunu görür, onaylayınca Zaplio her şeyi yerine koyup yeniden açılır.
+- **Çocuk profili:** Ayarlar › Genel › Çocuk profili'nden bir PIN belirleyip her bölüm (Canlı TV, Filmler, Diziler) için hangi
+  kategorilerin görüneceğini seçersin. Profil açıkken yalnızca izin verilen kategoriler listelenir; sağlayıcının sonradan
+  eklediği kategoriler sen izin verene kadar gizli kalır. Kaldığın yerler ve izleme geçmişi de aynı kurala uyar. Ayarlar,
+  kaynaklar ve profilden çıkmak (üst çubuktaki "Çocuk profili" işareti) PIN ister; art arda yanlış PIN girilince bekleme
+  süresi uzar. Profil yeniden başlatınca da açık kalır. Kategori listeleri yalnızca bilgisayardaki kayıtlı listelerden
+  okunur, sağlayıcıya ek istek gitmez.
+
 ## 0.12.0 — 2026-11-17
 
 ### Eklenenler

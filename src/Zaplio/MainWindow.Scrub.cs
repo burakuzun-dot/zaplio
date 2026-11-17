@@ -123,15 +123,12 @@ public partial class MainWindow
         _scrubBubbleHide?.Stop();
         if (_scrubBubble is null)
         {
-            _scrubText = new TextBlock { FontSize = 13, FontWeight = FontWeights.SemiBold, Foreground = (Brush)FindResource("Text") };
+            _scrubText = new TextBlock { FontSize = 13, FontWeight = FontWeights.SemiBold };
+            _scrubText.SetResourceReference(TextBlock.ForegroundProperty, "Text");
             _scrubBubble = new Popup
             {
                 AllowsTransparency = true, Placement = PlacementMode.Relative, PlacementTarget = VodSeek, IsHitTestVisible = false,
-                Child = new Border
-                {
-                    Background = (Brush)FindResource("Panel"), BorderBrush = (Brush)FindResource("ZpBoltBrush"), BorderThickness = new Thickness(1),
-                    CornerRadius = new CornerRadius(9), Padding = new Thickness(9, 4, 9, 4), Child = _scrubText
-                }
+                Child = BubbleFrame(_scrubText)
             };
         }
         _scrubText!.Text = PlaybackTime.Format(time);
@@ -175,6 +172,17 @@ public partial class MainWindow
     private void OnVodSeekLeave(object sender, MouseEventArgs e)
     {
         if (!_seekingVod) HideScrubBubble(after: 1);
+    }
+
+    private static Border BubbleFrame(TextBlock text)
+    {
+        var frame = new Border
+        {
+            BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(9), Padding = new Thickness(9, 4, 9, 4), Child = text
+        };
+        frame.SetResourceReference(Border.BackgroundProperty, "Panel");
+        frame.SetResourceReference(Border.BorderBrushProperty, "ZpBoltBrush");
+        return frame;
     }
 
     private void HideScrubBubble(int after)

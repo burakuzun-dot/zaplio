@@ -88,9 +88,9 @@ public partial class MainWindow
         var later = item is not null && IsOnVodWatchlist(item);
         var tooltip = later ? $"{whole}izleme listemden çıkar" : $"{whole}sonra izlemek için ekle";
         VodWatchlistText.Text = later ? "Listemde" : "Sonra izle";
-        VodWatchlistButton.Foreground = (Brush)FindResource(later ? "Accent" : "Muted");
-        VodWatchlistButton.Background = (Brush)FindResource(later ? "Active" : "Surface");
-        VodWatchlistButton.BorderBrush = (Brush)FindResource(later ? "ActiveLine" : "Line");
+        VodWatchlistButton.SetResourceReference(ForegroundProperty, later ? "Accent" : "Muted");
+        VodWatchlistButton.SetResourceReference(BackgroundProperty, later ? "Active" : "Surface");
+        VodWatchlistButton.SetResourceReference(BorderBrushProperty, later ? "ActiveLine" : "Line");
         VodWatchlistButton.ToolTip = tooltip;
         AutomationProperties.SetName(VodWatchlistButton, tooltip);
     }
