@@ -5,6 +5,8 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 
 ## Yayınlanmamış
 
+## 0.14.0 — 2026-11-18
+
 ### Eklenenler
 - **İngilizce arayüz:** Ayarlar › Görünüm › *Dil / Language* ile Türkçe, English ya da "Windows ile aynı" seçilebilir
   (varsayılan: Windows Türkçeyse Türkçe, değilse İngilizce). Pencereler, menüler, uyarılar, kısayollar ve yasal bilgilendirme

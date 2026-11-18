@@ -1,9 +1,9 @@
 ; Inno Setup 6 script for Zaplio.
 ;
 ; 1) Publish a self-contained build (run from the repository root):
-;      dotnet publish src\Zaplio -c Release -r win-x64 --self-contained true -o artifacts\Zaplio-0.13.0-win-x64
+;      dotnet publish src\Zaplio -c Release -r win-x64 --self-contained true -o artifacts\Zaplio-0.14.0-win-x64
 ; 2) Compile this script with Inno Setup 6 (ISCC.exe installer\Zaplio.iss).
-;    The installer is written to artifacts\Zaplio-0.13.0-setup.exe.
+;    The installer is written to artifacts\Zaplio-0.14.0-setup.exe.
 ; Signing: publish with -p:ZaplioSign=true so every binary inside is signed, then sign the
 ; installer itself by uncommenting SignTool below and registering the tool in Inno Setup (Tools > Configure Sign Tools):
 ;   Name: zaplio   Command: powershell -NoProfile -ExecutionPolicy Bypass -File "<repository>\tools\Sign-Zaplio.ps1" -Path $f
@@ -13,7 +13,7 @@
 #define AppName "Zaplio"
 ; The release workflow passes /DAppVersion=<tag version>; local builds fall back to this value.
 #ifndef AppVersion
-  #define AppVersion "0.13.0"
+  #define AppVersion "0.14.0"
 #endif
 #define PublishDir "..\artifacts\Zaplio-" + AppVersion + "-win-x64"
 
