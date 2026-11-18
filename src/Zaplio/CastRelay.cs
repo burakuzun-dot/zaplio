@@ -120,11 +120,7 @@ internal sealed class CastRelay : IDisposable
 
         try
         {
-            using var upstream = new HttpRequestMessage(HttpMethod.Get, _upstream);
-            if (!_live && range is not null) upstream.Headers.TryAddWithoutValidation("Range", range);
-            if (!string.IsNullOrEmpty(_userAgent)) upstream.Headers.TryAddWithoutValidation("User-Agent", _userAgent);
-            if (!string.IsNullOrEmpty(_referrer)) upstream.Headers.TryAddWithoutValidation("Referer", _referrer);
-            using var response = await _http.SendAsync(upstream, HttpCompletionOption.ResponseHeadersRead, mine.Token).ConfigureAwait(false);
+            using var response = await OpenUpstreamAsync(range, mine.Token).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 AppLog.Warn($"Televizyona aktarım: sağlayıcı yanıtı {(int)response.StatusCode}.");
@@ -161,6 +157,31 @@ internal sealed class CastRelay : IDisposable
                 if (_active == mine) _active = null;
             }
             mine.Dispose();
+        }
+    }
+
+    /// <summary>Waits before each new try when the provider says the account's connections are taken.</summary>
+    internal static readonly TimeSpan[] BusyRetryDelays = [TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(1600)];
+
+    /// <summary>
+    /// Statuses providers give when the account's only connection still counts as open. Playback here stops a moment before
+    /// the TV asks, and providers release a connection a second or two late, so the TV's first request often gets one.
+    /// </summary>
+    internal static bool ConnectionBusy(HttpStatusCode status) => (int)status is 401 or 403 or 456 or 509;
+
+    /// <summary>One provider request; on a "connection taken" answer it tries again twice, a little later (not a burst).</summary>
+    private async Task<HttpResponseMessage> OpenUpstreamAsync(string? range, CancellationToken token)
+    {
+        for (var attempt = 0; ; attempt++)
+        {
+            using var upstream = new HttpRequestMessage(HttpMethod.Get, _upstream);
+            if (!_live && range is not null) upstream.Headers.TryAddWithoutValidation("Range", range);
+            if (!string.IsNullOrEmpty(_userAgent)) upstream.Headers.TryAddWithoutValidation("User-Agent", _userAgent);
+            if (!string.IsNullOrEmpty(_referrer)) upstream.Headers.TryAddWithoutValidation("Referer", _referrer);
+            var response = await _http.SendAsync(upstream, HttpCompletionOption.ResponseHeadersRead, token).ConfigureAwait(false);
+            if (response.IsSuccessStatusCode || !ConnectionBusy(response.StatusCode) || attempt >= BusyRetryDelays.Length) return response;
+            response.Dispose();
+            await Task.Delay(BusyRetryDelays[attempt], token).ConfigureAwait(false);
         }
     }
 

@@ -191,6 +191,42 @@ public sealed class CastRelayTests
         Assert.False(relay.TvConnected);
     }
 
+    /// <summary>Says "connection taken" a given number of times, then serves.</summary>
+    private sealed class BusyProvider(int refusals) : HttpMessageHandler
+    {
+        public int Requests;
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
+            Task.FromResult(Interlocked.Increment(ref Requests) <= refusals
+                ? new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                : new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(new byte[500]) });
+    }
+
+    [Fact]
+    public async Task A_connection_the_provider_still_counts_is_waited_out()
+    {
+        var provider = new BusyProvider(refusals: 1);
+        using var relay = new CastRelay(IPAddress.Loopback, IPAddress.Loopback, new Uri("http://saglayici.test/live/k/s/1.ts"),
+            null, null, "video/mpeg", live: true, provider);
+
+        var answer = await GetAsync(relay.Address);
+        Assert.StartsWith("HTTP/1.1 200 OK", answer.Head);
+        Assert.Equal(500, answer.Body.Length);
+        Assert.Equal(2, provider.Requests);
+    }
+
+    [Fact]
+    public async Task A_provider_that_keeps_refusing_gets_only_two_more_tries()
+    {
+        var provider = new BusyProvider(refusals: 100);
+        using var relay = new CastRelay(IPAddress.Loopback, IPAddress.Loopback, new Uri("http://saglayici.test/live/k/s/1.ts"),
+            null, null, "video/mpeg", live: true, provider);
+
+        var answer = await GetAsync(relay.Address);
+        Assert.StartsWith("HTTP/1.1 502", answer.Head);
+        Assert.Equal(1 + CastRelay.BusyRetryDelays.Length, provider.Requests);
+    }
+
     [Theory]
     [InlineData("GET /a/b.ts HTTP/1.1\r\nHost: x\r\nrange: bytes=0-", "GET", "/a/b.ts", "bytes=0-")]
     [InlineData("head /a HTTP/1.1", "HEAD", "/a", null)]

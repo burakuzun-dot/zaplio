@@ -23,7 +23,9 @@ internal static partial class AppLog
     {
         text = CredentialQuery().Replace(text, "$1=***");
         text = CredentialPath().Replace(text, "/$1/***/***/");
-        return UserInfo().Replace(text, "://***@");
+        text = UserInfo().Replace(text, "://***@");
+        // The provider's server address is private too; this computer (the cast relay, the recording copy) stays readable.
+        return Host().Replace(text, "***");
     }
 
     private static void Write(string level, string message, Exception? exception)
@@ -69,4 +71,9 @@ internal static partial class AppLog
 
     [GeneratedRegex(@"://[^/@\s]+@", RegexOptions.CultureInvariant)]
     private static partial Regex UserInfo();
+
+    /// <summary>Host and port of any web address except this computer.</summary>
+    [GeneratedRegex(@"(?<=\b(?:https?|rtsp|rtmps?|udp|rtp)://(?:\*\*\*@)?)(?!(?:127\.0\.0\.1|localhost)(?:[:/\s]|$))[^/\s:@""')]+(?::\d+)?",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex Host();
 }

@@ -5,6 +5,17 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 
 ## Yayınlanmamış
 
+### Düzeltmeler
+- **Televizyona gönderme ilk seferde açılmayabiliyordu:** Tek bağlantılı hesaplarda sağlayıcı, bilgisayarda az önce
+  kapanan bağlantıyı bir-iki saniye daha saydığı için televizyonun ilk isteğini reddediyordu. Zaplio artık bu ret gelince
+  kısa aralıklarla en çok iki kez daha dener.
+- **Günlükte sağlayıcı adresi görünmüyor:** Hata günlüğünde kullanıcı adı ve şifrenin yanında sunucu adresi de artık
+  gizleniyor (`http://***/live/***/***/1.ts`). Günlüğü hata bildirirken paylaşmak daha güvenli.
+
+### Geliştirme
+- Birim testleri artık geçici bir veri klasöründe çalışıyor; önceden bazı testler kullanıcının gerçek günlük klasörüne
+  uyarı yazabiliyordu. Bunu denetleyen bir test eklendi.
+
 ## 0.14.0 — 2026-11-18
 
 ### Eklenenler

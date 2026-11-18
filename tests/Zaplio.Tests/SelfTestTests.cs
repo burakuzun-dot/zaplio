@@ -24,10 +24,8 @@ public sealed class SelfTestTests : IDisposable
     [Fact]
     public void Self_test_refuses_to_run_on_the_real_data_folder()
     {
-        // The test process has no ZAPLIO_DATA_DIR, exactly like a normal start of the app.
-        Assert.False(AppPaths.IsOverridden);
-
-        Assert.False(SelfTest.TryStart(["--self-test", Path.Combine(_folder, "rapor.txt")], out var refusal));
+        // As a normal start of the app would be: no ZAPLIO_DATA_DIR. (The test process itself has one, see TestData.)
+        Assert.False(SelfTest.TryStart(["--self-test", Path.Combine(_folder, "rapor.txt")], dataFolderOverridden: false, out var refusal));
         Assert.Contains(AppPaths.OverrideVariable, refusal);
         Assert.False(SelfTest.Active);
 

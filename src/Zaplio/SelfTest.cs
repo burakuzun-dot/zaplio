@@ -21,7 +21,11 @@ internal static class SelfTest
     internal static int FailureCount => Failures.Count;
 
     /// <summary>Reads the command line. Returns false (with a reason) when a self test was asked for but must not run.</summary>
-    internal static bool TryStart(IReadOnlyList<string> arguments, out string? refusal)
+    internal static bool TryStart(IReadOnlyList<string> arguments, out string? refusal) =>
+        TryStart(arguments, AppPaths.IsOverridden, out refusal);
+
+    /// <param name="dataFolderOverridden">Whether ZAPLIO_DATA_DIR points away from the user's real data.</param>
+    internal static bool TryStart(IReadOnlyList<string> arguments, bool dataFolderOverridden, out string? refusal)
     {
         refusal = null;
         var index = arguments.ToList().IndexOf("--self-test");
@@ -31,7 +35,7 @@ internal static class SelfTest
             refusal = "--self-test bir rapor dosyası yolu ister.";
             return false;
         }
-        if (!AppPaths.IsOverridden)
+        if (!dataFolderOverridden)
         {
             refusal = $"Öz denetim yalnızca {AppPaths.OverrideVariable} ile ayrı bir veri klasörü verilince çalışır.";
             return false;
