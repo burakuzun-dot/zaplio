@@ -33,7 +33,7 @@
 - Kanal değiştirme kısayolları her iki ekranda da çalışır. `Esc` ya da çift tık videoyu ana pencereye geri alır.
 
 ## Televizyonda aç
-- *Seçenekler › Televizyonda aç…*: ev ağındaki DLNA televizyonlarına (ör. Samsung) gönderir; bu bilgisayarda oynatma durur.
+- *Seçenekler › Televizyonda aç…*: ev ağındaki DLNA destekli akıllı televizyonlara gönderir; bu bilgisayarda oynatma durur.
 - Yayın Zaplio üzerinden aktarılır: televizyon sağlayıcı adresini (kullanıcı adı ve şifreyi) görmez, sağlayıcıya tek bağlantı gider.
   Aktarım adresi rastgele ve gizlidir, yalnızca seçilen televizyonun IP adresine açıktır.
 - Kumanda: duraklat / devam (Boşluk), filmlerde ±30 sn ve konum, durdur, bilgisayarda kaldığı yerden devam.

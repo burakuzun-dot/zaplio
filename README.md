@@ -1,3 +1,5 @@
+<p align="right"><b>English</b> · <a href="README.tr.md">Türkçe</a></p>
+
 <p align="center">
   <a href="https://github.com/burakuzun-dot/zaplio/releases/latest">
     <img src="docs/images/zaplio-banner.gif" alt="Zaplio" width="560">
@@ -5,195 +7,201 @@
 </p>
 
 <p align="center">
-  <b>Windows için hızlı, sade ve açık kaynak medya oynatıcı.</b><br>
-  Kendi M3U ve Xtream API kaynaklarını aç; aynı akışın kopyalarıyla, donan yayınlarla ve kaçan anlarla uğraşma.
+  <b>A fast, simple, open-source media player for Windows.</b><br>
+  Open your own M3U playlists and Xtream API sources, without duplicate streams, frozen channels or missed moments.
 </p>
 
 <p align="center">
-  <a href="https://github.com/burakuzun-dot/zaplio/releases/latest"><img alt="Son sürüm" src="https://img.shields.io/github/v/release/burakuzun-dot/zaplio?label=s%C3%BCr%C3%BCm&color=7B61FF&style=flat-square"></a>
+  <a href="https://github.com/burakuzun-dot/zaplio/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/burakuzun-dot/zaplio?label=release&color=7B61FF&style=flat-square"></a>
   <a href="https://github.com/burakuzun-dot/zaplio/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/burakuzun-dot/zaplio/ci.yml?branch=main&label=CI&style=flat-square"></a>
-  <a href="https://github.com/burakuzun-dot/zaplio/releases"><img alt="İndirme" src="https://img.shields.io/github/downloads/burakuzun-dot/zaplio/total?label=indirme&color=FFC83D&style=flat-square"></a>
-  <img alt="Windows 10 ve 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0E1020?style=flat-square">
+  <a href="https://github.com/burakuzun-dot/zaplio/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/burakuzun-dot/zaplio/total?label=downloads&color=FFC83D&style=flat-square"></a>
+  <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0E1020?style=flat-square">
   <img alt=".NET 10" src="https://img.shields.io/badge/.NET-10-512BD4?style=flat-square">
-  <a href="LICENSE"><img alt="Lisans: MIT" src="https://img.shields.io/badge/lisans-MIT-C4B8FF?style=flat-square"></a>
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-C4B8FF?style=flat-square"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/burakuzun-dot/zaplio/releases/latest"><b>⬇ İndir</b></a> ·
-  <a href="#-neden-zaplio">Neden Zaplio?</a> ·
-  <a href="docs/features.md">Tüm özellikler</a> ·
-  <a href="docs/keyboard-shortcuts.md">Kısayollar</a> ·
-  <a href="#-sık-sorulanlar">SSS</a> ·
-  <a href="CHANGELOG.md">Değişiklikler</a>
+  <a href="https://github.com/burakuzun-dot/zaplio/releases/latest"><b>⬇ Download</b></a> ·
+  <a href="#-why-zaplio">Why Zaplio?</a> ·
+  <a href="#-features">Features</a> ·
+  <a href="#-faq">FAQ</a> ·
+  <a href="CHANGELOG.md">Changelog (Turkish)</a>
 </p>
 
 > [!IMPORTANT]
-> **Zaplio yalnızca bir oynatıcıdır.** Kanal, liste ya da abonelik sağlamaz, satmaz ve önermez. Kendi M3U listeni ya da yasal olarak
-> erişim hakkına sahip olduğun bir Xtream API hesabını eklersin; eklediğin içeriklerden sen sorumlusun ([Hukuki bilgilendirme](docs/legal.md)).
-> Zaplio'yu yalnızca bu deponun [Sürümler](https://github.com/burakuzun-dot/zaplio/releases) sayfasından indir.
+> **Zaplio is only a player.** It does not provide, sell or recommend channels, playlists or subscriptions. You add your own M3U
+> playlist or an Xtream API account you have the legal right to use, and you are responsible for what you add
+> ([legal notice, in Turkish](docs/legal.md)). Only download Zaplio from this repository's [Releases](https://github.com/burakuzun-dot/zaplio/releases) page.
 
-<!-- Ekran görüntüleri: demo içerikle çekilen görüntüleri docs/images/ altına ekleyip bu bloğu aç.
-<p align="center">
-  <img src="docs/images/ekran-canli.png" alt="Canlı TV" width="860">
-</p>
--->
+The interface is available in **English and Turkish** (Settings › Appearance › *Dil / Language*; by default it follows Windows).
 
-## ⚡ Neden Zaplio?
+## ⚡ Why Zaplio?
 
 <table>
   <tr>
     <td width="50%" valign="top">
-      <h3>🎚️ Akıllı kalite, yedek yayın</h3>
-      Listende <i>Kanal A HD / FHD / 4K / H.265</i> diye dört satır yok: hepsi <b>tek satır</b>. Zaplio bağlantı hızına göre doğru
-      kaliteyi seçer; yayın açılmaz ya da koparsa hata göstermek yerine <b>diğer kaliteye kendiliğinden geçer</b>.
+      <h3>🎚️ Smart quality, backup streams</h3>
+      No more four rows for <i>Channel A HD / FHD / 4K / H.265</i>: they become <b>one row</b>. Zaplio picks the right quality for
+      your connection, and if a stream will not open or drops, it <b>switches to another quality by itself</b> instead of showing an error.
     </td>
     <td width="50%" valign="top">
-      <h3>⏸️ Canlı yayını durdur, geri sar</h3>
-      Telefon mu çaldı? <kbd>Boşluk</kbd> ile canlı yayını durdur, kaldığın yerden devam et. Arşivi olan kanallarda
-      <kbd>←</kbd> ile 30 saniye geri sar, kaçırdığın sahneyi yeniden izle; <b>Canlıya dön</b> tek tık.
+      <h3>⏸️ Pause and rewind live TV</h3>
+      Phone ringing? Pause the live stream with <kbd>Space</kbd> and continue where you left off. On channels with an archive,
+      <kbd>←</kbd> rewinds 30 seconds; <b>Back to live</b> is one click.
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <h3>🚀 Bekletmeyen açılış</h3>
-      Kanal, film ve rehber listeleri diskte şifreli önbellekte: uygulama <b>sunucuyu beklemeden</b> açılır. VLC motoru arka planda
-      hazırlanır; ilk kanal yarım saniyenin altında başlar. Kopan yayına otomatik yeniden bağlanır.
+      <h3>📺 Play on your TV</h3>
+      Send what plays to a smart TV on your home network (DLNA). Zaplio relays the stream, so your
+      <b>username and password never reach the TV</b> and the provider still sees a single connection.
     </td>
     <td width="50%" valign="top">
-      <h3>🖥️ İkinci ekran ve mini pencere</h3>
-      Yayın diğer monitörde tam ekran, kanal listesi ve rehber ana ekranda (<kbd>Shift</kbd>+<kbd>F11</kbd>). Ya da her zaman üstte
-      duran mini pencere (<kbd>P</kbd>). Alt çubukta bağlantı durumu ve aboneliğinin kaç gün kaldığı.
+      <h3>👪 Made for the living room</h3>
+      A PIN-protected <b>kids profile</b> that only shows the categories you allow, a <b>sleep timer</b>, large subtitles with a dark
+      box, picture adjustment and volume levelling for loud ad breaks.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🚀 No waiting</h3>
+      Channel, movie and guide lists are kept in an encrypted cache, so the app opens <b>without waiting for the server</b>. The VLC
+      engine warms up in the background; the first channel usually starts in under half a second.
+    </td>
+    <td width="50%" valign="top">
+      <h3>🖥️ Second screen and mini window</h3>
+      Full screen on the other monitor while the list and guide stay on the main one (<kbd>Shift</kbd>+<kbd>F11</kbd>), or an
+      always-on-top mini window (<kbd>P</kbd>). Recording keeps the original quality.
     </td>
   </tr>
 </table>
 
-## ⬇ İndir
+## ⬇ Download
 
-| Windows 10 / 11 · 64 bit | |
+| Windows 10 / 11 · 64-bit | |
 |---|---|
-| **Kurulum** | `Zaplio-<sürüm>-setup.exe` — yönetici izni istemez, Başlat menüsüne ekler |
-| **Taşınabilir** | `Zaplio-<sürüm>-win-x64.zip` — bir klasöre çıkar, `Zaplio.exe`'yi çalıştır |
+| **Installer** | `Zaplio-<version>-setup.exe`: no admin rights needed, adds a Start menu entry, updates itself from inside the app |
+| **Portable** | `Zaplio-<version>-win-x64.zip`: extract to a folder and run `Zaplio.exe` |
 
-İki paket de .NET ve VLC'yi içinde taşır, ayrıca bir şey kurman gerekmez.
+Both packages include .NET and VLC; nothing else needs to be installed.
 
 > [!NOTE]
-> Paketler henüz kod imzalı değil. Windows *Akıllı Uygulama Denetimi* açıksa uygulamayı engelleyebilir. Ücretsiz açık kaynak
-> imzası için SignPath Foundation'a başvuruldu; bkz. [kod imzalama politikası](docs/code-signing.md).
+> The packages are not code-signed yet, so Windows *Smart App Control* may block them. We have applied to the SignPath
+> Foundation for free open-source signing; see the [code signing policy](docs/code-signing.md).
 
-## 🏁 3 adımda başla
+## 🏁 Get started in 3 steps
 
-1. **Kaynak ekle** — sağ üstteki **Ayarlar** (⚙) → **Kaynaklar** → *Kaynak ekle*: M3U dosyası, M3U bağlantısı ya da Xtream (sunucu, kullanıcı adı, şifre). İlk açılışta ekrandaki *Liste ekle* düğmesi de aynı yere götürür.
-2. **Kanal seç** — tıkla ya da <kbd>Ctrl</kbd>+<kbd>↑</kbd>/<kbd>↓</kbd> ile gez, rakamla numaradan aç; <kbd>Backspace</kbd> önceki kanal.
-3. **Rehbere bak** — **Rehber** düğmesiyle programları gör; *ARŞİV* etiketli geçmiş programa çift tıkla.
+1. **Add a source**: **Settings** (⚙, top right) → **Sources** → *Add source*: an M3U file, an M3U link or Xtream (server, username, password).
+2. **Pick a channel**: click it, move with <kbd>Ctrl</kbd>+<kbd>↑</kbd>/<kbd>↓</kbd> or type its number; <kbd>Backspace</kbd> goes back to the previous channel.
+3. **Check the guide**: the **Guide** button shows programmes; double-click a past programme marked *ARCHIVE* to watch it.
 
-Tüm kısayollar uygulamada <kbd>F1</kbd>'de ve [docs/keyboard-shortcuts.md](docs/keyboard-shortcuts.md)'de.
+All shortcuts are in the app under <kbd>F1</kbd>.
 
-## 🧩 Özellikler
+## 🧩 Features
 
 <details>
-<summary><b>Kaynaklar ve canlı TV</b></summary>
+<summary><b>Sources and live TV</b></summary>
 
-- M3U / M3U8 (dosya veya bağlantı; `tvg-*`, `group-title`, user-agent/referrer, `x-tvg-url`) ve Xtream API
-- Birden fazla kaynak, kaynak başına hatırlanan grup / arama / kanal
-- Gruplar, Türkçe karakter duyarsız arama, favoriler ve sıralama, kanal logoları
-- Grup gizleme, kanal yeniden adlandırma, aynı kanalın kalitelerini birleştirme ve elle sabitleme
-- Xtream abonelik bilgisi (Ayarlar › Kaynaklar): bitiş tarihi, bağlantı sayısı, son haftada uyarı
+- M3U / M3U8 (file or link; `tvg-*`, `group-title`, user-agent/referrer, `x-tvg-url`) and Xtream API
+- Several sources; groups, search, favorites and ordering, channel logos
+- Hide groups, rename channels, merge the qualities of one channel and pin one by hand
+- Xtream subscription details: expiry date, connection count, a warning in the last week
+- Channels that would not open are dimmed for a day; a full connection limit is explained instead of a bare error
 
 </details>
 
 <details>
-<summary><b>Rehber ve arşiv</b></summary>
+<summary><b>Guide and archive</b></summary>
 
-- XMLTV (`.xml`, `.xml.gz`), şimdi / sırada özeti, 7 günlük program
-- Xtream arşivi: geçmiş programları izle, rehberde arşiv süresi kadar geriye git
-- Canlı yayında <kbd>←</kbd> ile arşivden geri sarma
-
-</details>
-
-<details>
-<summary><b>Filmler ve diziler</b></summary>
-
-- Afişler, kategoriler, arama, detay penceresi
-- Kaldığın yerden devam, izlendi işareti, sonraki bölüm
-- Liste önbelleği: sekme anında açılır
+- XMLTV (`.xml`, `.xml.gz`), now / next summary, 7-day schedule, a full guide grid
+- Xtream archive: watch past programmes; rewind live TV with <kbd>←</kbd>
 
 </details>
 
 <details>
-<summary><b>Oynatma</b></summary>
+<summary><b>Movies and series</b></summary>
 
-- VLC 3 motoru; ses ve altyazı parçası, görüntü oranı, kırpma, ses/altyazı gecikmesi, oynatma hızı
-- Canlı yayını duraklatma (zaman kaydırma), ekran görüntüsü
-- Tam ekran, mini pencere, ikinci ekran
-- Otomatik yeniden bağlanma, yedek kaliteye geçiş, bağlantı durumu ve anlık hız göstergesi
+- Posters, categories, search, details panel, watchlist and favorites
+- Continue where you left off, watched marks, next episode
 
-</details>
-
-Ayrıntılı liste: [docs/features.md](docs/features.md)
-
-## ❓ Sık sorulanlar
-
-<details>
-<summary><b>"Sağlayıcı erişimi reddetti (403)" diyor</b></summary>
-
-Çoğunlukla bilgisayarda açık bir **VPN** (ör. Cloudflare WARP) yüzündendir; birçok sağlayıcı VPN bağlantılarını reddeder. VPN'i kapatıp
-tekrar dene. Devam ederse bağlantı sınırın dolmuş, IP adresin geçici olarak engellenmiş ya da aboneliğin bitmiş olabilir
-(Ayarlar › Kaynaklar'daki abonelik bilgisine bak).
 </details>
 
 <details>
-<summary><b>Windows uygulamayı açmıyor / "engellendi" diyor</b></summary>
+<summary><b>Playback</b></summary>
 
-Windows *Akıllı Uygulama Denetimi* açıksa imzasız paketlerden yüklenen Zaplio'nun açılmasını engelleyebilir.
+- VLC 3 engine: audio and subtitle tracks, aspect ratio, crop, audio/subtitle delay, playback speed
+- Live pause (time shift), lossless recording, screenshots, local videos (drag and drop), cinema mode
+- Full screen, mini window, second screen, play on TV (DLNA)
+- Subtitle size and background box, brightness / contrast / colour, volume levelling, sleep timer
+- Automatic reconnect, backup-quality fallback, connection status and live speed meter
+
 </details>
 
 <details>
-<summary><b>Geri sarma çalışmıyor</b></summary>
+<summary><b>Home and family</b></summary>
 
-Geri sarma için sağlayıcının o kanalda **arşiv** tutması gerekir (rehberde *ARŞİV* etiketi görünür). Arşivi olmayan kanallarda
-yalnızca duraklatıp kaldığın yerden devam edebilirsin.
+- PIN-protected kids profile (allow list of categories)
+- Encrypted backup to move everything to another computer
+- Light and dark themes, six accent colours, English and Turkish interface
+
+</details>
+
+## ❓ FAQ
+
+<details>
+<summary><b>It says "The provider refused access (403)"</b></summary>
+
+Usually because a **VPN** (e.g. Cloudflare WARP) is on; many providers refuse VPN connections. Turn it off and try again. If it
+continues, your connection limit may be reached, your IP address temporarily blocked, or your subscription expired (see the
+subscription details under Settings › Sources).
 </details>
 
 <details>
-<summary><b>Aynı kanalın kalitelerinin birleşmesini istemiyorum</b></summary>
+<summary><b>Windows will not open the app / says it was blocked</b></summary>
 
-Ayarlar → *Aynı kanalın kalitelerini tek satırda birleştir* anahtarını kapat. Kalite tercihini (Otomatik / En yüksek / Veri
-tasarrufu) aynı yerden değiştirebilir, bir kanalın kalitesini sağ tık → *Kalite / yayın* ile sabitleyebilirsin.
+With Windows *Smart App Control* on, unsigned packages may be blocked. See the note under Download.
 </details>
 
 <details>
-<summary><b>Verilerim nerede? Zaplio'yu kaldırınca silinir mi?</b></summary>
+<summary><b>The TV is not found or cannot play</b></summary>
 
-Kaynakların, favorilerin ve önbellek `%LocalAppData%\Zaplio` klasöründe, Windows hesabına bağlı olarak şifreli durur.
-Zaplio'yu kaldırmak bu klasörü silmez; tamamen temizlemek istersen klasörü elle sil.
+The TV and the computer must be on the same home network, and Windows Firewall must allow Zaplio on *Private networks* (Windows
+asks the first time). HLS (`.m3u8`) streams and videos on your computer cannot be sent to a TV yet.
 </details>
 
-## 🔒 Gizlilik
+<details>
+<summary><b>Where is my data? Is it removed when I uninstall?</b></summary>
 
-- Kaynak bilgilerin ve önbellek Windows DPAPI ile yalnızca senin Windows hesabına bağlı olarak şifrelenir.
-- Hata günlüklerinde kullanıcı adı ve şifreler otomatik gizlenir.
-- **Kullanım verisi toplanmaz.** Zaplio'nun kendi sunucusu yoktur.
-- Yalnızca şunlarla iletişim kurulur: eklediğin kaynaklar, kaynak listelerinde adı geçen logo/afiş sunucuları
-  (Ayarlar'dan kapatılır) ve sürüm denetimi için GitHub (Ayarlar'dan kapatılır). Bu sunucular IP adresini görebilir.
-- Sürüm dosyalarının nasıl imzalanacağı: [Kod imzalama politikası](docs/code-signing.md).
-- Telif, markalar ve sorumluluk: [Hukuki bilgilendirme](docs/legal.md).
+Your sources, favorites and cache are stored in `%LocalAppData%\Zaplio`, encrypted to your Windows account. Uninstalling does not
+delete this folder; delete it by hand if you want everything gone.
+</details>
 
-## 🛠️ Geliştirme
+## 🔒 Privacy
+
+- Source details and the cache are encrypted with Windows DPAPI, tied to your Windows account.
+- Usernames and passwords are masked in the error logs.
+- **No usage data is collected.** Zaplio has no server of its own.
+- Zaplio only talks to: the sources you add, the logo/poster servers named in them (can be turned off) and GitHub for update
+  checks (can be turned off). Those servers can see your IP address.
+- How releases are signed: [code signing policy](docs/code-signing.md).
+
+## 🛠️ Development
 
 ```powershell
-dotnet run --project src/Zaplio      # uygulamayı çalıştır
-dotnet test                         # birim testleri
+dotnet run --project src/Zaplio      # run the app
+dotnet test                         # unit tests
 ```
 
-.NET 10 SDK yeterli; VLC NuGet'ten gelir. Ayrıntılar: [docs/building.md](docs/building.md) ·
-Hukuki bilgilendirme: [docs/legal.md](docs/legal.md) · Katkı kuralları: [CONTRIBUTING.md](CONTRIBUTING.md) · Kodlama ajanları: [AGENTS.md](AGENTS.md)
+The .NET 10 SDK is enough; VLC comes from NuGet. More: [docs/building.md](docs/building.md) (Turkish) ·
+[CONTRIBUTING.md](CONTRIBUTING.md) · coding agents: [AGENTS.md](AGENTS.md).
+Interface text is written in Turkish and translated in `src/Zaplio/Lang.English.cs`; a test fails if a translation is missing.
 
-Hata bildirirken `Ayarlar → Günlük klasörünü aç` ile açılan o günün `.log` dosyasını eklemek çözümü çok hızlandırır.
-[Hata bildir](https://github.com/burakuzun-dot/zaplio/issues/new/choose) · Güvenlik açığı: [SECURITY.md](SECURITY.md)
+When reporting a bug, attaching that day's `.log` file (Settings → Open log folder) helps a lot.
+[Report a bug](https://github.com/burakuzun-dot/zaplio/issues/new/choose) · Security issues: [SECURITY.md](SECURITY.md)
 
-## 📄 Lisans
+## 📄 License
 
-Zaplio [MIT lisansı](LICENSE) ile dağıtılır. Kullandığı açık kaynak bileşenler (VLC / LibVLCSharp — LGPL-2.1,
-Inter — OFL-1.1, Fluent System Icons — MIT) ve lisans metinleri [Licenses](src/Zaplio/Licenses/ThirdPartyNotices.txt) klasöründedir.
+Zaplio is released under the [MIT license](LICENSE). The open-source components it uses (VLC / LibVLCSharp, LGPL-2.1;
+Inter, OFL-1.1; Fluent System Icons, MIT) and their license texts are in [Licenses](src/Zaplio/Licenses/ThirdPartyNotices.txt).
 
-<p align="center"><sub>Zaplio bir yayın sağlayıcısı değildir ve herhangi bir sağlayıcı, yayın kuruluşu ya da markayla bağlantısı yoktur.</sub></p>
+<p align="center"><sub>Zaplio is not a broadcaster and is not affiliated with any provider, broadcaster or brand.</sub></p>

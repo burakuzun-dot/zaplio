@@ -32,7 +32,7 @@ Ayarlar'dan kapatılabilir ya da kullanıcının kendi eklediği adreslerdir:
 - Kullanıcının eklediği M3U ve Xtream API kaynakları ile bu listelerde adı geçen logo ve afiş sunucuları.
 - Yeni sürüm denetimi için GitHub (Ayarlar › Genel › Yeni sürümü denetle).
 
-Kullanım verisi toplanmaz; Zaplio'nun kendi sunucusu yoktur. Ayrıntılar: [README › Gizlilik](../README.md#-gizlilik).
+Kullanım verisi toplanmaz; Zaplio'nun kendi sunucusu yoktur. Ayrıntılar: [README › Gizlilik](../README.tr.md#-gizlilik) · [Privacy](../README.md#-privacy).
 
 *Privacy: this program will not transfer any information to other networked systems unless specifically requested by
 the user or the person installing or operating it. The only connections are the playlist sources the user adds (and the
