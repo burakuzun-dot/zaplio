@@ -5,6 +5,8 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 
 ## Yayınlanmamış
 
+## 0.14.1 — 2026-11-19
+
 ### Düzeltmeler
 - **Televizyona gönderme ilk seferde açılmayabiliyordu:** Tek bağlantılı hesaplarda sağlayıcı, bilgisayarda az önce
   kapanan bağlantıyı bir-iki saniye daha saydığı için televizyonun ilk isteğini reddediyordu. Zaplio artık bu ret gelince
