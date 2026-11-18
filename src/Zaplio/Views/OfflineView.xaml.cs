@@ -37,7 +37,7 @@ public partial class OfflineView : System.Windows.Controls.UserControl
     {
         _connectTimeout.Stop();
         SetConnecting(false);
-        SetStatus("Hâlâ bağlantı yok. Arka planda denemeye devam ediyoruz.");
+        SetStatus(Lang.T("Hâlâ bağlantı yok. Arka planda denemeye devam ediyoruz."));
     }
 
     private void OnShown()
@@ -45,7 +45,7 @@ public partial class OfflineView : System.Windows.Controls.UserControl
         if (SystemParameters.ClientAreaAnimation)
             ((Storyboard)Resources["IdleStoryboard"]).Begin(this, true);
         SetConnecting(false);
-        SetStatus("Arka planda bağlantıyı aramaya devam ediyoruz.");
+        SetStatus(Lang.T("Arka planda bağlantıyı aramaya devam ediyoruz."));
         NetworkChange.NetworkAvailabilityChanged -= OnNetworkAvailabilityChanged;
         NetworkChange.NetworkAvailabilityChanged += OnNetworkAvailabilityChanged;
         RetryButton.Focus();
@@ -94,7 +94,7 @@ public partial class OfflineView : System.Windows.Controls.UserControl
     {
         _connecting = connecting;
         RetryButton.IsEnabled = !connecting;
-        RetryText.Text = connecting ? "Bağlanıyor…" : "Tekrar bağlan";
+        RetryText.Text = connecting ? Lang.T("Bağlanıyor…") : Lang.T("Tekrar bağlan");
         RetryIcon.Visibility = connecting ? Visibility.Collapsed : Visibility.Visible;
         Spinner.Visibility = connecting ? Visibility.Visible : Visibility.Collapsed;
 
@@ -102,7 +102,7 @@ public partial class OfflineView : System.Windows.Controls.UserControl
         if (connecting && SystemParameters.ClientAreaAnimation) spinner.Begin(this, true);
         else spinner.Stop(this);
 
-        if (connecting) SetStatus("Bağlantı aranıyor…");
+        if (connecting) SetStatus(Lang.T("Bağlantı aranıyor…"));
     }
 
     private void SetStatus(string text)

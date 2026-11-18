@@ -29,8 +29,9 @@ public partial class App : Application
         }
         AppLog.Info($"Zaplio {UpdateChecker.CurrentVersion} başlatıldı · {Environment.OSVersion}");
         Motion.InstallPressFeedback();
+        Lang.Hook(); // XAML text is translated as elements load
         base.OnStartup(e);
-        if (!SelfTest.Active) ApplySavedTheme(); // the self test starts from the default theme and switches it itself
+        if (!SelfTest.Active) ApplySavedLook(); // the self test starts from the default look and switches it itself
         _startupFiles = e.Args.Where(arg => !arg.StartsWith("--", StringComparison.Ordinal) &&
             (System.IO.File.Exists(arg) || System.IO.Directory.Exists(arg))).ToArray();
         if (SelfTest.Active)
@@ -66,7 +67,7 @@ public partial class App : Application
         }
         catch (Exception exception)
         {
-            SelfTest.Fail("öz denetim başlatılamadı", exception);
+            SelfTest.Fail(Lang.T("öz denetim başlatılamadı"), exception);
         }
         SelfTest.WriteReport();
         AppLog.Info($"Öz denetim bitti: {SelfTest.FailureCount} hata.");
@@ -101,16 +102,19 @@ public partial class App : Application
     }
 
     /// <summary>The saved theme and accent, applied before the first window opens.</summary>
-    private void ApplySavedTheme()
+    /// <summary>Theme and language come before any window is built (the intro included).</summary>
+    private void ApplySavedLook()
     {
         try
         {
             var settings = new LocalStateStore().Load().Settings;
+            Lang.Use(settings.Language);
             ThemeManager.Apply(Resources, settings.Theme, settings.Accent);
         }
         catch (Exception exception)
         {
-            AppLog.Warn("Tema ayarı okunamadı; varsayılan tema kullanılıyor.", exception);
+            Lang.Use(AppLanguage.System);
+            AppLog.Warn("Tema ve dil ayarı okunamadı; varsayılanlar kullanılıyor.", exception);
         }
     }
 
@@ -152,7 +156,7 @@ public partial class App : Application
         e.Handled = true;
         if (SelfTest.Active)
         {
-            SelfTest.Fail("arayüzde işlenmeyen hata", e.Exception); // no dialog: nobody is there to close it
+            SelfTest.Fail(Lang.T("arayüzde işlenmeyen hata"), e.Exception); // no dialog: nobody is there to close it
             return;
         }
         if (_reportedCrash) return;

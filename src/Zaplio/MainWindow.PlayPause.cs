@@ -21,6 +21,12 @@ public partial class MainWindow
         if (e.Key != Key.Space || Keyboard.Modifiers != ModifierKeys.None) return false;
         var typing = Keyboard.FocusedElement is System.Windows.Controls.Primitives.TextBoxBase or PasswordBox ||
             Keyboard.FocusedElement is ComboBox { IsDropDownOpen: true } || Keyboard.FocusedElement is ComboBox { IsEditable: true };
+        if (IsCasting && !typing)
+        {
+            // While the TV plays, space pauses the TV; nothing may start here (it would be a second provider connection).
+            _ = ToggleCastPauseAsync();
+            return true;
+        }
         var last = _lastChannel is { } previous && PlayableHere(previous) ? previous : null;
         var action = SpaceKey.Decide(typing, e.IsRepeat, _player is not null, CanPausePlayback, last is not null);
         LastSpaceAction = action;
@@ -39,7 +45,7 @@ public partial class MainWindow
                 _ = PlayChannelAsync(last);
                 break;
             case SpaceAction.CannotPause:
-                ShowOsd("Bu yayın duraklatılamıyor", "Canlı yayın sağlayıcısı duraklatmaya izin vermiyor.");
+                ShowOsd(Lang.T("Bu yayın duraklatılamıyor"), Lang.T("Canlı yayın sağlayıcısı duraklatmaya izin vermiyor."));
                 break;
         }
         return true;
@@ -51,7 +57,7 @@ public partial class MainWindow
         PlayPauseFlashIcon.Text = paused ? IconGlyphs.Pause : IconGlyphs.Play;
         if (!Motion.Enabled)
         {
-            ShowOsd(paused ? "Duraklatıldı" : "Devam", "");
+            ShowOsd(paused ? Lang.T("Duraklatıldı") : Lang.T("Devam"), "");
             return;
         }
         PlayPauseFlash.Visibility = Visibility.Visible;

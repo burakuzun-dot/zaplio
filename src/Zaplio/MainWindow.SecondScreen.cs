@@ -23,13 +23,13 @@ public partial class MainWindow
         }
         if (_player is null)
         {
-            SetFooter("İkinci ekranda oynatmak için önce bir yayın başlat.");
+            SetFooter(Lang.T("İkinci ekranda oynatmak için önce bir yayın başlat."));
             return;
         }
         var monitors = Monitors();
         if (monitors.Count < 2)
         {
-            SetFooter("İkinci ekran bulunamadı. Monitörün bağlı ve Windows'ta \"Genişlet\" modunda olmalı.", isError: true);
+            SetFooter(Lang.T("İkinci ekran bulunamadı. Monitörün bağlı ve Windows'ta \"Genişlet\" modunda olmalı."), isError: true);
             return;
         }
         if (_fullscreen) ToggleFullscreen();
@@ -50,7 +50,7 @@ public partial class MainWindow
         if (!SetWindowPos(new WindowInteropHelper(window).EnsureHandle(), IntPtr.Zero, area.Left, area.Top,
                 area.Right - area.Left, area.Bottom - area.Top, noZOrderOrActivate))
         {
-            SetFooter("Video ikinci ekrana taşınamadı. Tekrar dene.", isError: true);
+            SetFooter(Lang.T("Video ikinci ekrana taşınamadı. Tekrar dene."), isError: true);
             return;
         }
 
@@ -59,7 +59,7 @@ public partial class MainWindow
         UpdateVodPreview();
         UpdatePlaceholder();
         UpdateExtraControls();
-        ShowOsd("İkinci ekran", "Esc ya da çift tık ile geri al");
+        ShowOsd(Lang.T("İkinci ekran"), Lang.T("Esc ya da çift tık ile geri al"));
     }
 
     private void ReturnVideoToMainWindow()

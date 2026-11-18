@@ -220,6 +220,29 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid>
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Style.Triggers>
+                                                <DataTrigger Value="True">
+                                                    <DataTrigger.Binding>
+                                                        <MultiBinding Converter="{x:Static local:ChannelFailedConverter.Instance}">
+                                                            <Binding />
+                                                            <Binding Path="FailureMarks" RelativeSource="{RelativeSource AncestorType=Window}" />
+                                                        </MultiBinding>
+                                                    </DataTrigger.Binding>
+                                                    <Setter Property="Opacity" Value="0.45" />
+                                                    <Setter Property="ToolTip">
+                                                        <Setter.Value>
+                                                            <MultiBinding Converter="{x:Static local:ChannelFailedConverter.Instance}" ConverterParameter="text">
+                                                                <Binding />
+                                                                <Binding Path="FailureMarks" RelativeSource="{RelativeSource AncestorType=Window}" />
+                                                            </MultiBinding>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="46" />
                                         <ColumnDefinition Width="*" />
@@ -826,6 +849,28 @@
                         <local:TelevisionEffect x:Name="ChannelStatic" Visibility="Collapsed" IsHitTestVisible="False" Margin="8" />
                         <views:EmptyLibraryView x:Name="EmptyLibrary" Visibility="Collapsed" AddPlaylistRequested="OnEmptyLibraryAdd" />
                         <views:ChannelSleepingView x:Name="SleepingView" RetryRequested="OnSleepingRetry" NextChannelRequested="OnSleepingNext" />
+                        <!-- "Televizyonda aç": remote for the TV while it plays; this computer plays nothing meanwhile. -->
+                        <Border x:Name="CastPanel" Visibility="Collapsed" Panel.ZIndex="3" Margin="8" Background="#0A0C14"
+                                CornerRadius="{StaticResource PlayerCornerRadius}">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="600" Margin="24">
+                                <TextBlock Text="Televizyonda oynatılıyor" Style="{StaticResource MutedText}" FontSize="13" HorizontalAlignment="Center" />
+                                <TextBlock x:Name="CastTvName" FontSize="26" FontWeight="SemiBold" HorizontalAlignment="Center" TextAlignment="Center"
+                                           TextWrapping="Wrap" Margin="0,6,0,0" Foreground="{DynamicResource Text}" />
+                                <TextBlock x:Name="CastTitle" FontSize="15" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
+                                           Margin="0,6,0,0" Foreground="{DynamicResource Text}" />
+                                <TextBlock x:Name="CastStatus" Style="{StaticResource MutedText}" FontSize="13" HorizontalAlignment="Center"
+                                           TextAlignment="Center" TextWrapping="Wrap" Margin="0,10,0,0" />
+                                <WrapPanel HorizontalAlignment="Center" Margin="0,18,0,0">
+                                    <Button x:Name="CastBack" Content="−30 sn" Click="OnCastBack" Margin="4" AutomationProperties.Name="30 saniye geri" />
+                                    <Button x:Name="CastPause" Content="Duraklat" Click="OnCastPause" Margin="4" />
+                                    <Button x:Name="CastForward" Content="+30 sn" Click="OnCastForward" Margin="4" AutomationProperties.Name="30 saniye ileri" />
+                                    <Button Content="Durdur" Click="OnCastStop" Margin="4" />
+                                    <Button Style="{StaticResource Primary}" Click="OnCastHere" Margin="4">
+                                        <TextBlock Text="Bilgisayarda devam et" Foreground="{DynamicResource Ink}" />
+                                    </Button>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
                         <Border x:Name="MainVideoSlot" Margin="8">
                             <local:PlaybackView x:Name="VideoView" Visibility="Hidden">
                                 <Grid x:Name="VideoOverlay" Background="#02000000" PreviewKeyDown="OnWindowKeyDown" AllowDrop="True"

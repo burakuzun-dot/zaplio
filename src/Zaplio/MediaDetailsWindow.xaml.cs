@@ -8,7 +8,7 @@ public partial class MediaDetailsWindow : Window
     internal MediaDetailsWindow(VodItem item, int seasonCount)
     {
         InitializeComponent();
-        ActionLabel.Text = item.Playable is not null || seasonCount > 0 ? "Oynat" : "Bölümlere git";
+        ActionLabel.Text = item.Playable is not null || seasonCount > 0 ? Lang.T("Oynat") : Lang.T("Bölümlere git");
         UpdateDetails(item, seasonCount);
     }
 
@@ -16,9 +16,9 @@ public partial class MediaDetailsWindow : Window
     {
         Heading.Text = item.Title;
         seasonCount = Math.Max(seasonCount, item.SeasonCount);
-        Meta.Text = string.Join(" · ", new[] { item.Category, item.Detail, seasonCount > 0 ? $"{seasonCount} sezon" : "" }
+        Meta.Text = string.Join(" · ", new[] { item.Category, item.Detail, seasonCount > 0 ? Lang.F($"{seasonCount} sezon") : "" }
             .Where(value => !string.IsNullOrWhiteSpace(value)));
-        Synopsis.Text = string.IsNullOrWhiteSpace(item.Plot) ? "Bu içerik için özet bulunamadı." : item.Plot;
+        Synopsis.Text = string.IsNullOrWhiteSpace(item.Plot) ? Lang.T("Bu içerik için özet bulunamadı.") : item.Plot;
         if (Uri.TryCreate(item.Poster, UriKind.Absolute, out var address) && address.Scheme is "https" or "http" &&
             (Poster.Source as BitmapImage)?.UriSource != address)
         {

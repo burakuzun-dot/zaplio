@@ -37,7 +37,7 @@ public partial class MainWindow
         }
         catch (Exception exception) when (IsStorageError(exception))
         {
-            SetFooter("Yedek bu bilgisayara yazılamadı.", isError: true);
+            SetFooter(Lang.T("Yedek bu bilgisayara yazılamadı."), isError: true);
             return;
         }
         _restartingWithoutSave = true;
@@ -50,10 +50,10 @@ public partial class MainWindow
     {
         if (ActiveSource is not { Kind: SourceKind.Xtream } source) return null;
         if (_catalog.GetValueOrDefault(source.Id)?.Account is not { } account)
-            return new AccountLine(_refreshingAccount ? "Kontrol ediliyor…" : "Abonelik bilgisi henüz alınmadı.", "Muted", null, !_refreshingAccount);
+            return new AccountLine(_refreshingAccount ? Lang.T("Kontrol ediliyor…") : Lang.T("Abonelik bilgisi henüz alınmadı."), "Muted", null, !_refreshingAccount);
 
         var now = DateTimeOffset.UtcNow;
-        return new AccountLine(_refreshingAccount ? "Kontrol ediliyor…" : account.CardLine(now),
+        return new AccountLine(_refreshingAccount ? Lang.T("Kontrol ediliyor…") : account.CardLine(now),
             account.IsExpired(now) ? "Error" : account.ExpiresSoon(now) ? "Warning" : "Muted", account.Details(now), !_refreshingAccount);
     }
 
@@ -81,7 +81,7 @@ public partial class MainWindow
                 _catalog[source.Id] = updated;
                 SaveCatalogCache(source, updated);
             }
-            SetFooter($"{source.Name} · abonelik bilgisi güncellendi.");
+            SetFooter(Lang.F($"{source.Name} · abonelik bilgisi güncellendi."));
         }
         catch (Exception exception) when (!_closing)
         {

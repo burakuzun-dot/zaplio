@@ -71,15 +71,15 @@ public partial class FavoriteToggle : System.Windows.Controls.UserControl
         string label;
         if (IsChannel)
         {
-            string name = string.IsNullOrWhiteSpace(ChannelName) ? "Bu kanalı" : $"{ChannelName} kanalını";
-            label = IsFavorite ? $"{name} favorilerden çıkar" : $"{name} favorilere ekle";
+            string name = string.IsNullOrWhiteSpace(ChannelName) ? Lang.T("Bu kanalı") : Lang.F($"{ChannelName} kanalını");
+            label = IsFavorite ? Lang.F($"{name} favorilerden çıkar") : $"{name} favorilere ekle";
         }
         else
         {
             string name = string.IsNullOrWhiteSpace(ChannelName) ? "" : $"{ChannelName} · ";
-            label = IsFavorite ? $"{name}Favorilerden çıkar" : $"{name}Favorilere ekle";
+            label = IsFavorite ? Lang.F($"{name}Favorilerden çıkar") : $"{name}Favorilere ekle";
         }
         AutomationProperties.SetName(Toggle, label);
-        Toggle.ToolTip = IsFavorite ? "Favorilerden çıkar" : "Favorilere ekle";
+        Toggle.ToolTip = IsFavorite ? Lang.T("Favorilerden çıkar") : Lang.T("Favorilere ekle");
     }
 }

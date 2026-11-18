@@ -46,7 +46,7 @@ public partial class GuideGridWindow : Window
         var rows = channels.Where(channel => programmes(channel).Count > 0)
             .Select(channel => new Row(channel, programmes, _from, to, _now)).ToList();
         Rows.ItemsSource = rows;
-        Subheading.Text = $"{listName} · {rows.Count} kanal";
+        Subheading.Text = Lang.F($"{listName} · {rows.Count} kanal");
         EmptyText.Visibility = rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         NowButton.IsEnabled = rows.Count > 0;
 
@@ -145,20 +145,20 @@ public partial class GuideGridWindow : Window
     {
         if (cell is null || cell.IsOnAir)
         {
-            Status.Text = $"{row.Name} açılıyor…";
+            Status.Text = Lang.F($"{row.Name} açılıyor…");
             await _play(row.Channel, null);
         }
         else if (cell.IsPast)
         {
             if (!_hasArchive(row.Channel))
             {
-                Status.Text = $"{row.Name} geçmiş yayınları saklamıyor; “{cell.Title}” arşivden oynatılamaz.";
+                Status.Text = Lang.F($"{row.Name} geçmiş yayınları saklamıyor; “{cell.Title}” arşivden oynatılamaz.");
                 return;
             }
-            Status.Text = $"“{cell.Title}” arşivden açılıyor…";
+            Status.Text = Lang.F($"“{cell.Title}” arşivden açılıyor…");
             await _play(row.Channel, cell);
         }
-        else Status.Text = $"“{cell.Title}” henüz başlamadı · {cell.Time}";
+        else Status.Text = Lang.F($"“{cell.Title}” henüz başlamadı · {cell.Time}");
     }
 
     private void OnClose(object sender, RoutedEventArgs e) => Close();

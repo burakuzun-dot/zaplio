@@ -93,7 +93,7 @@ public partial class MainWindow : Window
         }
         catch (Exception exception) when (IsStorageError(exception))
         {
-            SetFooter("Kayıtlı ayarlar okunamadı. Kaynaklarını yeniden ekleyebilirsin.", isError: true);
+            SetFooter(Lang.T("Kayıtlı ayarlar okunamadı. Kaynaklarını yeniden ekleyebilirsin."), isError: true);
         }
 
         VolumeSlider.Value = Math.Clamp(_state.Volume, 0, 100);
@@ -150,7 +150,7 @@ public partial class MainWindow : Window
     private void ManageSources(Window owner)
     {
         // From Settings the PIN was already asked for.
-        if (owner == this && !UnlockChild(this, "Kaynakları yönetmek")) return;
+        if (owner == this && !UnlockChild(this, Lang.T("Kaynakları yönetmek"))) return;
         if (!ConfirmLegalNotice(owner)) return;
         var dialog = new SourcesWindow(_state.Sources, AddSourceAsync, RemoveSourceAsync, _librarySection != LibrarySection.Live) { Owner = owner };
         dialog.ShowDialog();
@@ -158,7 +158,7 @@ public partial class MainWindow : Window
 
     private void OnSettings(object sender, RoutedEventArgs e)
     {
-        if (!UnlockChild(this, "Ayarları açmak")) return;
+        if (!UnlockChild(this, Lang.T("Ayarları açmak"))) return;
         var dialog = new SettingsWindow(_state.Settings, _state.Volume, () => _state.Sources.ToArray(), ManageSources, host: SourceSettings) { Owner = this };
         if (dialog.ShowDialog() != true) return;
         var previousSettings = _state.Settings;
@@ -176,6 +176,14 @@ public partial class MainWindow : Window
         }
         VolumeSlider.Value = _state.Volume;
         _volumeDirty = false;
+        if (Lang.Resolve(previousSettings.Language) != Lang.Resolve(_state.Settings.Language))
+        {
+            // Windows already built keep their text: reopen Zaplio in the new language (everything is saved).
+            AppLog.Info("Dil değişti; Zaplio yeniden açılıyor.");
+            ((App)Application.Current).Restart();
+            return;
+        }
+        _ = ReopenForEngineOptionsAsync(); // subtitle size or levelling changed: reopen what plays, at the same place
         if (!_state.Settings.ResumeOnDemand) _pendingVodPosition = 0;
         if (previousSettings.MergeQualities != _state.Settings.MergeQualities || previousSettings.QualityMode != _state.Settings.QualityMode)
         {
@@ -190,7 +198,7 @@ public partial class MainWindow : Window
         }
         UpdateVodRows();
         UpdateAmbientLightVisibility();
-        SetFooter("Ayarlar kaydedildi.");
+        SetFooter(Lang.T("Ayarlar kaydedildi."));
     }
 
     private async Task AddSourceAsync(Source source, CancellationToken cancellationToken)
@@ -198,7 +206,7 @@ public partial class MainWindow : Window
         var comparison = source.Kind == SourceKind.M3uFile ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
         if (_state.Sources.Any(saved => saved.Id != source.Id && saved.Kind == source.Kind &&
             saved.Location.Equals(source.Location, comparison) && saved.Username == source.Username))
-            throw new SourceException("Bu kaynak zaten kayıtlı.");
+            throw new SourceException(Lang.T("Bu kaynak zaten kayıtlı."));
 
         var catalog = await _loader.LoadAsync(source, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
@@ -229,7 +237,7 @@ public partial class MainWindow : Window
         _catalog[source.Id] = catalog;
         SaveCatalogCache(source, catalog);
         await ActivateSourceAsync(source.Id);
-        SetFooter(catalog.Channels.Count == 0 ? $"{source.Name} eklendi." : $"{source.Name} eklendi · {catalog.Channels.Count} kanal");
+        SetFooter(catalog.Channels.Count == 0 ? Lang.F($"{source.Name} eklendi.") : Lang.F($"{source.Name} eklendi · {catalog.Channels.Count} kanal"));
     }
 
     private async Task UpdateSavedSourceAsync(int index, Source source, LoadedCatalog catalog)
@@ -282,7 +290,7 @@ public partial class MainWindow : Window
             CancelCatalogRequest();
             CancelVodRequest();
             _lastChannel = null;
-            await StopPlaybackAsync("Hazır");
+            await StopPlaybackAsync(Lang.T("Hazır"));
             _lastChannel = null;
             _selectedSeries = null;
             _seriesFilters = null;
@@ -290,7 +298,7 @@ public partial class MainWindow : Window
             await LoadActiveSectionAsync();
         }
         UpdateSourcePicker();
-        SetFooter($"{source.Name} güncellendi.");
+        SetFooter(Lang.F($"{source.Name} güncellendi."));
     }
 
     private async Task RemoveSourceAsync(Source source)
@@ -345,7 +353,7 @@ public partial class MainWindow : Window
         foreach (var key in _vodCatalogs.Keys.Where(key => key.Source == source.Id).ToArray()) _vodCatalogs.Remove(key);
         if (_activeSourceId == source.Id) await ActivateSourceAsync(_state.Sources.FirstOrDefault()?.Id);
         else UpdateSourcePicker();
-        SetFooter($"{source.Name} kaldırıldı.");
+        SetFooter(Lang.F($"{source.Name} kaldırıldı."));
     }
 
     private void UpdateCatalog(string? groupKey = null, string? selectedChannel = null)
@@ -354,7 +362,7 @@ public partial class MainWindow : Window
         var selectedGroup = groupKey ?? (GroupList.SelectedItem as GroupEntry)?.Key ?? "all";
         var groups = new List<GroupEntry>
         {
-            new("all", "Tüm kanallar", IconGlyphs.Television, channels.Count),
+            new("all", Lang.T("Tüm kanallar"), IconGlyphs.Television, channels.Count),
             new("favorites", "Favoriler", IconGlyphs.Star, channels.Count(IsFavorite))
         };
         groups.AddRange(channels.SelectMany(channel => channel.Categories.Distinct(CategoryComparer))
@@ -394,8 +402,8 @@ public partial class MainWindow : Window
         var loading = _refreshing && results.Count == 0 && query.Length == 0;
         ChannelSkeleton.Visibility = loading ? Visibility.Visible : Visibility.Collapsed;
         NoChannels.Visibility = results.Count == 0 && !loading ? Visibility.Visible : Visibility.Collapsed;
-        NoChannels.Text = _refreshing ? "Kanallar yükleniyor…" : query.Length > 0 ? "Aramana uyan kanal yok." :
-            group.Key == "favorites" ? "Favori kanalın burada görünür." : "Henüz kanal yok.";
+        NoChannels.Text = _refreshing ? Lang.T("Kanallar yükleniyor…") : query.Length > 0 ? Lang.T("Aramana uyan kanal yok.") :
+            group.Key == "favorites" ? Lang.T("Favori kanalın burada görünür.") : Lang.T("Henüz kanal yok.");
         UpdateSelection();
     }
 
@@ -456,9 +464,9 @@ public partial class MainWindow : Window
         var channel = DisplayedChannel;
         var sectionTitle = _librarySection switch
         {
-            LibrarySection.Movies => "Filmler",
-            LibrarySection.Series => "Diziler",
-            _ => "Canlı TV"
+            LibrarySection.Movies => Lang.T("Filmler"),
+            LibrarySection.Series => Lang.T("Diziler"),
+            _ => Lang.T("Canlı TV")
         };
         PlayerTitle.Text = channel?.Name ?? sectionTitle;
         PlayerSubtitle.Visibility = channel is null ? Visibility.Collapsed : Visibility.Visible;
@@ -483,7 +491,7 @@ public partial class MainWindow : Window
     {
         var paused = CanPausePlayback && _player?.State == VLCState.Paused;
         PlayIcon.Text = _playingChannel is null || paused ? IconGlyphs.Play : CanPausePlayback ? IconGlyphs.Pause : IconGlyphs.Stop;
-        var playLabel = _playingChannel is null ? "Oynat" : paused ? "Devam et" : CanPausePlayback ? "Duraklat" : "Durdur";
+        var playLabel = _playingChannel is null ? Lang.T("Oynat") : paused ? Lang.T("Devam et") : CanPausePlayback ? Lang.T("Duraklat") : Lang.T("Durdur");
         PlayText.Text = playLabel;
         PlayButton.ToolTip = playLabel;
         UpdateTaskbarButtons(playLabel, _playingChannel is null || paused);
@@ -496,8 +504,8 @@ public partial class MainWindow : Window
         if (IsSecondScreenActive && _playingChannel is not null)
         {
             FirstSourceButton.Visibility = Visibility.Collapsed;
-            PlaceholderTitle.Text = "İkinci ekranda oynatılıyor";
-            PlaceholderDescription.Text = "Kanal listesini ve rehberi buradan kullanabilirsin. Esc ya da \"Geri al\" ile videoyu bu pencereye taşı.";
+            PlaceholderTitle.Text = Lang.T("İkinci ekranda oynatılıyor");
+            PlaceholderDescription.Text = Lang.T("Kanal listesini ve rehberi buradan kullanabilirsin. Esc ya da \"Geri al\" ile videoyu bu pencereye taşı.");
             return;
         }
         if (_librarySection != LibrarySection.Live)
@@ -507,13 +515,13 @@ public partial class MainWindow : Window
             (PlaceholderTitle.Text, PlaceholderDescription.Text) = _librarySection switch
             {
                 _ when ActiveSource?.Kind != SourceKind.Xtream && hasXtream =>
-                    ("Xtream kaynağı seç", "Sol alttaki Kaynak kartından bir Xtream kaynağı seç."),
+                    (Lang.T("Xtream kaynağı seç"), Lang.T("Sol alttaki Kaynak kartından bir Xtream kaynağı seç.")),
                 _ when ActiveSource?.Kind != SourceKind.Xtream =>
-                    ("Xtream kaynağı ekle", "Film ve diziler Xtream hesabından yüklenir."),
-                _ when DisplayedChannel is not null => ("Oynatmaya hazır", "Başlatmak için Oynat’a bas."),
-                LibrarySection.Movies => ("Bir film seç", "Önizleme için listeden bir film seç."),
-                LibrarySection.Series when _selectedSeries is null => ("Bir dizi seç", "Bölümlerini görmek için listeden bir dizi seç."),
-                _ => ("Bir bölüm seç", "Önizleme için listeden bir bölüm seç.")
+                    (Lang.T("Xtream kaynağı ekle"), Lang.T("Film ve diziler Xtream hesabından yüklenir.")),
+                _ when DisplayedChannel is not null => (Lang.T("Oynatmaya hazır"), Lang.T("Başlatmak için Oynat’a bas.")),
+                LibrarySection.Movies => (Lang.T("Bir film seç"), Lang.T("Önizleme için listeden bir film seç.")),
+                LibrarySection.Series when _selectedSeries is null => (Lang.T("Bir dizi seç"), Lang.T("Bölümlerini görmek için listeden bir dizi seç.")),
+                _ => (Lang.T("Bir bölüm seç"), Lang.T("Önizleme için listeden bir bölüm seç."))
             };
             return;
         }
@@ -521,29 +529,41 @@ public partial class MainWindow : Window
         FirstSourceButton.Visibility = noSources ? Visibility.Visible : Visibility.Collapsed;
         if (_refreshing && ActiveChannels.Count == 0)
         {
-            PlaceholderTitle.Text = "Kanallar yükleniyor";
-            PlaceholderDescription.Text = "Yayın kaynaklarına bağlanılıyor…";
+            PlaceholderTitle.Text = Lang.T("Kanallar yükleniyor");
+            PlaceholderDescription.Text = Lang.T("Yayın kaynaklarına bağlanılıyor…");
         }
         else if (noSources)
         {
-            PlaceholderTitle.Text = "İlk kaynağını ekle";
-            PlaceholderDescription.Text = "M3U listeni veya Xtream hesabını bağla.";
+            PlaceholderTitle.Text = Lang.T("İlk kaynağını ekle");
+            PlaceholderDescription.Text = Lang.T("M3U listeni veya Xtream hesabını bağla.");
         }
         else if (ActiveChannels.Count == 0)
         {
-            PlaceholderTitle.Text = "Canlı kanal bulunamadı";
-            PlaceholderDescription.Text = "Aktif kaynağı kontrol et veya sol alttaki Kaynak kartından başka bir kaynak seç.";
+            PlaceholderTitle.Text = Lang.T("Canlı kanal bulunamadı");
+            PlaceholderDescription.Text = Lang.T("Aktif kaynağı kontrol et veya sol alttaki Kaynak kartından başka bir kaynak seç.");
         }
         else if (DisplayedChannel is not null)
         {
-            PlaceholderTitle.Text = "Kanal seçildi";
-            PlaceholderDescription.Text = "Yayını başlatmak için Oynat’a ya da Enter’a bas.";
+            PlaceholderTitle.Text = Lang.T("Kanal seçildi");
+            PlaceholderDescription.Text = Lang.T("Yayını başlatmak için Oynat’a ya da Enter’a bas.");
         }
         else
         {
-            PlaceholderTitle.Text = "Bir kanal seç";
-            PlaceholderDescription.Text = "Kanal listesinden canlı yayını aç.";
+            PlaceholderTitle.Text = Lang.T("Bir kanal seç");
+            PlaceholderDescription.Text = Lang.T("Kanal listesinden canlı yayını aç.");
         }
+    }
+
+    /// <summary>
+    /// LibVLC draws <c>VideoOverlay</c> in a separate window above the video, and that window stays there (and takes every
+    /// click) even while the video is hidden. Panels with buttons in the video area (movie preview, TV remote, sleeping
+    /// channel) therefore hide the overlay's content while they are shown.
+    /// </summary>
+    private void UpdateVideoOverlay()
+    {
+        var buttonsBelow = (SelectedVodPreview is not null && !IsSecondScreenActive) ||
+                           CastPanel.Visibility == Visibility.Visible || SleepingView.Visibility == Visibility.Visible;
+        VideoOverlay.Visibility = buttonsBelow ? Visibility.Hidden : Visibility.Visible;
     }
 
     private void UpdatePlaceholderVisibility()
@@ -578,13 +598,16 @@ public partial class MainWindow : Window
             player.SetPause(pausing);
             TimePause(player, pausing);
         }
-        else if (_playingChannel is not null) await StopPlaybackAsync("Durduruldu");
+        else if (_playingChannel is not null) await StopPlaybackAsync(Lang.T("Durduruldu"));
         else if (DisplayedChannel is Channel channel) await PlayChannelAsync(channel);
     }
 
     private async Task PlayChannelAsync(Channel channel, bool reconnect = false)
     {
         if (_closing || !PlayableHere(channel) || (!reconnect && _playingChannel?.Id == channel.Id)) return;
+        // While the TV plays, the choice goes to the TV (one provider connection either way). Only what the TV cannot
+        // play (HLS, a file here) ends sending and plays here.
+        if (IsCasting && !reconnect && await SwitchCastAsync(channel)) return;
         if (!LocalMedia.IsLocal(channel)) _localQueue.Clear();
         if (_recordChannelId is not null && _recordChannelId != channel.Id) RecordingInterrupted();
         if (!reconnect) _playbackRate = 1f;
@@ -617,8 +640,8 @@ public partial class MainWindow : Window
             await ReleasePlayerAsync();
             if (revision != _playbackRevision || !PlayableHere(channel)) return;
 
-            SetPlaybackStatus("Oynatıcı hazırlanıyor…");
-            _engine ??= await EnsureEngineAsync();
+            SetPlaybackStatus(Lang.T("Oynatıcı hazırlanıyor…"));
+            _engine = await EnsureEngineAsync(); // a new one when subtitle or sound options changed
             if (revision != _playbackRevision || _closing) return;
             var engineReady = _playClock.ElapsedMilliseconds;
 
@@ -660,7 +683,7 @@ public partial class MainWindow : Window
             UpdatePlaceholderVisibility();
             VideoView.MediaPlayer = player;
             UpdateSelection();
-            SetPlaybackStatus("Bağlanıyor…");
+            SetPlaybackStatus(Lang.T("Bağlanıyor…"));
 
             _playbackTimeout.Start();
             var started = await Task.Run(() =>
@@ -681,7 +704,7 @@ public partial class MainWindow : Window
         {
             AppLog.Error($"Oynatma başlatılamadı: {channel.Name} ({LogTarget(channel)})", exception);
             await ReleasePlayerAsync();
-            if (revision == _playbackRevision) ShowPlaybackStopped("Yayın açılamadı", isError: true);
+            if (revision == _playbackRevision) ShowPlaybackStopped(Lang.T("Yayın açılamadı"), isError: true);
         }
         finally
         {
@@ -708,6 +731,8 @@ public partial class MainWindow : Window
         }
         _startedPlayer = player;
         HideSleeping();
+        ApplyPicture(player);
+        if (_playingChannel is { } opened) ClearFailureMark(opened);
         _playStartedAt = Environment.TickCount64;
         _streamWasPlaying = true;
         AppLog.Info($"Yayın başladı: {_playingChannel?.Name} · {_playClock?.ElapsedMilliseconds} ms");
@@ -722,13 +747,13 @@ public partial class MainWindow : Window
             _vodClock.Start();
             TickVodPlayback();
             UpdateSelection();
-            SetPlaybackStatus("Oynatılıyor", live: true);
+            SetPlaybackStatus(Lang.T("Oynatılıyor"), live: true);
         }
         else
         {
             OnLiveResumed();
             if (IsLiveDelayed) UpdateLiveStatus();
-            else SetPlaybackStatus("Canlı", live: true);
+            else SetPlaybackStatus(Lang.T("Canlı"), live: true);
             UpdateSelection();
         }
     }
@@ -740,13 +765,13 @@ public partial class MainWindow : Window
         {
             _vodClock.Start();
             TickVodPlayback();
-            SetPlaybackStatus("Oynatılıyor", live: true);
+            SetPlaybackStatus(Lang.T("Oynatılıyor"), live: true);
         }
         else
         {
             OnLiveResumed();
             if (IsLiveDelayed) UpdateLiveStatus();
-            else SetPlaybackStatus("Canlı", live: true);
+            else SetPlaybackStatus(Lang.T("Canlı"), live: true);
         }
         UpdatePlayState();
     }
@@ -756,26 +781,38 @@ public partial class MainWindow : Window
         if (player != _player || revision != _playbackRevision || _closing) return;
         var vod = _playingChannel?.IsOnDemand == true;
         if (_playingChannel is { IsOnDemand: false } live &&
-            await TryReconnectAsync(live, revision, error ? "oynatıcı hatası" : "yayın sona erdi")) return;
+            await TryReconnectAsync(live, revision, error ? Lang.T("oynatıcı hatası") : Lang.T("yayın sona erdi"))) return;
         if (_playingChannel is { IsOnDemand: false } failed && await TryFailoverAsync(failed)) return;
         if (error) AppLog.Warn($"Yayın hatayla sona erdi: {_playingChannel?.Name} ({LogTarget(_playingChannel)})");
+        var gaveUp = error ? _playingChannel : null;
+        var everPlayed = _streamWasPlaying;
         if (!error && _playingChannel?.SeriesId > 0) _finishedEpisode = _playingChannel;
+        if (!error && SleepAtThisEnd())
+        {
+            // "Bitince" on the sleep timer: stop here; the next local video or episode does not start.
+            await SleepNowAsync();
+            return;
+        }
         if (!error && _playingChannel is { } finished && LocalMedia.IsLocal(finished))
         {
             SaveVodPosition(player, completed: true);
             if (await PlayNextLocalAsync()) return;
         }
-        var message = error ? (vod ? "İçerik açılamadı" : "Yayın açılamadı") : (vod ? "İçerik tamamlandı" : "Yayın sona erdi");
+        var message = error ? (vod ? Lang.T("İçerik açılamadı") : Lang.T("Yayın açılamadı")) : (vod ? Lang.T("İçerik tamamlandı") : Lang.T("Yayın sona erdi"));
         await StopPlaybackAsync(message, error, completed: vod && !error);
+        if (gaveUp is not null) AfterStreamFailed(gaveUp, everPlayed);
     }
 
     private async void OnPlaybackTimeout(object? sender, EventArgs e)
     {
         _playbackTimeout.Stop();
-        if (_playingChannel is { IsOnDemand: false } live && await TryReconnectAsync(live, _playbackRevision, "zaman aşımı")) return;
+        if (_playingChannel is { IsOnDemand: false } live && await TryReconnectAsync(live, _playbackRevision, Lang.T("zaman aşımı"))) return;
         if (_playingChannel is { IsOnDemand: false } failed && await TryFailoverAsync(failed)) return;
         AppLog.Warn($"Yayın zaman aşımına uğradı: {_playingChannel?.Name} ({LogTarget(_playingChannel)})");
-        await StopPlaybackAsync("Yayın zaman aşımına uğradı", isError: true);
+        var gaveUp = _playingChannel;
+        var everPlayed = _streamWasPlaying;
+        await StopPlaybackAsync(Lang.T("Yayın zaman aşımına uğradı"), isError: true);
+        if (gaveUp is not null) AfterStreamFailed(gaveUp, everPlayed);
     }
 
     private async Task StopPlaybackAsync(string status, bool isError = false, bool completed = false)
@@ -839,7 +876,7 @@ public partial class MainWindow : Window
             else
             {
                 PlaceholderTitle.Text = status;
-                PlaceholderDescription.Text = "Tekrar oynatmayı dene veya başka bir içerik seç.";
+                PlaceholderDescription.Text = Lang.T("Tekrar oynatmayı dene veya başka bir içerik seç.");
             }
         }
         SetPlaybackStatus(status, isError: isError);
@@ -904,7 +941,7 @@ public partial class MainWindow : Window
         }
         catch (Exception exception) when (IsStorageError(exception))
         {
-            throw new SourceException("Ayarlar bu bilgisayara kaydedilemedi.");
+            throw new SourceException(Lang.T("Ayarlar bu bilgisayara kaydedilemedi."));
         }
     }
 
@@ -1115,11 +1152,13 @@ public partial class MainWindow : Window
             catch (SourceException exception) { SetFooter(exception.Message, isError: true); }
         }
 
-        await StopPlaybackAsync("Durduruldu");
+        await EndCastAsync(stopTv: true); // the relay ends with Zaplio, so the TV is stopped cleanly
+        await StopPlaybackAsync(Lang.T("Durduruldu"));
         _secondScreen?.CloseForShutdown();
-        (_engine ?? (_engineTask is { IsCompletedSuccessfully: true } warmed ? warmed.Result : null))?.Dispose();
+        DisposeEngines();
         _loader.Dispose();
         _guideLoader.Dispose();
+        _dlna.Dispose();
         _canClose = true;
         // WPF disallows a second Close call during the original Closing event.
         _ = Dispatcher.BeginInvoke(Close);

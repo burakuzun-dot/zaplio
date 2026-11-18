@@ -37,8 +37,8 @@ public partial class MainWindow
         var from = ChannelVariants.Quality(current.Name).Label;
         var to = ChannelVariants.Quality(next.Name).Label;
         AppLog.Warn($"Yayın açılamadı, yedeğe geçiliyor: {current.Name} → {next.Name}");
-        ShowOsd($"{failed.Name}{(from.Length > 0 ? $" {from}" : "")} açılamadı", $"{(to.Length > 0 ? to : "Yedek")} yayına geçiliyor");
-        SetPlaybackStatus("Yedek yayına geçiliyor…");
+        ShowOsd(Lang.F($"{failed.Name}{(from.Length > 0 ? $" {from}" : "")} açılamadı"), Lang.F($"{(to.Length > 0 ? to : Lang.T("Yedek"))} yayına geçiliyor"));
+        SetPlaybackStatus(Lang.T("Yedek yayına geçiliyor…"));
         _reconnectAttempts = 0;
         _streamWasPlaying = false;
         // Keep the row's title so the user still sees the channel they picked.

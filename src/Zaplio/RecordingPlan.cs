@@ -106,7 +106,7 @@ internal static class PlaybackSpeed
     }
 
     internal static string Label(float rate) =>
-        Math.Abs(rate - 1f) < 0.005f ? "Normal hız" : $"{rate.ToString("0.##", CultureInfo.GetCultureInfo("tr-TR"))}×";
+        Math.Abs(rate - 1f) < 0.005f ? Lang.T("Normal hız") : $"{rate.ToString("0.##", Lang.Culture)}×";
 
     /// <summary>Intermediate speeds for a gentle change (instead of a jump), ending exactly on <paramref name="target"/>.</summary>
     internal static float[] Ramp(float from, float target, int steps = 5)

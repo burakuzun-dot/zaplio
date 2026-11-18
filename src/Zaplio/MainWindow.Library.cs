@@ -116,7 +116,7 @@ public partial class MainWindow
         var preview = SelectedVodPreview;
         VodPreviewPanel.Visibility = preview is null ? Visibility.Collapsed : Visibility.Visible;
         MainVideoSlot.Visibility = preview is null ? Visibility.Visible : Visibility.Hidden;
-        VideoOverlay.Visibility = preview is null || IsSecondScreenActive ? Visibility.Visible : Visibility.Hidden;
+        UpdateVideoOverlay();
         UpdatePlaceholderVisibility();
         PlayerHeader.Visibility = Immersive || preview is not null ? Visibility.Collapsed : Visibility.Visible;
         PlayButton.Visibility = preview is null || _playingChannel is not null ? Visibility.Visible : Visibility.Collapsed;
@@ -240,8 +240,8 @@ public partial class MainWindow
                 _vodItems = ForChild(stored.Value, source.Id, key.Item2);
                 ResetVodCategories();
                 UpdateVodRows();
-                SetFooter($"{source.Name} · {stored.Value.Count.ToString("N0", Turkish)} içerik · " +
-                    $"{CacheAgeLabel(DateTimeOffset.UtcNow - stored.SavedAt)} kaydedilen liste");
+                SetFooter(Lang.F($"{source.Name} · {stored.Value.Count.ToString("N0", Lang.Culture)} içerik · ") +
+                    Lang.F($"{CacheAgeLabel(DateTimeOffset.UtcNow - stored.SavedAt)} kaydedilen liste"));
                 if (stored.IsFresh) return;
                 showingCache = true;
             }
@@ -273,7 +273,7 @@ public partial class MainWindow
         {
             AppLog.Warn($"İçerik listesi yüklenemedi ({key.Item2})", exception);
             if (request != _vodRequest) { }
-            else if (showingCache) SetFooter($"{source.Name} güncellenemedi · kayıtlı liste gösteriliyor ({CatalogLoader.UserMessage(exception)})", isError: true);
+            else if (showingCache) SetFooter(Lang.F($"{source.Name} güncellenemedi · kayıtlı liste gösteriliyor ({CatalogLoader.UserMessage(exception)})"), isError: true);
             else _vodError = CatalogLoader.UserMessage(exception);
         }
         catch (Exception) when (request.IsCancellationRequested)
@@ -298,7 +298,7 @@ public partial class MainWindow
         var groups = _selectedSeries is null
             ? _vodItems.Select(item => item.Category).Distinct(CategoryComparer).OrderBy(name => name, CategoryComparer)
             : _vodItems.OrderBy(item => item.Season).Select(item => item.Category).Distinct(CategoryComparer);
-        var categories = new[] { new VodFilter(null, _selectedSeries is null ? "Tüm kategoriler" : "Tüm sezonlar") }
+        var categories = new[] { new VodFilter(null, _selectedSeries is null ? Lang.T("Tüm kategoriler") : Lang.T("Tüm sezonlar")) }
             .Concat(groups.Select(name => new VodFilter(name, name))).ToArray();
         var previous = (VodCategoryPicker.SelectedItem as VodFilter)?.Category;
         _changingVodFilters = true;
@@ -339,8 +339,8 @@ public partial class MainWindow
                 var completed = item.Playable is not null && _state.CompletedItems.Contains(item.Playable.Id);
                 var parts = new[]
                 {
-                    item.Category, item.Detail, resume > 0 ? $"Devam et · {PlaybackTime.Format(resume)}" : completed ? "İzlendi" : "",
-                    _selectedSeries is null && IsOnVodWatchlist(item) ? "İzleme listemde" : ""
+                    item.Category, item.Detail, resume > 0 ? Lang.F($"Devam et · {PlaybackTime.Format(resume)}") : completed ? Lang.T("İzlendi") : "",
+                    _selectedSeries is null && IsOnVodWatchlist(item) ? Lang.T("İzleme listemde") : ""
                 };
                 return new VodRow(item, string.Join(" · ", parts.Where(part => part.Length > 0).Distinct()),
                     _librarySection == LibrarySection.Movies ? IconGlyphs.Movie : IconGlyphs.Series,
@@ -352,8 +352,8 @@ public partial class MainWindow
         VodBack.Visibility = _selectedSeries is null ? Visibility.Collapsed : Visibility.Visible;
         VodListTabs.Visibility = _selectedSeries is null ? Visibility.Visible : Visibility.Collapsed;
         UpdateContinueWatching(showRow: _selectedSeries is null && listKind == VodListKind.All && category is null && query.Length == 0);
-        VodHeading.Text = _selectedSeries?.Title ?? (_librarySection == LibrarySection.Movies ? "Filmler" : "Diziler");
-        VodCount.Text = rows.Length.ToString("N0", Turkish);
+        VodHeading.Text = _selectedSeries?.Title ?? (_librarySection == LibrarySection.Movies ? Lang.T("Filmler") : Lang.T("Diziler"));
+        VodCount.Text = rows.Length.ToString("N0", Lang.Culture);
         var needsXtream = ActiveSource?.Kind != SourceKind.Xtream;
         var canSwitch = _state.Sources.Any(source => source.Kind == SourceKind.Xtream);
         var loadingVod = rows.Length == 0 && _vodRequest is not null && !needsXtream;
@@ -361,13 +361,13 @@ public partial class MainWindow
         VodEmpty.Visibility = rows.Length == 0 && !loadingVod ? Visibility.Visible : Visibility.Collapsed;
         VodConnect.Visibility = needsXtream && !canSwitch ? Visibility.Visible : Visibility.Collapsed;
         VodRetry.Visibility = _vodError is null ? Visibility.Collapsed : Visibility.Visible;
-        VodMessage.Text = needsXtream ? (canSwitch ? "Aşağıdaki Kaynak kartından bir Xtream kaynağı seç."
-                : "Film ve dizileri görmek için bir Xtream kaynağı ekle.")
-            : _vodRequest is not null ? "İçerikler yükleniyor…"
-            : _vodError ?? (query.Length > 0 ? "Aramana uyan içerik bulunamadı."
-                : listKind == VodListKind.Favorites ? "Henüz favorin yok. Bir içeriğin yanındaki şimşeğe bas."
-                : listKind == VodListKind.Watchlist ? "İzleme listen boş. Bir içerik seçip “Sonra izle”ye bas."
-                : "Bu listede içerik bulunamadı.");
+        VodMessage.Text = needsXtream ? (canSwitch ? Lang.T("Aşağıdaki Kaynak kartından bir Xtream kaynağı seç.")
+                : Lang.T("Film ve dizileri görmek için bir Xtream kaynağı ekle."))
+            : _vodRequest is not null ? Lang.T("İçerikler yükleniyor…")
+            : _vodError ?? (query.Length > 0 ? Lang.T("Aramana uyan içerik bulunamadı.")
+                : listKind == VodListKind.Favorites ? Lang.T("Henüz favorin yok. Bir içeriğin yanındaki şimşeğe bas.")
+                : listKind == VodListKind.Watchlist ? Lang.T("İzleme listen boş. Bir içerik seçip “Sonra izle”ye bas.")
+                : Lang.T("Bu listede içerik bulunamadı."));
         VodCategoryPicker.IsEnabled = _vodItems.Count > 0;
         UpdateRefreshButton();
         UpdateSelection();

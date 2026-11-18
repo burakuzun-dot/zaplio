@@ -23,7 +23,7 @@ internal static class ThemePalette
         new("purple", "Mor", Rgb(0xC1B4FF), Rgb(0x5B3FD9), Rgb(0x7B61FF)),
         new("blue", "Mavi", Rgb(0x9CC4FF), Rgb(0x1F5FCC), Rgb(0x3D7DFF)),
         new("teal", "Turkuaz", Rgb(0x8EE6DA), Rgb(0x0B7A6E), Rgb(0x1FB5A3)),
-        new("green", "Yeşil", Rgb(0xA6E3A1), Rgb(0x2E7D32), Rgb(0x43A047)),
+        new("green", Lang.T("Yeşil"), Rgb(0xA6E3A1), Rgb(0x2E7D32), Rgb(0x43A047)),
         new("orange", "Turuncu", Rgb(0xFFC48C), Rgb(0xB35400), Rgb(0xF07C1A)),
         new("pink", "Pembe", Rgb(0xF5A9D0), Rgb(0xB0306E), Rgb(0xE0518F))
     ];

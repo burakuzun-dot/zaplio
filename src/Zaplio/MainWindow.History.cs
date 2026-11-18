@@ -32,7 +32,7 @@ public partial class MainWindow
     {
         var source = ActiveSource;
         var entries = _state.WatchHistory.Where(entry => entry.Channel.SourceId == source?.Id && ChildMayWatch(entry.Channel));
-        var dialog = new WatchHistoryWindow(source?.Name ?? "Aktif kaynak yok", entries, _state.WatchPositions,
+        var dialog = new WatchHistoryWindow(source?.Name ?? Lang.T("Aktif kaynak yok"), entries, _state.WatchPositions,
             _state.Settings.ResumeOnDemand) { Owner = this };
         if (dialog.ShowDialog() != true || dialog.SelectedChannel is not { } selected) return;
         if (!selected.IsOnDemand)
@@ -43,7 +43,7 @@ public partial class MainWindow
                 ? _catalog.GetValueOrDefault(id)?.Channels.FirstOrDefault(channel => channel.Id == selected.Id) : null;
             if (current is null)
             {
-                SetFooter("Bu kanal aktif kaynakta artık bulunmuyor.", isError: true);
+                SetFooter(Lang.T("Bu kanal aktif kaynakta artık bulunmuyor."), isError: true);
                 return;
             }
             selected = current;

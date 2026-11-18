@@ -24,7 +24,7 @@ internal static class BackupFile
 
     internal static byte[] Create(LocalState state, string password)
     {
-        if (password.Length < MinimumPassword) throw new BackupException($"Parola en az {MinimumPassword} karakter olmalı.");
+        if (password.Length < MinimumPassword) throw new BackupException(Lang.F($"Parola en az {MinimumPassword} karakter olmalı."));
         var plain = JsonSerializer.SerializeToUtf8Bytes(new Content(1, DateTimeOffset.UtcNow, UpdateChecker.CurrentVersion.ToString(), state));
         var salt = RandomNumberGenerator.GetBytes(16);
         var nonce = RandomNumberGenerator.GetBytes(12);
@@ -41,7 +41,7 @@ internal static class BackupFile
     {
         var header = Magic.Length + 16 + 12 + 16;
         if (file.Length < header || !file.AsSpan(0, Magic.Length).SequenceEqual(Magic))
-            throw new BackupException("Bu dosya bir Zaplio yedeği değil.");
+            throw new BackupException(Lang.T("Bu dosya bir Zaplio yedeği değil."));
         var salt = file.AsSpan(Magic.Length, 16);
         var nonce = file.AsSpan(Magic.Length + 16, 12);
         var tag = file.AsSpan(Magic.Length + 28, 16);
@@ -55,7 +55,7 @@ internal static class BackupFile
         }
         catch (AuthenticationTagMismatchException)
         {
-            throw new BackupException("Parola yanlış ya da dosya bozulmuş.");
+            throw new BackupException(Lang.T("Parola yanlış ya da dosya bozulmuş."));
         }
         finally
         {
@@ -63,13 +63,13 @@ internal static class BackupFile
         }
         try
         {
-            var content = JsonSerializer.Deserialize<Content>(plain) ?? throw new BackupException("Yedeğin içeriği okunamadı.");
-            if (content.Format != 1) throw new BackupException("Bu yedek Zaplio'nun daha yeni bir sürümüyle alınmış; önce Zaplio'yu güncelle.");
+            var content = JsonSerializer.Deserialize<Content>(plain) ?? throw new BackupException(Lang.T("Yedeğin içeriği okunamadı."));
+            if (content.Format != 1) throw new BackupException(Lang.T("Bu yedek Zaplio'nun daha yeni bir sürümüyle alınmış; önce Zaplio'yu güncelle."));
             return content.State;
         }
         catch (JsonException)
         {
-            throw new BackupException("Yedeğin içeriği okunamadı.");
+            throw new BackupException(Lang.T("Yedeğin içeriği okunamadı."));
         }
         finally
         {
@@ -80,13 +80,13 @@ internal static class BackupFile
     /// <summary>What a backup holds, in one line ("2 kaynak · 14 kanal favorisi · …").</summary>
     internal static string Summary(LocalState state)
     {
-        var parts = new List<string> { $"{state.Sources.Count} kaynak" };
-        if (state.Favorites.Count > 0) parts.Add($"{state.Favorites.Count} kanal favorisi");
-        if (state.VodFavorites.Count > 0) parts.Add($"{state.VodFavorites.Count} film/dizi favorisi");
+        var parts = new List<string> { Lang.F($"{state.Sources.Count} kaynak") };
+        if (state.Favorites.Count > 0) parts.Add(Lang.F($"{state.Favorites.Count} kanal favorisi"));
+        if (state.VodFavorites.Count > 0) parts.Add(Lang.F($"{state.VodFavorites.Count} film/dizi favorisi"));
         if (state.VodWatchlist.Count > 0) parts.Add($"{state.VodWatchlist.Count} izleme listesi");
-        if (state.WatchPositions.Count > 0) parts.Add($"{state.WatchPositions.Count} kaldığın yer");
-        if (state.WatchHistory.Count > 0) parts.Add($"{state.WatchHistory.Count} izleme geçmişi");
-        if (state.Child.HasPin) parts.Add(state.Child.Active ? "çocuk profili (açık)" : "çocuk profili");
+        if (state.WatchPositions.Count > 0) parts.Add(Lang.F($"{state.WatchPositions.Count} kaldığın yer"));
+        if (state.WatchHistory.Count > 0) parts.Add(Lang.F($"{state.WatchHistory.Count} izleme geçmişi"));
+        if (state.Child.HasPin) parts.Add(state.Child.Active ? Lang.T("çocuk profili (açık)") : Lang.T("çocuk profili"));
         return string.Join(" · ", parts);
     }
 

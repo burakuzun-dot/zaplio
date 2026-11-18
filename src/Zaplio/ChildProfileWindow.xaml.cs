@@ -15,7 +15,7 @@ public partial class ChildProfileWindow : Window
     internal sealed class CategoryRow(string category, bool allowed)
     {
         public string Category { get; } = category;
-        public string Label { get; } = category.Length == 0 ? ChildProfile.Uncategorized : DisplayText.CleanLabel(category);
+        public string Label { get; } = category.Length == 0 ? Lang.T(ChildProfile.Uncategorized) : DisplayText.CleanLabel(category);
         public bool IsAllowed { get; set; } = allowed;
     }
 
@@ -45,15 +45,15 @@ public partial class ChildProfileWindow : Window
 
         SectionChoice[] choices = [.. categories.Keys.Order().Select(section => new SectionChoice(section, section switch
         {
-            LibrarySection.Movies => "Filmler",
-            LibrarySection.Series => "Diziler",
-            _ => "Canlı TV"
+            LibrarySection.Movies => Lang.T("Filmler"),
+            LibrarySection.Series => Lang.T("Diziler"),
+            _ => Lang.T("Canlı TV")
         }))];
         SectionPicker.ItemsSource = choices;
         SectionPicker.SelectedItem = choices.FirstOrDefault();
         Tag = sourceName;
 
-        PinState.Text = _hasPin ? "PIN belirlendi." : "Önce bir PIN belirle.";
+        PinState.Text = _hasPin ? Lang.T("PIN belirlendi.") : Lang.T("Önce bir PIN belirle.");
         ChangePinButton.Visibility = _hasPin ? Visibility.Visible : Visibility.Collapsed;
         PinPanel.Visibility = _hasPin ? Visibility.Collapsed : Visibility.Visible;
         StopButton.Visibility = _active ? Visibility.Visible : Visibility.Collapsed;
@@ -103,8 +103,8 @@ public partial class ChildProfileWindow : Window
         CategoryScroll.ScrollToTop();
         Search.IsEnabled = AllowAll.IsEnabled = AllowNone.IsEnabled = loaded;
         EmptyText.Text = !loaded
-            ? $"{(SectionPicker.SelectedItem as SectionChoice)?.Label} listesi henüz yüklenmedi. Ana pencerede bu bölümü bir kez aç; kategoriler burada görünür. O zamana kadar bu bölümde önceki izinler geçerli."
-            : rows.Length == 0 ? "Bu aramaya uyan kategori yok." : "";
+            ? Lang.F($"{(SectionPicker.SelectedItem as SectionChoice)?.Label} listesi henüz yüklenmedi. Ana pencerede bu bölümü bir kez aç; kategoriler burada görünür. O zamana kadar bu bölümde önceki izinler geçerli.")
+            : rows.Length == 0 ? Lang.T("Bu aramaya uyan kategori yok.") : "";
         EmptyText.Visibility = EmptyText.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         UpdateCount();
     }
@@ -114,7 +114,7 @@ public partial class ChildProfileWindow : Window
     private void UpdateCount()
     {
         var rows = Section is { } section ? _rows.GetValueOrDefault(section) : null;
-        AllowedCount.Text = rows is null ? "" : $"{rows.Count(row => row.IsAllowed)} / {rows.Length} kategoriye izin var";
+        AllowedCount.Text = rows is null ? "" : Lang.F($"{rows.Count(row => row.IsAllowed)} / {rows.Length} kategoriye izin var");
     }
 
     private void OnAllowAll(object sender, RoutedEventArgs e) => SetVisible(true);
@@ -148,13 +148,13 @@ public partial class ChildProfileWindow : Window
         var changingPin = PinPanel.Visibility == Visibility.Visible && (!_hasPin || Pin.Password.Length > 0 || PinAgain.Password.Length > 0);
         if (changingPin && outcome != Outcome.Stop)
         {
-            if (!ChildProfile.IsValidPin(Pin.Password)) { ShowProblem("PIN 4–8 rakamdan oluşmalı."); return; }
-            if (Pin.Password != PinAgain.Password) { ShowProblem("İki PIN aynı değil."); return; }
+            if (!ChildProfile.IsValidPin(Pin.Password)) { ShowProblem(Lang.T("PIN 4–8 rakamdan oluşmalı.")); return; }
+            if (Pin.Password != PinAgain.Password) { ShowProblem(Lang.T("İki PIN aynı değil.")); return; }
             pin = Pin.Password;
         }
         if (outcome == Outcome.Start && !_rows.Values.Any(rows => rows?.Any(row => row.IsAllowed) == true))
         {
-            ShowProblem("En az bir kategoriye izin ver; yoksa çocuk profilinde hiçbir şey görünmez.");
+            ShowProblem(Lang.T("En az bir kategoriye izin ver; yoksa çocuk profilinde hiçbir şey görünmez."));
             return;
         }
         NewPin = pin;

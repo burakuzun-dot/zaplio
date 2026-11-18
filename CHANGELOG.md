@@ -5,6 +5,33 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 
 ## Yayınlanmamış
 
+### Eklenenler
+- **İngilizce arayüz:** Ayarlar › Görünüm › *Dil / Language* ile Türkçe, English ya da "Windows ile aynı" seçilebilir
+  (varsayılan: Windows Türkçeyse Türkçe, değilse İngilizce). Pencereler, menüler, uyarılar, kısayollar ve yasal bilgilendirme
+  dahil bütün metinler çevrildi; tarih ve sayılar da seçilen dile göre yazılır. Dil değişince Zaplio yeniden açılır.
+- **Altyazı görünümü:** Altyazı boyutu (küçük, normal, büyük, çok büyük) ve arkasına koyu, yarı saydam bir kutu. Hem
+  Ayarlar › Oynatma'dan hem oynatırken *Seçenekler › Altyazı görünümü*'nden seçilir; yayın aynı saniyeden yeni görünümle
+  yeniden açılır.
+- **Görüntü ayarı:** *Seçenekler › Görüntü* ile parlaklık, kontrast ve renk ikişer adım artırılıp azaltılabilir (karanlık
+  filmler, soluk yayınlar için); anında uygulanır ve hatırlanır. *Özgün görüntü* her şeyi geri alır.
+- **Sesi dengele:** Kanal değiştirince ya da reklama geçince sesin birden yükselmesini ya da düşmesini yumuşatır
+  (Ayarlar › Oynatma ya da *Seçenekler* menüsü). Varsayılan olarak kapalı.
+- **Televizyonda aç (DLNA):** Oynatırken *Seçenekler › Televizyonda aç…* ev ağındaki televizyonları bulur; seçtiğinde
+  yayın televizyonda açılır, bu bilgisayarda oynatma durur. Sağlayıcıya yine tek bağlantı gider: yayını Zaplio alır ve
+  televizyona aktarır, kullanıcı adın ve şifren televizyona hiç gitmez. Ekranda televizyonun kumandası çıkar: duraklat /
+  devam (Boşluk tuşu da), filmlerde 30 saniye ileri-geri ve konum, durdur, *Bilgisayarda devam et* (film kaldığı yerden
+  sürer). Gönderirken listeden başka bir kanal ya da film seçersen, kanal yukarı/aşağı ya da Backspace kullanırsan
+  o da aynı televizyonda açılır. Film televizyonda da kaldığın yerden başlar; son seçilen televizyon hatırlanır. Zaplio açık kaldığı sürece
+  oynar. HLS (`.m3u8`) yayınlar ve bilgisayardaki videolar henüz gönderilemiyor.
+- **Uyku zamanlayıcısı:** Oynatırken *Seçenekler › Uyku zamanlayıcısı* ile 15 dakikadan 2 saate kadar bir süre, film ve
+  dizide "bitince", canlı yayında rehber biliyorsa "program bitince" seçilebilir. Son yarım dakikada ses yavaşça kısılır,
+  bir dakika kala ekranda haber verilir. Film ve dizide kaldığın yer kaydedilir, "bitince" seçiliyse sıradaki başlamaz.
+- **Bağlantı sınırı uyarısı (Xtream):** Bir yayın hiç başlamadan açılamazsa Zaplio abonelik bilgisini bir kez sorar
+  (kaynak başına en çok 2 dakikada bir). Hesabın bütün bağlantıları başka cihazlarda kullanımdaysa bunu açıkça söyler.
+- **Açılmayan kanallar soluk görünür:** Senin denemende açılamayan canlı kanal 24 saat boyunca listede soluk görünür,
+  üstüne gelince ne zaman açılmadığı yazar. Kanal açılınca işaret hemen kalkar. Yalnızca kendi denemelerinden öğrenir;
+  internet yokken ya da sebep bağlantı sınırıysa kanal işaretlenmez, sağlayıcıya ek istek gitmez.
+
 ### İyileştirmeler
 - **Oynatma süreleri günlükte:** Duraklatma, devam ettirme ve sarmanın kaç milisaniye sürdüğü günlüğe yazılıyor; bir gecikme
   olduğunda sebebi günlükten görülebiliyor.

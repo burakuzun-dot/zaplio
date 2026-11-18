@@ -27,18 +27,18 @@ public partial class MainWindow
     private bool UnlockChild(Window owner, string purpose)
     {
         if (!ChildMode) return true;
-        var hint = $"{purpose} için çocuk profilinin PIN'ini gir.";
+        var hint = Lang.F($"{purpose} için çocuk profilinin PIN'ini gir.");
         while (true)
         {
             var wait = _pinGate.Wait(DateTimeOffset.UtcNow);
             if (wait > TimeSpan.Zero)
             {
-                SetFooter($"Çok fazla yanlış PIN denendi. {Math.Ceiling(wait.TotalSeconds):0} saniye sonra tekrar dene.", isError: true);
+                SetFooter(Lang.F($"Çok fazla yanlış PIN denendi. {Math.Ceiling(wait.TotalSeconds):0} saniye sonra tekrar dene."), isError: true);
                 return false;
             }
-            var prompt = new PasswordPromptWindow("Ebeveyn PIN'i", hint, "Aç", confirm: false, minimum: ChildProfile.PinMinimum)
+            var prompt = new PasswordPromptWindow(Lang.T("Ebeveyn PIN'i"), hint, Lang.T("Aç"), confirm: false, minimum: ChildProfile.PinMinimum)
                 { Owner = owner };
-            prompt.FirstLabel.Text = "PIN";
+            prompt.FirstLabel.Text = Lang.T("PIN");
             prompt.First.MaxLength = ChildProfile.PinMaximum;
             if (prompt.ShowDialog() != true) return false;
             if (_state.Child.CheckPin(prompt.Value))
@@ -48,13 +48,13 @@ public partial class MainWindow
             }
             _pinGate.Failed(DateTimeOffset.UtcNow);
             AppLog.Info("Çocuk profili: yanlış PIN.");
-            hint = "PIN yanlış. Tekrar dene.";
+            hint = Lang.T("PIN yanlış. Tekrar dene.");
         }
     }
 
     private void OnChildBadge(object sender, RoutedEventArgs e)
     {
-        if (!ChildMode || !UnlockChild(this, "Çocuk profilinden çıkmak")) return;
+        if (!ChildMode || !UnlockChild(this, Lang.T("Çocuk profilinden çıkmak"))) return;
         SetChildActive(false);
     }
 
@@ -63,7 +63,7 @@ public partial class MainWindow
     {
         if (ActiveSource is not { } source)
         {
-            SetFooter("Çocuk profili için önce bir kaynak seç.", isError: true);
+            SetFooter(Lang.T("Çocuk profili için önce bir kaynak seç."), isError: true);
             return;
         }
 
@@ -108,9 +108,9 @@ public partial class MainWindow
         ApplyChildProfile();
         SetFooter(dialog.Result switch
         {
-            ChildProfileWindow.Outcome.Start => "Çocuk profili açık · yalnızca izin verdiğin kategoriler görünüyor.",
-            ChildProfileWindow.Outcome.Stop => "Çocuk profili kapatıldı.",
-            _ => "Çocuk profili kaydedildi."
+            ChildProfileWindow.Outcome.Start => Lang.T("Çocuk profili açık · yalnızca izin verdiğin kategoriler görünüyor."),
+            ChildProfileWindow.Outcome.Stop => Lang.T("Çocuk profili kapatıldı."),
+            _ => Lang.T("Çocuk profili kaydedildi.")
         });
     }
 
@@ -129,7 +129,7 @@ public partial class MainWindow
         }
         AppLog.Info(active ? "Çocuk profili açıldı." : "Çocuk profili kapatıldı.");
         ApplyChildProfile();
-        SetFooter(active ? "Çocuk profili açık." : "Çocuk profili kapatıldı.");
+        SetFooter(active ? Lang.T("Çocuk profili açık.") : Lang.T("Çocuk profili kapatıldı."));
     }
 
     /// <summary>Shows the lists as the profile allows them now.</summary>
@@ -141,10 +141,10 @@ public partial class MainWindow
         if (_librarySection == LibrarySection.Live) UpdateCatalog(selectedChannel: RowId((ChannelList.SelectedItem as Channel)?.Id));
         else _ = LoadVodViewAsync();
         if (ChildMode && _playingChannel is { } playing && !ChildMayWatch(playing) && !LocalMedia.IsLocal(playing))
-            _ = StopPlaybackAsync("Çocuk profilinde bu içerik açık değil.");
+            _ = StopPlaybackAsync(Lang.T("Çocuk profilinde bu içerik açık değil."));
     }
 
-    private string ChildStatus() => !_state.Child.HasPin ? "Kapalı · henüz ayarlanmadı."
-        : ChildMode ? "Açık · yalnızca izin verilen kategoriler görünüyor."
-        : "Kapalı · ayarlar hazır.";
+    private string ChildStatus() => !_state.Child.HasPin ? Lang.T("Kapalı · henüz ayarlanmadı.")
+        : ChildMode ? Lang.T("Açık · yalnızca izin verilen kategoriler görünüyor.")
+        : Lang.T("Kapalı · ayarlar hazır.");
 }

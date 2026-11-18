@@ -10,50 +10,51 @@ internal sealed record ShortcutSection(string Title, IReadOnlyList<Shortcut> Ite
 /// <summary>The single list of shortcuts shown by F1 (keep docs/keyboard-shortcuts.md in step with it).</summary>
 internal static class Shortcuts
 {
-    public static IReadOnlyList<ShortcutSection> All { get; } =
+    /// <summary>Built on each read so the texts follow the interface language.</summary>
+    public static IReadOnlyList<ShortcutSection> All =>
     [
-        new("CANLI TV",
+        new(Lang.T("CANLI TV"),
         [
-            new("Ctrl + ↑ / ↓", "Önceki / sonraki kanal"),
-            new("PageUp / PageDown", "Önceki / sonraki kanal (tam ekran ve mini pencere)"),
-            new("0 – 9", "Listedeki sıra numarasıyla kanal seç"),
-            new("Backspace", "Bir önceki kanala dön"),
-            new("Enter", "Seçili kanalı oynat"),
-            new("Ctrl + F", "Aramaya git"),
-            new("Esc", "Aramayı temizle")
+            new("Ctrl + ↑ / ↓", Lang.T("Önceki / sonraki kanal")),
+            new("PageUp / PageDown", Lang.T("Önceki / sonraki kanal (tam ekran ve mini pencere)")),
+            new("0 – 9", Lang.T("Listedeki sıra numarasıyla kanal seç")),
+            new("Backspace", Lang.T("Bir önceki kanala dön")),
+            new("Enter", Lang.T("Seçili kanalı oynat")),
+            new("Ctrl + F", Lang.T("Aramaya git")),
+            new("Esc", Lang.T("Aramayı temizle"))
         ]),
-        new("OYNATMA",
+        new(Lang.T("OYNATMA"),
         [
-            new("F11", "Tam ekran"),
-            new("Shift + F11", "İkinci ekranda oynat / geri al"),
-            new("Esc", "Tam ekrandan veya mini pencereden çık"),
-            new("P", "Mini pencere"),
-            new("C", "Sinema modu: çevreyi karart / ışıkları aç"),
-            new("A", "Görüntü oranını değiştir"),
-            new("M", "Sesi kapat / aç"),
-            new("S", "Ekran görüntüsü al"),
-            new("R", "Kaydı başlat / durdur (kalite korunur, .mkv, Videolar\\Zaplio)"),
-            new(", / .", "Yavaşlat / hızlandır (film, dizi, dosya)"),
-            new("E", "Kare kare ilerle"),
-            new("Boşluk", "Duraklat / devam et; her zaman önce gelir (yazı yazarken hariç). Durmuşsa son izleneni yeniden açar"),
-            new("← / →", "10 saniye geri / ileri (film, dizi, arşiv)"),
-            new("Shift + ← / →", "1 saniye geri / ileri; zaman çubuğunda tekerlek 5 sn"),
-            new("← (canlı)", "30 saniye geri sar (arşivi olan kanallar)"),
-            new("→ (canlı)", "Canlı yayına dön")
+            new("F11", Lang.T("Tam ekran")),
+            new("Shift + F11", Lang.T("İkinci ekranda oynat / geri al")),
+            new("Esc", Lang.T("Tam ekrandan veya mini pencereden çık")),
+            new("P", Lang.T("Mini pencere")),
+            new("C", Lang.T("Sinema modu: çevreyi karart / ışıkları aç")),
+            new("A", Lang.T("Görüntü oranını değiştir")),
+            new("M", Lang.T("Sesi kapat / aç")),
+            new("S", Lang.T("Ekran görüntüsü al")),
+            new("R", Lang.T("Kaydı başlat / durdur (kalite korunur, .mkv, Videolar\\Zaplio)")),
+            new(", / .", Lang.T("Yavaşlat / hızlandır (film, dizi, dosya)")),
+            new("E", Lang.T("Kare kare ilerle")),
+            new(Lang.T("Boşluk"), Lang.T("Duraklat / devam et; her zaman önce gelir (yazı yazarken hariç). Durmuşsa son izleneni yeniden açar")),
+            new("← / →", Lang.T("10 saniye geri / ileri (film, dizi, arşiv)")),
+            new("Shift + ← / →", Lang.T("1 saniye geri / ileri; zaman çubuğunda tekerlek 5 sn")),
+            new(Lang.T("← (canlı)"), Lang.T("30 saniye geri sar (arşivi olan kanallar)")),
+            new(Lang.T("→ (canlı)"), Lang.T("Canlı yayına dön"))
         ]),
-        new("FARE",
+        new(Lang.T("FARE"),
         [
-            new("Çift tık (video)", "Tam ekran; mini pencerede geri dön"),
-            new("Tekerlek (mini)", "Mini pencereyi büyüt / küçült"),
-            new("Çift tık (rehber)", "Geçmiş programı arşivden aç"),
-            new("Sağ tık", "Kanal ve grup menüleri")
+            new(Lang.T("Çift tık (video)"), Lang.T("Tam ekran; mini pencerede geri dön")),
+            new(Lang.T("Tekerlek (mini)"), Lang.T("Mini pencereyi büyüt / küçült")),
+            new(Lang.T("Çift tık (rehber)"), Lang.T("Geçmiş programı arşivden aç")),
+            new(Lang.T("Sağ tık"), Lang.T("Kanal ve grup menüleri"))
         ]),
-        new("GENEL",
+        new(Lang.T("GENEL"),
         [
-            new("F1", "Bu pencere"),
-            new("F5", "Listeleri yenile"),
-            new("Ctrl + O", "Bilgisayardan video aç (sürükle-bırak da olur)"),
-            new("Ctrl + ,", "Ayarlar (aktif kaynak, abonelik)")
+            new("F1", Lang.T("Bu pencere")),
+            new("F5", Lang.T("Listeleri yenile")),
+            new("Ctrl + O", Lang.T("Bilgisayardan video aç (sürükle-bırak da olur)")),
+            new("Ctrl + ,", Lang.T("Ayarlar (aktif kaynak, abonelik)"))
         ])
     ];
 }

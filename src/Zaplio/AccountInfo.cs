@@ -28,33 +28,43 @@ internal sealed record AccountInfo(DateTimeOffset CheckedAt, DateTimeOffset? Exp
     /// <summary>One short line for the card, e.g. "28 gün kaldı · 1/2 bağlantı".</summary>
     public string CardLine(DateTimeOffset now)
     {
-        var expiry = IsExpired(now) ? "Abonelik bitti"
-            : DaysLeft(now) is { } days ? days == 0 ? "Bugün bitiyor" : $"{days} gün kaldı"
-            : "Süresiz";
+        var expiry = IsExpired(now) ? Lang.T("Abonelik bitti")
+            : DaysLeft(now) is { } days ? days == 0 ? Lang.T("Bugün bitiyor") : Lang.F($"{days} gün kaldı")
+            : Lang.T("Süresiz");
         return Connections is { } connections ? $"{expiry} · {connections}" : expiry;
     }
 
     /// <summary>Footer warning for expiring or expired subscriptions; null when there is nothing to warn about.</summary>
     public string? Warning(string sourceName, DateTimeOffset now) =>
-        IsExpired(now) ? $"{sourceName} aboneliğinin süresi doldu."
+        IsExpired(now) ? Lang.F($"{sourceName} aboneliğinin süresi doldu.")
         : !ExpiresSoon(now) ? null
-        : DaysLeft(now) == 0 ? $"{sourceName} aboneliği bugün bitiyor."
-        : $"{sourceName} aboneliğinin bitmesine {DaysLeft(now)} gün kaldı.";
+        : DaysLeft(now) == 0 ? Lang.F($"{sourceName} aboneliği bugün bitiyor.")
+        : Lang.F($"{sourceName} aboneliğinin bitmesine {DaysLeft(now)} gün kaldı.");
 
     public string Details(DateTimeOffset now)
     {
         var lines = new List<string>
         {
-            ExpiresAt is { } end ? $"Bitiş: {end.ToLocalTime().ToString("d MMMM yyyy HH:mm", Turkish)}" : "Bitiş: süresiz",
-            $"Bağlantı: {Connections ?? "bilinmiyor"} (açık / izin verilen)"
+            ExpiresAt is { } end ? Lang.F($"Bitiş: {end.ToLocalTime().ToString("d MMMM yyyy HH:mm", Lang.Culture)}") : Lang.T("Bitiş: süresiz"),
+            Lang.F($"Bağlantı: {Connections ?? "bilinmiyor"} (açık / izin verilen)")
         };
-        if (IsTrial) lines.Add("Deneme hesabı");
-        if (!string.IsNullOrWhiteSpace(Status)) lines.Add($"Durum: {Status}");
-        lines.Add($"Son kontrol: {CheckedAt.ToLocalTime().ToString("d MMM HH:mm", Turkish)} · yenilemek için tıkla");
+        if (IsTrial) lines.Add(Lang.T("Deneme hesabı"));
+        if (!string.IsNullOrWhiteSpace(Status)) lines.Add(Lang.F($"Durum: {Status}"));
+        lines.Add(Lang.F($"Son kontrol: {CheckedAt.ToLocalTime().ToString("d MMM HH:mm", Lang.Culture)} · yenilemek için tıkla"));
         return string.Join("\n", lines);
     }
 
-    private string? Connections => MaxConnections is { } max ? $"{ActiveConnections ?? 0}/{max} bağlantı" : null;
+    /// <summary>Every connection the subscription allows is in use (by other devices when ours was just refused).</summary>
+    public bool AllConnectionsInUse => MaxConnections is > 0 and var max && ActiveConnections >= max;
+
+    /// <summary>What to tell the user when a stream would not open because the subscription is full.</summary>
+    public string? LimitMessage(string sourceName) => !AllConnectionsInUse ? null
+        : (MaxConnections == 1
+              ? Lang.F($"{sourceName}: hesabının tek bağlantısı başka bir yerde kullanımda.")
+              : Lang.F($"{sourceName}: hesabındaki {MaxConnections} bağlantının hepsi kullanımda.")) +
+          Lang.T(" Başka bir cihazda açık yayın varsa kapatıp tekrar dene.");
+
+    private string? Connections => MaxConnections is { } max ? Lang.F($"{ActiveConnections ?? 0}/{max} bağlantı") : null;
 
     private static string? Text(JsonElement element, string property) =>
         element.ValueKind == JsonValueKind.Object && element.TryGetProperty(property, out var value)

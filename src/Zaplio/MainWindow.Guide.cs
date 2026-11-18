@@ -18,7 +18,7 @@ public partial class MainWindow
         DateTimeOffset? End = null, bool CanCatchUp = false)
     {
         public bool ShowArchive => CanCatchUp && !IsOnAir;
-        public string StartTime => Start.LocalDateTime.ToString("HH:mm", Turkish);
+        public string StartTime => Start.LocalDateTime.ToString("HH:mm", Lang.Culture);
         public override string ToString() => $"{Time} {Title}";
     }
 
@@ -40,8 +40,8 @@ public partial class MainWindow
     {
         _guideOpen = open;
         if (open) _guideDay = DateOnly.FromDateTime(DateTime.Today);
-        GuideToggleText.Text = open ? "Rehberi gizle" : "Rehber";
-        GuideToggle.ToolTip = open ? "Yayın rehberini gizle" : "Yayın rehberini göster";
+        GuideToggleText.Text = open ? Lang.T("Rehberi gizle") : Lang.T("Rehber");
+        GuideToggle.ToolTip = open ? Lang.T("Yayın rehberini gizle") : Lang.T("Yayın rehberini göster");
         GuidePane.Visibility = open ? Visibility.Visible : Visibility.Collapsed;
         if (open) _guideListChannel = null;
         UpdateSelection();
@@ -79,7 +79,7 @@ public partial class MainWindow
         var row = GuideList.SelectedItem as GuideRow;
         GuideDetails.DataContext = row;
         GuideDescription.Text = string.IsNullOrWhiteSpace(row?.Description)
-            ? "Bu program için açıklama yok." : row.Description;
+            ? Lang.T("Bu program için açıklama yok.") : row.Description;
     }
 
     private void UpdateGuide()
@@ -123,7 +123,7 @@ public partial class MainWindow
         GuideDetails.Visibility = rows.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         GuideDayLabel.Text = _guideDay == today
-            ? $"Bugün, {_guideDay.ToString("d MMM", Turkish)}" : _guideDay.ToString("d MMM ddd", Turkish);
+            ? Lang.F($"Bugün, {_guideDay.ToString("d MMM", Lang.Culture)}") : _guideDay.ToString("d MMM ddd", Lang.Culture);
         GuidePrevious.IsEnabled = programmes.Count > 0 && _guideDay > today.AddDays(-archiveDays);
         GuideNext.IsEnabled = programmes.Count > 0 && _guideDay < today.AddDays(6);
         GuideSource.IsEnabled = source is not null;
@@ -135,12 +135,12 @@ public partial class MainWindow
         GuideConnect.Visibility = source is not null && request?.IsLoading != true &&
             (locations.Count == 0 || request?.Error is not null || programmes.Count == 0)
             ? Visibility.Visible : Visibility.Collapsed;
-        GuideConnect.Content = locations.Count == 0 ? "XMLTV kaynağı ekle" : "XMLTV kaynağını ayarla";
-        GuideMessage.Text = channel is null ? "Rehberini görmek için bir kanal seç."
-            : request?.IsLoading == true ? "Yayın rehberi yükleniyor…"
-            : request?.Error ?? (locations.Count == 0 ? "Bu listeye bir XMLTV rehberi bağlayabilirsin."
-                : programmes.Count == 0 ? "Rehberde bu kanalla eşleşen program bulunamadı."
-                : "Bu gün için program bulunamadı.");
+        GuideConnect.Content = locations.Count == 0 ? Lang.T("XMLTV kaynağı ekle") : Lang.T("XMLTV kaynağını ayarla");
+        GuideMessage.Text = channel is null ? Lang.T("Rehberini görmek için bir kanal seç.")
+            : request?.IsLoading == true ? Lang.T("Yayın rehberi yükleniyor…")
+            : request?.Error ?? (locations.Count == 0 ? Lang.T("Bu listeye bir XMLTV rehberi bağlayabilirsin.")
+                : programmes.Count == 0 ? Lang.T("Rehberde bu kanalla eşleşen program bulunamadı.")
+                : Lang.T("Bu gün için program bulunamadı."));
     }
 
     private void UpdateGuideSummary(DateTimeOffset now)
@@ -160,7 +160,7 @@ public partial class MainWindow
         NowProgrammeTitle.Text = current?.Title ?? "";
         var nextLocal = next?.Start.LocalDateTime;
         var nextFormat = nextLocal?.Date == now.LocalDateTime.Date ? "HH:mm" : "d MMM HH:mm";
-        NextProgrammeTime.Text = nextLocal is null ? "" : $"SIRADA · {nextLocal.Value.ToString(nextFormat, Turkish)}";
+        NextProgrammeTime.Text = nextLocal is null ? "" : Lang.F($"SIRADA · {nextLocal.Value.ToString(nextFormat, Turkish)}");
         NextProgrammeTitle.Text = next?.Title ?? "";
     }
 
@@ -169,8 +169,8 @@ public partial class MainWindow
 
     private static string ProgrammeTime(GuideProgramme programme)
     {
-        var start = programme.Start.LocalDateTime.ToString("HH:mm", Turkish);
-        return programme.End is DateTimeOffset end ? $"{start} – {end.LocalDateTime.ToString("HH:mm", Turkish)}" : start;
+        var start = programme.Start.LocalDateTime.ToString("HH:mm", Lang.Culture);
+        return programme.End is DateTimeOffset end ? $"{start} – {end.LocalDateTime.ToString("HH:mm", Lang.Culture)}" : start;
     }
 
     private IReadOnlyList<Uri> GuideAddresses(Source source) =>
@@ -201,7 +201,7 @@ public partial class MainWindow
         catch (Exception exception)
         {
             AppLog.Warn("Yayın rehberi yüklenemedi.", exception);
-            request.Error = exception is SourceException ? exception.Message : "Yayın rehberi yüklenemedi.";
+            request.Error = exception is SourceException ? exception.Message : Lang.T("Yayın rehberi yüklenemedi.");
         }
         finally
         {
@@ -274,7 +274,7 @@ public partial class MainWindow
         var channel = GuideChannel;
         var archive = GuideList.SelectedItem is GuideRow { ShowArchive: true };
         GuidePlay.IsEnabled = channel is not null && (archive || channel.Id != PlayingLiveChannel?.Id);
-        var label = archive ? "Seçili programı arşivden izle" : "Kanalı canlı oynat";
+        var label = archive ? Lang.T("Seçili programı arşivden izle") : Lang.T("Kanalı canlı oynat");
         GuidePlay.ToolTip = label;
         System.Windows.Automation.AutomationProperties.SetName(GuidePlay, label);
     }
@@ -300,7 +300,7 @@ public partial class MainWindow
             if (archive is not null)
             {
                 SetGuideOpen(false); // the archive plays like a film, with a timeline under the video
-                ShowOsd("Arşivden oynatılıyor", $"{row.Title} · {row.Start.LocalDateTime.ToString("d MMM HH:mm", Turkish)}");
+                ShowOsd(Lang.T("Arşivden oynatılıyor"), $"{row.Title} · {row.Start.LocalDateTime.ToString("d MMM HH:mm", Lang.Culture)}");
                 await PlayChannelAsync(archive);
                 return;
             }

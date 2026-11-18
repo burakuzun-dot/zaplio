@@ -54,12 +54,12 @@ public partial class MainWindow
     }
 
     private Task ToggleVodFavoriteAsync(VodItem item, bool keepRowsForAnimation = false) =>
-        ToggleVodListAsync(_state.VodFavorites, item, "favorilere eklendi.", "favorilerden çıkarıldı.",
+        ToggleVodListAsync(_state.VodFavorites, item, "favorilere eklendi.", Lang.T("favorilerden çıkarıldı."),
             // In the favourites tab the row has to go at once when it is removed; adding cannot happen there.
             keepRowsForAnimation && _vodListKind != VodListKind.Favorites);
 
     private Task ToggleVodWatchlistAsync(VodItem item) =>
-        ToggleVodListAsync(_state.VodWatchlist, item, "izleme listene eklendi.", "izleme listenden çıkarıldı.");
+        ToggleVodListAsync(_state.VodWatchlist, item, "izleme listene eklendi.", Lang.T("izleme listenden çıkarıldı."));
 
     private async void OnVodRowFavoriteToggled(object? sender, bool added)
     {
@@ -81,13 +81,13 @@ public partial class MainWindow
     private void UpdateVodListButtons()
     {
         var item = VodListTarget;
-        var whole = _selectedSeries is null ? "" : "Diziyi ";
+        var whole = _selectedSeries is null ? "" : Lang.T("Diziyi ");
         VodFavoriteToggle.ChannelName = item?.Title ?? "";
         VodFavoriteToggle.IsFavorite = item is not null && IsVodFavorite(item);
 
         var later = item is not null && IsOnVodWatchlist(item);
-        var tooltip = later ? $"{whole}izleme listemden çıkar" : $"{whole}sonra izlemek için ekle";
-        VodWatchlistText.Text = later ? "Listemde" : "Sonra izle";
+        var tooltip = later ? Lang.F($"{whole}izleme listemden çıkar") : Lang.F($"{whole}sonra izlemek için ekle");
+        VodWatchlistText.Text = later ? Lang.T("Listemde") : Lang.T("Sonra izle");
         VodWatchlistButton.SetResourceReference(ForegroundProperty, later ? "Accent" : "Muted");
         VodWatchlistButton.SetResourceReference(BackgroundProperty, later ? "Active" : "Surface");
         VodWatchlistButton.SetResourceReference(BorderBrushProperty, later ? "ActiveLine" : "Line");
@@ -107,11 +107,11 @@ public partial class MainWindow
         }
         VodList.SelectedItem = row;
         var item = VodListTarget ?? row.Item;
-        var whole = _selectedSeries is null ? "" : "Diziyi ";
-        Add(menu.Items, row.Item.Playable is null ? "Bölümleri aç" : "Oynat", () => _ = ActivateVodAsync(row.Item));
+        var whole = _selectedSeries is null ? "" : Lang.T("Diziyi ");
+        Add(menu.Items, row.Item.Playable is null ? Lang.T("Bölümleri aç") : Lang.T("Oynat"), () => _ = ActivateVodAsync(row.Item));
         menu.Items.Add(new Separator());
-        Add(menu.Items, IsVodFavorite(item) ? $"{whole}favorilerden çıkar" : $"{whole}favorilere ekle", () => _ = ToggleVodFavoriteAsync(item));
-        Add(menu.Items, IsOnVodWatchlist(item) ? $"{whole}izleme listemden çıkar" : $"{whole}sonra izlemek için ekle",
+        Add(menu.Items, IsVodFavorite(item) ? Lang.F($"{whole}favorilerden çıkar") : $"{whole}favorilere ekle", () => _ = ToggleVodFavoriteAsync(item));
+        Add(menu.Items, IsOnVodWatchlist(item) ? Lang.F($"{whole}izleme listemden çıkar") : Lang.F($"{whole}sonra izlemek için ekle"),
             () => _ = ToggleVodWatchlistAsync(item));
     }
 }

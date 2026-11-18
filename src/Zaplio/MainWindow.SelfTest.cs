@@ -75,6 +75,7 @@ public partial class MainWindow
                 ShowSleeping(first);
                 await SettleAsync();
                 Check(SleepingView.IsVisible && SleepingView.ActualHeight > 100, "'kanal uykuda' ekranı oynatma alanını doldurur");
+                Check(VideoOverlay.Visibility == Visibility.Hidden, "'kanal uykuda' düğmeleri video üst katmanının altında kalmaz");
                 SelfTest.Snapshot(this, "kanal uykuda");
                 HideSleeping();
             }
@@ -188,6 +189,54 @@ public partial class MainWindow
             Check(!ThemeManager.IsLight && (resources["Panel"] as System.Windows.Media.SolidColorBrush)?.Color ==
                 System.Windows.Media.Color.FromRgb(0x12, 0x16, 0x21), "varsayılan koyu mor tema geri gelir");
 
+            // ── a live channel that would not open is dimmed, and clears again (state only in memory)
+            if (ChannelList.Items.OfType<Channel>().FirstOrDefault() is { } dimmed)
+            {
+                ChannelFailures.Record(_state.FailedChannels, dimmed.Id, DateTimeOffset.UtcNow);
+                FailureMarks++;
+                await SettleAsync(200);
+                static double RowOpacity(System.Windows.Controls.ListBoxItem? item)
+                {
+                    if (item is null) return -1;
+                    var presenter = FindChild<System.Windows.Controls.ContentPresenter>(item);
+                    return presenter is not null && System.Windows.Media.VisualTreeHelper.GetChildrenCount(presenter) > 0 &&
+                           System.Windows.Media.VisualTreeHelper.GetChild(presenter, 0) is FrameworkElement root ? root.Opacity : -1;
+                }
+                var container = ChannelList.ItemContainerGenerator.ContainerFromItem(dimmed) as System.Windows.Controls.ListBoxItem;
+                Check(RowOpacity(container) is > 0 and < 0.6, $"açılmayan kanal listede soluk görünür ({RowOpacity(container):0.##})");
+                SelfTest.Snapshot(this, "açılmayan kanal");
+                ChannelFailures.Clear(_state.FailedChannels, dimmed.Id);
+                FailureMarks++;
+                await SettleAsync(200);
+                Check(RowOpacity(container) == 1, "kanal açılınca soluk işaret kalkar");
+            }
+            var sleepMenu = BuildSleepMenu();
+            Check(sleepMenu.Items.Count >= 1 + SleepTimer.Choices.Length, "uyku zamanlayıcısı menüsü süreleri listeler");
+
+            // ── "Televizyonda aç": device picker and TV remote panel with a stand-in TV (nothing leaves this computer)
+            var demoTv = new DlnaRenderer("Salon Ekranı", System.Net.IPAddress.Loopback, new Uri("http://127.0.0.1:9/avt"), null, "uuid:demo");
+            var picker = new CastWindow("Kanal A", _ => Task.FromResult<IReadOnlyList<DlnaRenderer>>([demoTv]), null)
+                { Owner = this, ShowActivated = false };
+            picker.Show();
+            await SettleAsync(300);
+            Check(picker.Devices.Items.Count == 1 && picker.SendButton.IsEnabled, "televizyon seçme penceresi bulunan cihazı seçili gösterir");
+            SelfTest.Snapshot(picker, "televizyonda aç");
+            picker.Close();
+            using (var demoRelay = new CastRelay(System.Net.IPAddress.Loopback, System.Net.IPAddress.Loopback,
+                       new Uri("http://ornek.test/movie/1.mp4"), null, null, "video/mp4", live: false))
+            {
+                var demoSession = new CastSession(demoTv, demoRelay, new Channel("m1", Guid.Empty, "Film 1", "Film", new Uri("http://ornek.test/movie/1.mp4"), IsOnDemand: true), live: false)
+                    { State = DlnaState.Playing, Position = TimeSpan.FromMinutes(12), Duration = TimeSpan.FromMinutes(95) };
+                ShowCastPanel(demoSession);
+                await SettleAsync(300);
+                Check(CastPanel.IsVisible && CastPanel.ActualHeight > 150 && CastBack.IsVisible, "televizyon kumanda paneli video alanını kaplar");
+                // LibVLC's overlay window sits above the video area and would take the clicks meant for the remote's buttons.
+                Check(VideoOverlay.Visibility == Visibility.Hidden, "televizyon kumandası açıkken video üst katmanı tıklamaları almaz");
+                SelfTest.Snapshot(this, "televizyonda oynatılıyor");
+                HideCastPanel();
+                Check(VideoOverlay.Visibility == Visibility.Visible, "kumanda kapanınca video üst katmanı geri gelir");
+            }
+
             // ── kids profile (state only in memory; nothing is saved)
             if (_activeSourceId is Guid kidsSource && _catalog.GetValueOrDefault(kidsSource) is { } kidsCatalog)
             {
@@ -232,6 +281,35 @@ public partial class MainWindow
             SelfTest.Snapshot(this, "iskelet");
             ChannelSkeleton.Visibility = Visibility.Collapsed;
 
+            // ── English: windows opened while English is on are translated as they load (then back to Turkish)
+            Lang.UseEnglish(true);
+            try
+            {
+                var english = new SettingsWindow(_state.Settings, _state.Volume, () => _state.Sources.ToArray(), _ => { }, SettingsPage.General, SourceSettings)
+                    { Owner = this, ShowActivated = false };
+                english.Show();
+                await SettleAsync(300);
+                Check(english.Title == "Settings · Zaplio" && english.BackupButton.Content as string == "Create backup",
+                    $"İngilizce: Ayarlar penceresi çevrilir ({english.Title})");
+                SelfTest.Snapshot(english, "english settings general");
+                english.PlaybackNav.IsChecked = true;
+                await SettleAsync(200);
+                SelfTest.Snapshot(english, "english settings playback");
+                english.Close();
+                var keys = new ShortcutsWindow { Owner = this, ShowActivated = false };
+                keys.Show();
+                await SettleAsync(300);
+                Check(keys.Title == "Shortcuts · Zaplio", $"İngilizce: kısayollar penceresi çevrilir ({keys.Title})");
+                SelfTest.Snapshot(keys, "english shortcuts");
+                keys.Close();
+                Check(Lang.T("Kanal ara") == "Search channels" && Lang.F($"{3} kanal favorisi") == "3 favorite channels",
+                    "İngilizce: koddaki metinler değerleriyle çevrilir");
+            }
+            finally
+            {
+                Lang.UseEnglish(false);
+            }
+
             // ── other windows (shown without blocking, then closed)
             var settings = new SettingsWindow(_state.Settings, _state.Volume, () => _state.Sources.ToArray(), _ => { }, host: SourceSettings)
                 { Owner = this, ShowActivated = false };
@@ -248,6 +326,8 @@ public partial class MainWindow
                 Check(page.IsVisible && page.ActualHeight > 60, $"Ayarlar › {name} sayfası görünür");
                 SelfTest.Snapshot(settings, $"ayarlar {name}");
             }
+            Check(settings.SubtitleSizePicker.Items.Count == 4 && settings.SubtitleSizePicker.SelectedIndex == 1 &&
+                  settings.NormalizeVolume.IsChecked == false, "Ayarlar › Oynatma altyazı boyutunu ve ses dengelemeyi gösterir");
             Check(settings.SourceList.Items.Count == 1, "Ayarlar › Kaynaklar demo kaynağı listeler");
             settings.SourcesNav.IsChecked = true;
             await SettleAsync(200);
@@ -679,4 +759,21 @@ public partial class MainWindow
     private static void CheckIndicator(FrameworkElement indicator, string what) =>
         SelfTest.Check(!double.IsNaN(indicator.Width) && indicator.Width is > 20 and < 400 && indicator.ActualHeight is > 16 and < 60,
             $"{what} yerleşti ({indicator.Width:0}×{indicator.ActualHeight:0})");
+
+    /// <summary>First descendant of type <typeparamref name="T"/>, breadth first.</summary>
+    private static T? FindChild<T>(DependencyObject parent) where T : DependencyObject
+    {
+        var queue = new Queue<DependencyObject>([parent]);
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+            for (var i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(current); i++)
+            {
+                var child = System.Windows.Media.VisualTreeHelper.GetChild(current, i);
+                if (child is T found) return found;
+                queue.Enqueue(child);
+            }
+        }
+        return null;
+    }
 }

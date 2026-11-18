@@ -48,7 +48,7 @@ public partial class MainWindow
                 _catalog.GetValueOrDefault(source.Id)?.TimeZone, programme.Start, programme.End, programme.Title);
             if (archive is not null)
             {
-                ShowOsd("Arşivden oynatılıyor", $"{programme.Title} · {programme.Start.LocalDateTime.ToString("d MMM HH:mm", Turkish)}");
+                ShowOsd(Lang.T("Arşivden oynatılıyor"), $"{programme.Title} · {programme.Start.LocalDateTime.ToString("d MMM HH:mm", Lang.Culture)}");
                 await PlayChannelAsync(archive);
                 return;
             }

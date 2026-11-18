@@ -29,10 +29,10 @@ public partial class MainWindow
             var update = await UpdateChecker.FindNewerAsync(_lifetime.Token);
             if (update is null || _closing) return;
             _availableUpdate = update;
-            UpdateText.Text = $"Yeni sürüm {update.Version} hazır";
+            UpdateText.Text = Lang.F($"Yeni sürüm {update.Version} hazır");
             UpdateButton.ToolTip = CanUpdateInPlace(update)
-                ? "Zaplio güncellemeyi GitHub'dan indirip kurar ve yeniden açılır"
-                : "Sürüm sayfasını tarayıcıda aç";
+                ? Lang.T("Zaplio güncellemeyi GitHub'dan indirip kurar ve yeniden açılır")
+                : Lang.T("Sürüm sayfasını tarayıcıda aç");
             UpdateButton.Visibility = Visibility.Visible;
             AppLog.Info($"Yeni sürüm bulundu: {update.Tag}");
         }
@@ -53,7 +53,7 @@ public partial class MainWindow
             // Two presses: the first says what will happen, the second (within 8 seconds) starts it.
             if (_updateConfirm is not { IsEnabled: true })
             {
-                UpdateText.Text = "İndir ve kur · Zaplio kapanıp yeniden açılır";
+                UpdateText.Text = Lang.T("İndir ve kur · Zaplio kapanıp yeniden açılır");
                 _updateConfirm ??= new DispatcherTimer { Interval = TimeSpan.FromSeconds(8) };
                 _updateConfirm.Tick -= OnUpdateConfirmTimeout;
                 _updateConfirm.Tick += OnUpdateConfirmTimeout;
@@ -70,7 +70,7 @@ public partial class MainWindow
         }
         catch (Win32Exception)
         {
-            SetFooter($"Tarayıcı açılamadı: {update.Page}", isError: true);
+            SetFooter(Lang.F($"Tarayıcı açılamadı: {update.Page}"), isError: true);
         }
     }
 
@@ -82,7 +82,7 @@ public partial class MainWindow
         shown = (_, _) =>
         {
             ContentRendered -= shown;
-            SetFooter($"Zaplio {UpdateChecker.CurrentVersion} sürümüne güncellendi. Yenilikler: Ayarlar › Hakkında.");
+            SetFooter(Lang.F($"Zaplio {UpdateChecker.CurrentVersion} sürümüne güncellendi. Yenilikler: Ayarlar › Hakkında."));
         };
         ContentRendered += shown;
     }
@@ -90,7 +90,7 @@ public partial class MainWindow
     private void OnUpdateConfirmTimeout(object? sender, EventArgs e)
     {
         _updateConfirm?.Stop();
-        if (_availableUpdate is { } update && !_updating) UpdateText.Text = $"Yeni sürüm {update.Version} hazır";
+        if (_availableUpdate is { } update && !_updating) UpdateText.Text = Lang.F($"Yeni sürüm {update.Version} hazır");
     }
 
     /// <summary>Downloads, checks and runs the installer; Zaplio closes and the installer opens the new version.</summary>
@@ -98,7 +98,7 @@ public partial class MainWindow
     {
         _updating = true;
         UpdateButton.IsEnabled = false;
-        var progress = new Progress<double>(part => UpdateText.Text = $"İndiriliyor %{Math.Clamp((int)(part * 100), 0, 100)}");
+        var progress = new Progress<double>(part => UpdateText.Text = Lang.F($"İndiriliyor %{Math.Clamp((int)(part * 100), 0, 100)}"));
         try
         {
             using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
@@ -107,13 +107,13 @@ public partial class MainWindow
             var installer = await UpdateInstaller.DownloadAsync(http, update.Installer!, folder, progress, _lifetime.Token);
             AppLog.Info($"Güncelleme indirildi ve doğrulandı: {update.Tag}");
 
-            UpdateText.Text = "Kuruluyor…";
-            SetFooter($"Zaplio {update.Version} kuruluyor; birazdan yeniden açılacak.");
+            UpdateText.Text = Lang.T("Kuruluyor…");
+            SetFooter(Lang.F($"Zaplio {update.Version} kuruluyor; birazdan yeniden açılacak."));
             var setup = Process.Start(new ProcessStartInfo(installer, UpdateInstaller.InstallerArguments) { UseShellExecute = true });
             // Windows may refuse an unsigned installer (Smart App Control); then Zaplio stays open instead of vanishing.
             await Task.Delay(1500);
             if (setup is null || setup.HasExited && setup.ExitCode != 0)
-                throw new InvalidOperationException("Kurulum başlatılamadı; Windows engellemiş olabilir.");
+                throw new InvalidOperationException(Lang.T("Kurulum başlatılamadı; Windows engellemiş olabilir."));
             Close();
         }
         catch (OperationCanceledException) when (_lifetime.IsCancellationRequested)
@@ -123,11 +123,11 @@ public partial class MainWindow
         {
             AppLog.Warn("Güncelleme kurulamadı.", exception);
             SetFooter(exception is InvalidDataException or InvalidOperationException
-                ? $"Güncelleme kurulamadı: {exception.Message}"
-                : "Güncelleme indirilemedi; bağlantını kontrol edip yeniden dene.", isError: true);
+                ? Lang.F($"Güncelleme kurulamadı: {exception.Message}")
+                : Lang.T("Güncelleme indirilemedi; bağlantını kontrol edip yeniden dene."), isError: true);
             _updating = false;
             UpdateButton.IsEnabled = true;
-            UpdateText.Text = $"Yeni sürüm {update.Version} hazır";
+            UpdateText.Text = Lang.F($"Yeni sürüm {update.Version} hazır");
         }
     }
 }

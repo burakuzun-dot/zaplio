@@ -54,8 +54,8 @@ public partial class SourcesWindow : Window
     {
         var picker = new OpenFileDialog
         {
-            Title = "M3U listesi seç",
-            Filter = "M3U listeleri (*.m3u;*.m3u8)|*.m3u;*.m3u8|Tüm dosyalar (*.*)|*.*",
+            Title = Lang.T("M3U listesi seç"),
+            Filter = Lang.T("M3U listeleri (*.m3u;*.m3u8)|*.m3u;*.m3u8|Tüm dosyalar (*.*)|*.*"),
             CheckFileExists = true
         };
         if (picker.ShowDialog(this) == true) FileInput.Text = picker.FileName;
@@ -66,7 +66,7 @@ public partial class SourcesWindow : Window
         var label = NameInput.Text.Trim();
         if (FileType.IsChecked == true)
         {
-            if (string.IsNullOrWhiteSpace(FileInput.Text)) throw new SourceException("Bir M3U dosyası seç.");
+            if (string.IsNullOrWhiteSpace(FileInput.Text)) throw new SourceException(Lang.T("Bir M3U dosyası seç."));
             return new Source(Guid.NewGuid(), label.Length > 0 ? label : Path.GetFileNameWithoutExtension(FileInput.Text),
                 SourceKind.M3uFile, FileInput.Text);
         }
@@ -78,7 +78,7 @@ public partial class SourcesWindow : Window
 
         var username = UserInput.Text.Trim();
         var password = PasswordInput.Password;
-        if (username.Length == 0 || password.Length == 0) throw new SourceException("Xtream kullanıcı adını ve şifreni gir.");
+        if (username.Length == 0 || password.Length == 0) throw new SourceException(Lang.T("Xtream kullanıcı adını ve şifreni gir."));
         return new Source(Guid.NewGuid(), label, SourceKind.Xtream, address.AbsoluteUri, username, password);
     }
 
@@ -91,7 +91,7 @@ public partial class SourcesWindow : Window
             if (_editing is { } original) source = source with { Id = original.Id, GuideLocation = original.GuideLocation };
             _pending = pending;
             SetBusy(true);
-            ShowMessage("Kanallar yükleniyor…");
+            ShowMessage(Lang.T("Kanallar yükleniyor…"));
             await _add(source, pending.Token);
             if (!_closed) Close();
         }
@@ -119,7 +119,7 @@ public partial class SourcesWindow : Window
             if (_closed) return;
             _sources.Remove(source);
             UpdateSections();
-            ShowMessage($"{source.Name} kaldırıldı.");
+            ShowMessage(Lang.F($"{source.Name} kaldırıldı."));
         }
         catch (Exception exception)
         {
@@ -171,10 +171,10 @@ public partial class SourcesWindow : Window
         }
         UpdateSections();
         SetBusy(false);
-        var label = new TextBlock { Text = "Değişiklikleri kaydet" };
+        var label = new TextBlock { Text = Lang.T("Değişiklikleri kaydet") };
         label.SetResourceReference(TextBlock.ForegroundProperty, "Ink");
         AddButton.Content = label;
-        ShowMessage($"{source.Name} düzenleniyor.");
+        ShowMessage(Lang.F($"{source.Name} düzenleniyor."));
     }
 
     private void OnCancel(object sender, RoutedEventArgs e) => Close();

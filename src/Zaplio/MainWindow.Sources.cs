@@ -22,10 +22,10 @@ public partial class MainWindow
         _ = Task.Run(() => _catalogCache.Save(source, catalog));
     }
 
-    private static string CacheAgeLabel(TimeSpan age) => age.TotalMinutes < 1 ? "az önce"
-        : age.TotalHours < 1 ? $"{(int)age.TotalMinutes} dk önce"
-        : age.TotalDays < 1 ? $"{(int)age.TotalHours} sa önce"
-        : $"{(int)age.TotalDays} gün önce";
+    private static string CacheAgeLabel(TimeSpan age) => age.TotalMinutes < 1 ? Lang.T("az önce")
+        : age.TotalHours < 1 ? Lang.F($"{(int)age.TotalMinutes} dk önce")
+        : age.TotalDays < 1 ? Lang.F($"{(int)age.TotalHours} sa önce")
+        : Lang.F($"{(int)age.TotalDays} gün önce");
     private bool _refreshing => _catalogRequest is not null;
 
     /// <summary>The active source is chosen in Settings › Kaynaklar; an open settings window follows changes made here.</summary>
@@ -44,7 +44,7 @@ public partial class MainWindow
         _activeSourceId = id;
         _lastChannel = null;
         _finishedEpisode = null;
-        var stop = StopPlaybackAsync("Hazır");
+        var stop = StopPlaybackAsync(Lang.T("Hazır"));
         SetFooter(ActiveSource?.Name ?? "");
 
         if (_state.LastSourceId != id)
@@ -94,7 +94,7 @@ public partial class MainWindow
         if (_catalogRequest is not null || ActiveSource is not Source source) return;
         if (!refresh && _catalog.ContainsKey(source.Id))
         {
-            SetFooter($"{source.Name} · {ActiveChannels.Count} kanal");
+            SetFooter(Lang.F($"{source.Name} · {ActiveChannels.Count} kanal"));
             return;
         }
 
@@ -109,7 +109,7 @@ public partial class MainWindow
                 var view = _liveSourceViews.GetValueOrDefault(source.Id);
                 UpdateCatalog(view?.Group, view?.ChannelId);
                 var age = DateTimeOffset.UtcNow - cached.SavedAt;
-                SetFooter($"{source.Name} · {ActiveChannels.Count} kanal · {CacheAgeLabel(age)} kaydedilen liste");
+                SetFooter(Lang.F($"{source.Name} · {ActiveChannels.Count} kanal · {CacheAgeLabel(age)} kaydedilen liste"));
                 if (cached.IsFresh) return;
             }
         }
@@ -117,7 +117,7 @@ public partial class MainWindow
         using var request = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
         _catalogRequest = request;
         UpdateCatalog();
-        SetFooter($"{source.Name} yükleniyor…");
+        SetFooter(Lang.F($"{source.Name} yükleniyor…"));
         try
         {
             var clock = System.Diagnostics.Stopwatch.StartNew();
@@ -127,7 +127,7 @@ public partial class MainWindow
             _catalog[source.Id] = catalog;
             InvalidateGuide(source.Id);
             SaveCatalogCache(source, catalog);
-            SetFooter($"{source.Name} · {ActiveChannels.Count} kanal");
+            SetFooter(Lang.F($"{source.Name} · {ActiveChannels.Count} kanal"));
         }
         catch (Exception exception) when (!request.IsCancellationRequested)
         {
@@ -135,7 +135,7 @@ public partial class MainWindow
             if (request != _catalogRequest) return;
             var message = CatalogLoader.UserMessage(exception);
             SetFooter(_catalog.ContainsKey(source.Id)
-                ? $"{source.Name} güncellenemedi · kayıtlı liste gösteriliyor ({message})"
+                ? Lang.F($"{source.Name} güncellenemedi · kayıtlı liste gösteriliyor ({message})")
                 : $"{source.Name} · {message}", isError: true);
         }
         catch (Exception) when (request.IsCancellationRequested)

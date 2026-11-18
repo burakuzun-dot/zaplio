@@ -90,7 +90,7 @@ internal sealed class XmlTvLoader : IDisposable
         if (Uri.TryCreate(input.Trim(), UriKind.Absolute, out var address) &&
             (address.IsFile || (address.Scheme is "http" or "https" && address.Host.Length > 0)))
             return address;
-        throw new SourceException("Bir XMLTV dosyası seç veya http:// ya da https:// ile başlayan bağlantı gir.");
+        throw new SourceException(Lang.T("Bir XMLTV dosyası seç veya http:// ya da https:// ile başlayan bağlantı gir."));
     }
 
     private static readonly TimeSpan CacheMaxAge = TimeSpan.FromHours(6);
@@ -119,7 +119,7 @@ internal sealed class XmlTvLoader : IDisposable
                     exception is SourceException or IOException or UnauthorizedAccessException or HttpRequestException or XmlException or OperationCanceledException)
                 {
                     failures[index] = exception is XmlException or InvalidDataException
-                        ? "Geçerli bir XMLTV rehberi okunamadı."
+                        ? Lang.T("Geçerli bir XMLTV rehberi okunamadı.")
                         : CatalogLoader.UserMessage(exception);
                 }
             }).ConfigureAwait(false);
@@ -127,7 +127,7 @@ internal sealed class XmlTvLoader : IDisposable
         var guide = new XmlTvGuide();
         foreach (var result in results.OfType<XmlTvGuide>()) guide.Merge(result);
         if (results.All(result => result is null))
-            throw new SourceException(failures.OfType<string>().FirstOrDefault() ?? "Yayın rehberi yüklenemedi.");
+            throw new SourceException(failures.OfType<string>().FirstOrDefault() ?? Lang.T("Yayın rehberi yüklenemedi."));
 
         guide.SortProgrammes();
         return guide;
@@ -223,7 +223,7 @@ internal sealed class XmlTvLoader : IDisposable
             MaxCharactersInDocument = 256L * 1024 * 1024
         });
         if (reader.MoveToContent() != XmlNodeType.Element || reader.LocalName != "tv")
-            throw new SourceException("Bu dosya geçerli bir XMLTV rehberi değil.");
+            throw new SourceException(Lang.T("Bu dosya geçerli bir XMLTV rehberi değil."));
 
         var guide = new XmlTvGuide();
         var matches = new HashSet<string>(ids, StringComparer.OrdinalIgnoreCase);

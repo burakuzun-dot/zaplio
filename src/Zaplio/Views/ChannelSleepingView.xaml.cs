@@ -109,9 +109,9 @@ public partial class ChannelSleepingView : System.Windows.Controls.UserControl
     private void UpdateStatus()
     {
         StatusText.Text = _connecting
-            ? "Kanal uyandırılıyor…"
-            : AutoRetrySeconds <= 0 ? "Hazır olduğunda kanalı uyandırabilirsin"
-            : $"{_remaining} saniye sonra kendiliğinden tekrar denenecek";
+            ? Lang.T("Kanal uyandırılıyor…")
+            : AutoRetrySeconds <= 0 ? Lang.T("Hazır olduğunda kanalı uyandırabilirsin")
+            : Lang.F($"{_remaining} saniye sonra kendiliğinden tekrar denenecek");
 
         // Ekran okuyucuya yalnızca durum değişimlerini ve son 3 saniyeyi bildir (her saniye konuşmasın).
         if (_connecting || AutoRetrySeconds <= 0 || _remaining == AutoRetrySeconds || _remaining <= 3)

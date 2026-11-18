@@ -86,7 +86,7 @@ public partial class MainWindow
         if (facts is not null) chips.AddRange(facts.Chips);
         var plot = string.IsNullOrWhiteSpace(item?.Plot) ? null : item!.Plot!.Trim();
 
-        VodInfoHeading.Text = item is null ? "Hakkında" : row is null && _selectedSeries is not null ? $"{item.Title} hakkında" : "Hakkında";
+        VodInfoHeading.Text = item is null ? Lang.T("Hakkında") : row is null && _selectedSeries is not null ? Lang.F($"{item.Title} hakkında") : Lang.T("Hakkında");
         VodInfoChips.ItemsSource = chips;
         VodInfoChips.Visibility = chips.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         VodInfoPlot.Text = plot;
@@ -99,9 +99,9 @@ public partial class MainWindow
 
         var empty = chips.Count == 0 && plot is null && VodInfoCredits.Visibility != Visibility.Visible;
         VodInfoHint.Text = item is null
-            ? _librarySection == LibrarySection.Series ? "Bir dizi seç; konusu, türü ve oyuncuları burada görünür."
-                : "Bir film seç; konusu, türü, süresi ve oyuncuları burada görünür."
-            : _vodPreviewRequest is not null ? "Ayrıntılar yükleniyor…" : "Bu içerik için ayrıntı bilgisi yok.";
+            ? _librarySection == LibrarySection.Series ? Lang.T("Bir dizi seç; konusu, türü ve oyuncuları burada görünür.")
+                : Lang.T("Bir film seç; konusu, türü, süresi ve oyuncuları burada görünür.")
+            : _vodPreviewRequest is not null ? Lang.T("Ayrıntılar yükleniyor…") : Lang.T("Bu içerik için ayrıntı bilgisi yok.");
         VodInfoHint.Visibility = empty ? Visibility.Visible : Visibility.Collapsed;
 
         // Nothing selected: the panel shows what you can pick up again instead of the "select something" hint.

@@ -43,7 +43,7 @@ public partial class MainWindow
         var pool = LuckyPool();
         if (pool.Count == 0)
         {
-            SetFooter(_librarySection == LibrarySection.Live ? "Listede şansını deneyecek kanal yok." : "Listede şansını deneyecek içerik yok.");
+            SetFooter(_librarySection == LibrarySection.Live ? Lang.T("Listede şansını deneyecek kanal yok.") : Lang.T("Listede şansını deneyecek içerik yok."));
             return null;
         }
 
@@ -124,7 +124,7 @@ public partial class MainWindow
         };
         var heading = new TextBlock
         {
-            Text = live ? "Şansına hangi kanal çıkacak?" : "Şansına ne çıkacak?", FontSize = 20, FontWeight = FontWeights.SemiBold,
+            Text = live ? Lang.T("Şansına hangi kanal çıkacak?") : Lang.T("Şansına ne çıkacak?"), FontSize = 20, FontWeight = FontWeights.SemiBold,
             Foreground = (Brush)FindResource("Text"), HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 10, 0, 16)
         };
         var result = new TextBlock
@@ -134,7 +134,7 @@ public partial class MainWindow
         };
         var hint = new TextBlock
         {
-            Text = "Atlamak için tıkla ya da Esc'ye bas.", FontSize = 12, Foreground = (Brush)FindResource("Muted"),
+            Text = Lang.T("Atlamak için tıkla ya da Esc'ye bas."), FontSize = 12, Foreground = (Brush)FindResource("Muted"),
             HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 8, 0, 0)
         };
         var reelFrame = new Grid { Width = viewport, Height = cardHeight + 28 };
@@ -158,7 +158,7 @@ public partial class MainWindow
             Cursor = Cursors.Hand
         };
         overlay.Children.Add(stack);
-        AutomationProperties.SetName(overlay, "Şansıma");
+        AutomationProperties.SetName(overlay, Lang.T("Şansıma"));
 
         var popup = new Popup
         {
@@ -199,7 +199,7 @@ public partial class MainWindow
             // the stop: the card pops, its name appears, then the reel fades away
             result.Text = pool[winner].Title;
             result.Opacity = 1;
-            hint.Text = live ? "Kanal açılıyor…" : "Açılıyor…";
+            hint.Text = live ? Lang.T("Kanal açılıyor…") : Lang.T("Açılıyor…");
             if (winnerCard is not null && Motion.Enabled)
             {
                 var grow = new DoubleAnimation(1, 1.08, TimeSpan.FromMilliseconds(320))

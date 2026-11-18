@@ -18,9 +18,9 @@ public partial class MainWindow
     private static readonly ImageSource PlayImage = TaskbarIcon("M8,5 L19,12 L8,19 Z");
     private static readonly ImageSource PauseImage = TaskbarIcon("M7,5 H11 V19 H7 Z M13,5 H17 V19 H13 Z");
 
-    private readonly ThumbButtonInfo _taskbarPrevious = new() { ImageSource = PreviousImage, Description = "Önceki kanal", IsEnabled = false };
-    private readonly ThumbButtonInfo _taskbarPlay = new() { ImageSource = PlayImage, Description = "Oynat", IsEnabled = false };
-    private readonly ThumbButtonInfo _taskbarNext = new() { ImageSource = NextImage, Description = "Sonraki kanal", IsEnabled = false };
+    private readonly ThumbButtonInfo _taskbarPrevious = new() { ImageSource = PreviousImage, Description = Lang.T("Önceki kanal"), IsEnabled = false };
+    private readonly ThumbButtonInfo _taskbarPlay = new() { ImageSource = PlayImage, Description = Lang.T("Oynat"), IsEnabled = false };
+    private readonly ThumbButtonInfo _taskbarNext = new() { ImageSource = NextImage, Description = Lang.T("Sonraki kanal"), IsEnabled = false };
     private MediaSession? _mediaSession;
 
     /// <summary>White glyph on a transparent 24×24 square, so every button keeps the same size and centre.</summary>
@@ -100,7 +100,7 @@ public partial class MainWindow
             case MediaCommand.Stop:
                 _zapDelay.Stop();
                 _zapTarget = null;
-                _ = StopPlaybackAsync("Durduruldu");
+                _ = StopPlaybackAsync(Lang.T("Durduruldu"));
                 break;
             case MediaCommand.Next when CanZap:
                 _ = ZapAsync(1);
@@ -124,7 +124,7 @@ public partial class MainWindow
                 OnPlayToggle(this, new RoutedEventArgs());
                 return true;
             case Key.MediaStop:
-                if (_playingChannel is not null) _ = StopPlaybackAsync("Durduruldu");
+                if (_playingChannel is not null) _ = StopPlaybackAsync(Lang.T("Durduruldu"));
                 return true;
             case Key.MediaNextTrack when CanZap:
                 _ = ZapAsync(1);

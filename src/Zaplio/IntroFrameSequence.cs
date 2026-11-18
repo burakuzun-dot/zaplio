@@ -13,7 +13,7 @@ internal static class IntroFrameSequence
     {
         using var archive = ZipFile.OpenRead(path);
         var entries = archive.Entries.OrderBy(entry => entry.FullName, StringComparer.Ordinal).ToArray();
-        if (entries.Length == 0) throw new InvalidDataException("Açılış animasyonunda kare bulunamadı.");
+        if (entries.Length == 0) throw new InvalidDataException(Lang.T("Açılış animasyonunda kare bulunamadı."));
         if (!animate) return [Decode(entries[^1])];
         return entries.Select(Decode).ToArray();
     }

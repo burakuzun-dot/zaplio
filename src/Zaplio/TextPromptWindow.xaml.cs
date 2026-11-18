@@ -8,7 +8,7 @@ public partial class TextPromptWindow : Window
     internal TextPromptWindow(string heading, string hint, string value)
     {
         InitializeComponent();
-        Title = $"{heading} · Zaplio";
+        Title = Lang.F($"{heading} · Zaplio");
         Heading.Text = heading;
         Hint.Text = hint;
         Input.Text = value;

@@ -65,7 +65,7 @@ public partial class MainWindow
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
             AppLog.Error("Kayıt klasörü oluşturulamadı.", exception);
-            SetFooter("Kayıt klasörü oluşturulamadı.", isError: true);
+            SetFooter(Lang.T("Kayıt klasörü oluşturulamadı."), isError: true);
             return;
         }
         _recordFile = Path.Combine(RecordingPlan.Folder, RecordingPlan.FileName(channel.Name, DateTime.Now));
@@ -93,8 +93,8 @@ public partial class MainWindow
         _recordClock ??= CreateRecordClock();
         _recordClock.Start();
         UpdateRecordUi();
-        ShowOsd("Kayıt başladı", _clipStart is not null || _tapRecording is not null
-            ? "Yayın durmadan kaydediliyor · durdurmak için R" : "Kalite olduğu gibi korunur · durdurmak için R");
+        ShowOsd(Lang.T("Kayıt başladı"), _clipStart is not null || _tapRecording is not null
+            ? Lang.T("Yayın durmadan kaydediliyor · durdurmak için R") : Lang.T("Kalite olduğu gibi korunur · durdurmak için R"));
     }
 
     /// <summary>Plays the same stream again from where it is now (with or without the recording copy).</summary>
@@ -173,11 +173,11 @@ public partial class MainWindow
         UpdateRecordUi();
         if (source is null || to - from < 500 || _engine is not { } engine)
         {
-            SetFooter("Kayıt çok kısa; en az yarım saniye kaydet.", isError: true);
+            SetFooter(Lang.T("Kayıt çok kısa; en az yarım saniye kaydet."), isError: true);
             return;
         }
 
-        SetFooter("Kayıt hazırlanıyor…");
+        SetFooter(Lang.T("Kayıt hazırlanıyor…"));
         var copied = await Task.Run(async () =>
         {
             try
@@ -217,12 +217,12 @@ public partial class MainWindow
         AppLog.Info($"Kayıt bitti ({parts.Length} parça).");
         if (parts.Length == 0)
         {
-            SetFooter("Kayıt alınamadı; bu yayın kaydedilemiyor olabilir.", isError: true);
+            SetFooter(Lang.T("Kayıt alınamadı; bu yayın kaydedilemiyor olabilir."), isError: true);
             return;
         }
-        var more = parts.Length > 1 ? $" (+{parts.Length - 1} parça, yayın yeniden bağlandığı için)" : "";
-        ShowOsd("Kayıt kaydedildi", Path.GetFileName(parts[0]) + more);
-        SetFooter($"Kayıt kaydedildi: {parts[0]}{more}");
+        var more = parts.Length > 1 ? Lang.F($" (+{parts.Length - 1} parça, yayın yeniden bağlandığı için)") : "";
+        ShowOsd(Lang.T("Kayıt kaydedildi"), Path.GetFileName(parts[0]) + more);
+        SetFooter(Lang.F($"Kayıt kaydedildi: {parts[0]}{more}"));
     }
 
     /// <summary>The media options a (re)started stream needs: the recording copy and where to begin. Read once per start.</summary>
@@ -322,8 +322,8 @@ public partial class MainWindow
         RecordTime.Text = PlaybackTime.Format(recording ? Environment.TickCount64 - _recordStartedAt : 0);
         if (recording) RecordDot.Fill = RecordRed;
         else RecordDot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "Muted");
-        RecordButton.ToolTip = recording ? "Kaydı durdur (R)" : "Kaydet: oynayanı kalitesini bozmadan kaydet (R)";
-        System.Windows.Automation.AutomationProperties.SetName(RecordButton, recording ? "Kaydı durdur" : "Kaydet");
+        RecordButton.ToolTip = recording ? Lang.T("Kaydı durdur (R)") : Lang.T("Kaydet: oynayanı kalitesini bozmadan kaydet (R)");
+        System.Windows.Automation.AutomationProperties.SetName(RecordButton, recording ? Lang.T("Kaydı durdur") : Lang.T("Kaydet"));
         if (recording && Motion.Enabled && RecordBadgeDot.Opacity >= 1)
             RecordBadgeDot.BeginAnimation(OpacityProperty, new DoubleAnimation(1, 0.25, TimeSpan.FromMilliseconds(700))
                 { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever });
@@ -340,7 +340,7 @@ public partial class MainWindow
         if (_player is not { } player || _playingChannel?.IsOnDemand != true) return;
         var steps = Motion.Enabled ? PlaybackSpeed.Ramp(_playbackRate, target) : [target];
         _playbackRate = target;
-        ShowOsd(PlaybackSpeed.Label(target), target < 1f ? "Yavaş oynatma · ses perdesi korunur" : "");
+        ShowOsd(PlaybackSpeed.Label(target), target < 1f ? Lang.T("Yavaş oynatma · ses perdesi korunur") : "");
         _rateRamp?.Stop();
         var index = 0;
         _rateRamp = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(45) };
@@ -361,6 +361,6 @@ public partial class MainWindow
     {
         if (_player is not { } player || _playingChannel?.IsOnDemand != true) return;
         player.NextFrame();
-        ShowOsd("Kare kare", "E: sonraki kare · Boşluk: devam");
+        ShowOsd(Lang.T("Kare kare"), Lang.T("E: sonraki kare · Boşluk: devam"));
     }
 }

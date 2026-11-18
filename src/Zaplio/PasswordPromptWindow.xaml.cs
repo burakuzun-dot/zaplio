@@ -12,7 +12,7 @@ public partial class PasswordPromptWindow : Window
     internal PasswordPromptWindow(string heading, string hint, string action, bool confirm, int minimum = 0)
     {
         InitializeComponent();
-        Title = $"{heading} · Zaplio";
+        Title = Lang.F($"{heading} · Zaplio");
         Heading.Text = heading;
         Hint.Text = hint;
         OkText.Text = action;
@@ -28,7 +28,7 @@ public partial class PasswordPromptWindow : Window
     private void OnChanged(object sender, RoutedEventArgs e)
     {
         var problem = _confirm && First.Password.Length > 0 && First.Password.Length < _minimum ? $"En az {_minimum} karakter."
-            : _confirm && Second.Password.Length > 0 && Second.Password != First.Password ? "İki parola aynı değil."
+            : _confirm && Second.Password.Length > 0 && Second.Password != First.Password ? Lang.T("İki parola aynı değil.")
             : null;
         Problem.Text = problem;
         Problem.Visibility = problem is null ? Visibility.Collapsed : Visibility.Visible;

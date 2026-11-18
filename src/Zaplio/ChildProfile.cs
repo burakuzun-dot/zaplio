@@ -68,7 +68,7 @@ internal sealed class ChildProfile
 
     public void SetPin(string pin)
     {
-        if (!IsValidPin(pin)) throw new ArgumentException("PIN 4–8 rakam olmalı.", nameof(pin));
+        if (!IsValidPin(pin)) throw new ArgumentException(Lang.T("PIN 4–8 rakam olmalı."), nameof(pin));
         var salt = RandomNumberGenerator.GetBytes(16);
         PinSalt = Convert.ToBase64String(salt);
         PinHash = Convert.ToBase64String(Hash(pin, salt));

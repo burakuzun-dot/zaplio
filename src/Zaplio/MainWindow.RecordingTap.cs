@@ -114,7 +114,7 @@ public partial class MainWindow
             AnnounceRecording(finalPath);
             return;
         }
-        SetFooter("Kayıt hazırlanıyor…");
+        SetFooter(Lang.T("Kayıt hazırlanıyor…"));
         var converted = _engine is { } engine &&
             await CopyWithoutPictureAsync(engine, new Uri(working), [RecordingPlan.MkvOutput(finalPath)], expectedMs: 0);
         if (_closing) return;

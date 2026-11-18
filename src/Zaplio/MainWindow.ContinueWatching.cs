@@ -31,8 +31,8 @@ public partial class MainWindow
                 var title = item?.Title ?? channel.Name;
                 var time = PlaybackTime.Format(entry.Position);
                 var episode = series && !string.Equals(channel.Name, title, StringComparison.CurrentCultureIgnoreCase) ? channel.Name : null;
-                return new ContinueRow(channel, title, episode, $"Devam et · {time}", item?.Poster, series ? IconGlyphs.Series : IconGlyphs.Movie,
-                    $"{title}: kaldığın yerden devam ({time})");
+                return new ContinueRow(channel, title, episode, Lang.F($"Devam et · {time}"), item?.Poster, series ? IconGlyphs.Series : IconGlyphs.Movie,
+                    Lang.F($"{title}: kaldığın yerden devam ({time})"));
             }).ToArray();
         ContinueList.Tag ??= _continueShelf;
         ContinueList.ItemsSource = rows;
@@ -53,7 +53,7 @@ public partial class MainWindow
         {
             if (_vodItems.FirstOrDefault(item => item.ProviderId == channel.SeriesId && item.Playable is null) is not { } series)
             {
-                SetFooter($"{row.Title} listede bulunamadı; listeyi yenileyip tekrar dene.", isError: true);
+                SetFooter(Lang.F($"{row.Title} listede bulunamadı; listeyi yenileyip tekrar dene."), isError: true);
                 return;
             }
             await ActivateVodAsync(series); // loads the episodes
@@ -63,7 +63,7 @@ public partial class MainWindow
         var match = VodList.Items.OfType<VodRow>().FirstOrDefault(candidate => candidate.Item.Playable?.Id == channel.Id);
         if (match is null)
         {
-            SetFooter($"{row.Title} listede bulunamadı; listeyi yenileyip tekrar dene.", isError: true);
+            SetFooter(Lang.F($"{row.Title} listede bulunamadı; listeyi yenileyip tekrar dene."), isError: true);
             return;
         }
         VodList.SelectedItem = match;

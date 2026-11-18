@@ -38,13 +38,13 @@ internal sealed record VodFacts(string? Genre, string? Duration, string? Rating,
         else if (double.TryParse(minutes, NumberStyles.Float, CultureInfo.InvariantCulture, out var mins) && mins > 0) length = TimeSpan.FromMinutes(mins);
         if (length is not { } value || value.TotalMinutes < 1 || value.TotalHours > 24) return null;
         var hours = (int)value.TotalHours;
-        return hours == 0 ? $"{value.Minutes} dk" : value.Minutes == 0 ? $"{hours} sa" : $"{hours} sa {value.Minutes} dk";
+        return hours == 0 ? Lang.F($"{value.Minutes} dk") : value.Minutes == 0 ? $"{hours} sa" : Lang.F($"{hours} sa {value.Minutes} dk");
     }
 
     internal static string? FormatRating(string? tenBased, string? fiveBased)
     {
         var rating = Number(tenBased) is > 0 and <= 10 and var ten ? ten : Number(fiveBased) is > 0 and <= 5 and var five ? five * 2 : 0;
-        return rating > 0 ? $"★ {rating.ToString("0.0", CultureInfo.GetCultureInfo("tr-TR"))}" : null;
+        return rating > 0 ? $"★ {rating.ToString("0.0", Lang.Culture)}" : null;
 
         static double Number(string? text) =>
             double.TryParse(text?.Replace(',', '.'), NumberStyles.Float, CultureInfo.InvariantCulture, out var value) ? value : 0;

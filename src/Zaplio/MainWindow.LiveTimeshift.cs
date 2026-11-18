@@ -54,7 +54,7 @@ public partial class MainWindow
         LiveReturnButton.Visibility = CanReturnToLive ? Visibility.Visible : Visibility.Collapsed;
         if (!IsLiveDelayed) return;
         var delay = PlaybackTime.Format(CurrentLiveDelay(Environment.TickCount64));
-        SetPlaybackStatus(_livePausedAt > 0 ? $"Duraklatıldı · canlıdan {delay} geride" : $"Canlıdan {delay} geride");
+        SetPlaybackStatus(_livePausedAt > 0 ? Lang.F($"Duraklatıldı · canlıdan {delay} geride") : Lang.F($"Canlıdan {delay} geride"));
     }
 
     private async void OnReturnToLive(object sender, RoutedEventArgs e) => await ReturnToLiveAsync();
@@ -64,13 +64,13 @@ public partial class MainWindow
         if (_playingChannel is { IsOnDemand: true } && _liveReturnChannel is { } live)
         {
             _liveReturnChannel = null;
-            ShowOsd("Canlı yayına dönüldü", live.Name);
+            ShowOsd(Lang.T("Canlı yayına dönüldü"), live.Name);
             await PlayChannelAsync(live);
             return;
         }
         if (IsLiveDelayed && _playingChannel is { } current)
         {
-            ShowOsd("Canlı yayına dönüldü", current.Name);
+            ShowOsd(Lang.T("Canlı yayına dönüldü"), current.Name);
             await PlayChannelAsync(current, reconnect: true); // reopening the stream lands on the live edge
         }
     }
@@ -83,7 +83,7 @@ public partial class MainWindow
         var archiveChannel = VariantsOf(row).Prepend(live).FirstOrDefault(channel => channel.CatchupDays > 0);
         if (archiveChannel is null || source.Kind != SourceKind.Xtream)
         {
-            ShowOsd("Bu kanalda geri sarma yok", "Boşluk ile duraklatıp kaldığın yerden devam edebilirsin");
+            ShowOsd(Lang.T("Bu kanalda geri sarma yok"), Lang.T("Boşluk ile duraklatıp kaldığın yerden devam edebilirsin"));
             return;
         }
 
@@ -91,11 +91,11 @@ public partial class MainWindow
         // Archive addresses have minute precision; start at the minute and seek to the exact second.
         var start = new DateTimeOffset(target.Year, target.Month, target.Day, target.Hour, target.Minute, 0, target.Offset);
         var archive = CatalogLoader.Catchup(source, archiveChannel with { Name = row.Name },
-            _catalog.GetValueOrDefault(source.Id)?.TimeZone, start, DateTimeOffset.Now.AddHours(2), "canlıdan geri sarıldı");
+            _catalog.GetValueOrDefault(source.Id)?.TimeZone, start, DateTimeOffset.Now.AddHours(2), Lang.T("canlıdan geri sarıldı"));
         if (archive is null) return;
 
         _forcedResume = (long)(target - start).TotalMilliseconds;
-        ShowOsd($"{seconds} saniye geri", "Arşivden oynatılıyor · → ya da \"Canlıya dön\" ile geri gel");
+        ShowOsd(Lang.F($"{seconds} saniye geri"), Lang.T("Arşivden oynatılıyor · → ya da \"Canlıya dön\" ile geri gel"));
         await PlayChannelAsync(archive);
         _liveReturnChannel = row;
         UpdateLiveStatus();

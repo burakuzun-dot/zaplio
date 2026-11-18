@@ -11,8 +11,8 @@ internal sealed record VodPreview(string Title, string Metadata, string? Summary
         if (series is null && channel is { SeriesId: > 0 }) return null;
 
         var position = channel is not null && state.Settings.ResumeOnDemand ? state.WatchPositions.GetValueOrDefault(channel.Id) : 0;
-        var action = channel is null ? "Bölümleri aç" : position > 0 ? $"Devam et · {PlaybackTime.Format(position)}" : "Oynat";
-        var seasons = item.SeasonCount > 0 ? $"{item.SeasonCount} sezon" : "";
+        var action = channel is null ? Lang.T("Bölümleri aç") : position > 0 ? Lang.F($"Devam et · {PlaybackTime.Format(position)}") : "Oynat";
+        var seasons = item.SeasonCount > 0 ? Lang.F($"{item.SeasonCount} sezon") : "";
         var metadata = string.Join(" · ", new[] { item.Category, item.Detail, seasons }.Where(text => !string.IsNullOrWhiteSpace(text)).Distinct());
         var poster = string.IsNullOrWhiteSpace(item.Poster) ? series?.Poster : item.Poster;
         return new VodPreview(item.Title, metadata, item.Plot, poster, action);

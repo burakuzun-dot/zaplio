@@ -69,7 +69,7 @@ internal static class UpdateInstaller
                 while ((read = await source.ReadAsync(buffer, token).ConfigureAwait(false)) > 0)
                 {
                     written += read;
-                    if (written > package.Size) throw new InvalidDataException("İndirilen dosya beklenenden büyük.");
+                    if (written > package.Size) throw new InvalidDataException(Lang.T("İndirilen dosya beklenenden büyük."));
                     hash.AppendData(buffer, 0, read);
                     await target.WriteAsync(buffer.AsMemory(0, read), token).ConfigureAwait(false);
                     progress?.Report((double)written / package.Size);
@@ -88,8 +88,8 @@ internal static class UpdateInstaller
 
     internal static void Verify(long size, string sha256, UpdatePackage package)
     {
-        if (size != package.Size) throw new InvalidDataException("İndirilen dosyanın boyutu tutmuyor.");
+        if (size != package.Size) throw new InvalidDataException(Lang.T("İndirilen dosyanın boyutu tutmuyor."));
         if (package.Sha256 is { } expected && !string.Equals(expected, sha256, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("İndirilen dosyanın SHA-256 özeti GitHub'dakiyle tutmuyor.");
+            throw new InvalidDataException(Lang.T("İndirilen dosyanın SHA-256 özeti GitHub'dakiyle tutmuyor."));
     }
 }

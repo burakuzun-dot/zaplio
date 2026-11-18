@@ -29,7 +29,7 @@ public partial class MainWindow
                 AddSubtitle(player, subtitles[0]);
                 return null;
             }
-            SetFooter(subtitles.Count > 0 ? "Altyazı eklemek için önce bir video oynat." : "Bu dosya oynatılamıyor; bir video dosyası bırak.",
+            SetFooter(subtitles.Count > 0 ? Lang.T("Altyazı eklemek için önce bir video oynat.") : Lang.T("Bu dosya oynatılamıyor; bir video dosyası bırak."),
                 isError: subtitles.Count == 0);
             return null;
         }
@@ -38,7 +38,7 @@ public partial class MainWindow
         _localQueue.Clear();
         _localQueue.AddRange(entries.Skip(1));
         _pendingSubtitle = subtitles.FirstOrDefault();
-        SetFooter(entries.Count > 1 ? $"{entries[0].Name} · sırada {entries.Count - 1} video daha" : entries[0].Name);
+        SetFooter(entries.Count > 1 ? Lang.F($"{entries[0].Name} · sırada {entries.Count - 1} video daha") : entries[0].Name);
         AppLog.Info($"Yerel dosya açıldı ({entries.Count} video).");
         if (play) await PlayChannelAsync(entries[0]);
         return entries[0];
@@ -57,7 +57,7 @@ public partial class MainWindow
     private void AddSubtitle(VlcPlayer player, string path)
     {
         var added = player.AddSlave(MediaSlaveType.Subtitle, new Uri(Path.GetFullPath(path)).AbsoluteUri, true);
-        ShowOsd(added ? "Altyazı eklendi" : "Altyazı eklenemedi", Path.GetFileName(path));
+        ShowOsd(added ? Lang.T("Altyazı eklendi") : Lang.T("Altyazı eklenemedi"), Path.GetFileName(path));
     }
 
     /// <summary>A subtitle dropped together with the video is added once the video is playing.</summary>
@@ -72,7 +72,7 @@ public partial class MainWindow
     {
         var dialog = new OpenFileDialog
         {
-            Title = "Video aç", Filter = LocalMedia.DialogFilter, Multiselect = true, CheckFileExists = true
+            Title = Lang.T("Video aç"), Filter = LocalMedia.DialogFilter, Multiselect = true, CheckFileExists = true
         };
         if (dialog.ShowDialog(this) == true) await OpenLocalAsync(dialog.FileNames);
     }
@@ -122,7 +122,7 @@ public partial class MainWindow
         e.Effects = usable ? DragDropEffects.Copy : DragDropEffects.None;
         DropHint.Visibility = usable ? Visibility.Visible : Visibility.Collapsed;
         if (usable)
-            DropHintText.Text = paths.All(LocalMedia.IsSubtitle) ? "Altyazıyı bırak, videoya eklensin" : "Bırak, hemen oynasın";
+            DropHintText.Text = paths.All(LocalMedia.IsSubtitle) ? Lang.T("Altyazıyı bırak, videoya eklensin") : Lang.T("Bırak, hemen oynasın");
         e.Handled = true;
     }
 

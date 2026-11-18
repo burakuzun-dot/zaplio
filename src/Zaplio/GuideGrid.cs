@@ -44,7 +44,7 @@ internal static class GuideGrid
             var start = programme.Start < from ? from : programme.Start;
             var stop = end > to ? to : end;
             var width = Math.Max(Gap * 2, Offset(stop, start) - Gap);
-            var time = $"{programme.Start.LocalDateTime.ToString("HH:mm", Turkish)} – {end.LocalDateTime.ToString("HH:mm", Turkish)}";
+            var time = $"{programme.Start.LocalDateTime.ToString("HH:mm", Lang.Culture)} – {end.LocalDateTime.ToString("HH:mm", Lang.Culture)}";
             cells.Add(new Cell(Offset(start, from), width, programme.Title, time, programme.Description,
                 programme.Start <= now && end > now, end <= now, programme.Start, programme.End ?? end));
         }

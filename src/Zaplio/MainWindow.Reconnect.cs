@@ -29,7 +29,7 @@ public partial class MainWindow
         _playbackTimeout.Stop();
         _reconnecting = true;
         AppLog.Warn($"Canlı yayın kesildi ({reason}); yeniden bağlanılıyor {attempt}/{MaxReconnects}: {channel.Name} ({channel.Stream})");
-        SetPlaybackStatus($"Bağlantı kesildi · yeniden bağlanılıyor ({attempt}/{MaxReconnects})", isError: true);
+        SetPlaybackStatus(Lang.F($"Bağlantı kesildi · yeniden bağlanılıyor ({attempt}/{MaxReconnects})"), isError: true);
         try
         {
             await Task.Delay(TimeSpan.FromSeconds(attempt * 2));

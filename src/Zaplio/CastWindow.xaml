@@ -1,0 +1,42 @@
+<Window x:Class="Zaplio.CastWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Zaplio"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="Televizyonda aç · Zaplio" Width="470" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner" WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False"
+        Background="{DynamicResource Panel}" Foreground="{DynamicResource Text}" FontFamily="{StaticResource UiFont}" UseLayoutRounding="True">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" CornerRadius="0" ResizeBorderThickness="0" GlassFrameThickness="0" />
+    </shell:WindowChrome.WindowChrome>
+    <Border Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1">
+        <StackPanel>
+            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" MouseLeftButtonDown="OnTitleMouseDown">
+                <Grid Height="60" Margin="23,0,13,0">
+                    <TextBlock Text="Televizyonda aç" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Button Style="{StaticResource WindowButton}" HorizontalAlignment="Right" Click="OnClose"
+                            ToolTip="Kapat" AutomationProperties.Name="Kapat">
+                        <TextBlock Style="{StaticResource Glyph}" Text="{x:Static local:IconGlyphs.Close}" FontSize="17" />
+                    </Button>
+                </Grid>
+            </Border>
+            <StackPanel Margin="23,17,23,19">
+                <TextBlock x:Name="Hint" Style="{StaticResource MutedText}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10" />
+                <TextBlock x:Name="Status" FontSize="13" TextWrapping="Wrap" Margin="0,0,0,8" />
+                <ListBox x:Name="Devices" MinHeight="44" MaxHeight="220" DisplayMemberPath="Name" MouseDoubleClick="OnDeviceDoubleClick"
+                         SelectionChanged="OnSelectionChanged" AutomationProperties.Name="Bulunan televizyonlar" />
+                <TextBlock Style="{StaticResource MutedText}" FontSize="11" TextWrapping="Wrap" Margin="0,10,0,0"
+                           Text="Televizyon ve bilgisayar aynı ev ağında olmalı. Yayın bilgisayar üzerinden aktarılır; kullanıcı adın ve şifren televizyona gitmez. Zaplio açık kaldığı sürece oynar." />
+                <DockPanel Margin="0,16,0,0">
+                    <Button x:Name="SearchButton" DockPanel.Dock="Left" Content="Yeniden ara" Click="OnSearch" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Vazgeç" Click="OnClose" IsCancel="True" Margin="0,0,8,0" />
+                        <Button x:Name="SendButton" Style="{StaticResource Primary}" Click="OnSend" IsDefault="True" IsEnabled="False">
+                            <TextBlock Text="Gönder" Foreground="{DynamicResource Ink}" />
+                        </Button>
+                    </StackPanel>
+                </DockPanel>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

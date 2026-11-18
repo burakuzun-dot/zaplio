@@ -11,8 +11,8 @@ public partial class GuideSourceWindow : Window
         InitializeComponent();
         SourceName.Text = source.Name;
         SourceHint.Text = hasAutomaticGuide
-            ? "Boş bırakırsan yayın kaynağının bildirdiği rehber kullanılır."
-            : "Bu yayın kaynağı için XMLTV bağlantısı gir veya bir .xml / .xml.gz dosyası seç.";
+            ? Lang.T("Boş bırakırsan yayın kaynağının bildirdiği rehber kullanılır.")
+            : Lang.T("Bu yayın kaynağı için XMLTV bağlantısı gir veya bir .xml / .xml.gz dosyası seç.");
         AddressInput.Text = source.GuideLocation ?? "";
         AddressInput.TextChanged += (_, _) => AutoButton.IsEnabled = AddressInput.Text.Length > 0;
         AutoButton.IsEnabled = AddressInput.Text.Length > 0;
@@ -25,8 +25,8 @@ public partial class GuideSourceWindow : Window
     {
         var picker = new OpenFileDialog
         {
-            Title = "XMLTV rehberi seç",
-            Filter = "XMLTV rehberleri (*.xml;*.xml.gz;*.gz)|*.xml;*.xml.gz;*.gz|Tüm dosyalar (*.*)|*.*",
+            Title = Lang.T("XMLTV rehberi seç"),
+            Filter = Lang.T("XMLTV rehberleri (*.xml;*.xml.gz;*.gz)|*.xml;*.xml.gz;*.gz|Tüm dosyalar (*.*)|*.*"),
             CheckFileExists = true
         };
         if (picker.ShowDialog(this) == true) AddressInput.Text = picker.FileName;

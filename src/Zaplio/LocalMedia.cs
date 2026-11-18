@@ -10,7 +10,7 @@ namespace Zaplio;
 /// </summary>
 internal static class LocalMedia
 {
-    internal const string Group = "Bu bilgisayar";
+    internal static string Group => Lang.T("Bu bilgisayar");
 
     private static readonly HashSet<string> VideoExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -21,7 +21,7 @@ internal static class LocalMedia
 
     /// <summary>The Ctrl + O dialog filter.</summary>
     internal static string DialogFilter =>
-        $"Video dosyaları|{string.Join(";", VideoExtensions.Select(extension => "*" + extension))}|Tüm dosyalar|*.*";
+        Lang.F($"Video dosyaları|{string.Join(";", VideoExtensions.Select(extension => "*" + extension))}|Tüm dosyalar|*.*");
 
     internal static bool IsVideo(string path) => VideoExtensions.Contains(Path.GetExtension(path));
 

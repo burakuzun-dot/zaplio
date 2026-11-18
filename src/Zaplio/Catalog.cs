@@ -15,8 +15,8 @@ internal sealed record Source(Guid Id, string Name, SourceKind Kind, string Loca
 {
     public string TypeLabel => Kind switch
     {
-        SourceKind.M3uFile => "M3U dosyası",
-        SourceKind.M3uUrl => "M3U bağlantısı",
+        SourceKind.M3uFile => Lang.T("M3U dosyası"),
+        SourceKind.M3uUrl => Lang.T("M3U bağlantısı"),
         _ => "Xtream API"
     };
     public string Icon => Kind switch
@@ -63,14 +63,14 @@ internal sealed partial class CatalogLoader : IDisposable
         };
 
         return catalog.Channels.Count == 0 && source.Kind != SourceKind.Xtream
-            ? throw new SourceException("Bu kaynakta oynatılabilir kanal bulunamadı.") : catalog;
+            ? throw new SourceException(Lang.T("Bu kaynakta oynatılabilir kanal bulunamadı.")) : catalog;
     }
 
     public static Uri HttpAddress(string input)
     {
         if (!Uri.TryCreate(input.Trim(), UriKind.Absolute, out var address) ||
             address.Scheme is not ("http" or "https") || string.IsNullOrEmpty(address.Host))
-            throw new SourceException("http:// veya https:// ile başlayan geçerli bir adres gir.");
+            throw new SourceException(Lang.T("http:// veya https:// ile başlayan geçerli bir adres gir."));
 
         return address;
     }
@@ -78,17 +78,17 @@ internal sealed partial class CatalogLoader : IDisposable
     public static string UserMessage(Exception exception) => exception switch
     {
         SourceException => exception.Message,
-        OperationCanceledException => "Bağlantı zaman aşımına uğradı.",
+        OperationCanceledException => Lang.T("Bağlantı zaman aşımına uğradı."),
         HttpRequestException { StatusCode: System.Net.HttpStatusCode.Unauthorized }
-            => "Sunucu girişi reddetti. Kullanıcı adını ve şifreyi kontrol et.",
+            => Lang.T("Sunucu girişi reddetti. Kullanıcı adını ve şifreyi kontrol et."),
         HttpRequestException { StatusCode: System.Net.HttpStatusCode.Forbidden }
-            => "Sağlayıcı erişimi reddetti (403). VPN (ör. Cloudflare WARP) açıksa kapatıp tekrar dene; değilse bağlantı sınırı aşılmış, IP adresin geçici olarak engellenmiş ya da hesap süresi dolmuş olabilir.",
+            => Lang.T("Sağlayıcı erişimi reddetti (403). VPN (ör. Cloudflare WARP) açıksa kapatıp tekrar dene; değilse bağlantı sınırı aşılmış, IP adresin geçici olarak engellenmiş ya da hesap süresi dolmuş olabilir."),
         HttpRequestException { StatusCode: System.Net.HttpStatusCode.TooManyRequests }
-            => "Sağlayıcı çok fazla istek aldığını bildirdi (429). Birkaç dakika bekleyip tekrar dene.",
-        HttpRequestException => "Sunucuya ulaşılamadı veya geçerli bir yanıt alınamadı.",
-        JsonException => "Xtream sunucusu beklenen biçimde yanıt vermedi.",
-        IOException or UnauthorizedAccessException => "Kaynak dosyası okunamadı. Konumunu ve erişim iznini kontrol et.",
-        _ => "Kaynak yüklenirken bir sorun oluştu. Bilgileri kontrol edip tekrar dene."
+            => Lang.T("Sağlayıcı çok fazla istek aldığını bildirdi (429). Birkaç dakika bekleyip tekrar dene."),
+        HttpRequestException => Lang.T("Sunucuya ulaşılamadı veya geçerli bir yanıt alınamadı."),
+        JsonException => Lang.T("Xtream sunucusu beklenen biçimde yanıt vermedi."),
+        IOException or UnauthorizedAccessException => Lang.T("Kaynak dosyası okunamadı. Konumunu ve erişim iznini kontrol et."),
+        _ => Lang.T("Kaynak yüklenirken bir sorun oluştu. Bilgileri kontrol edip tekrar dene.")
     };
 
     private async Task<LoadedCatalog> LoadM3uUrlAsync(Source source, CancellationToken cancellationToken)
@@ -164,7 +164,7 @@ internal sealed partial class CatalogLoader : IDisposable
 
             if (stream is not null && StreamSchemes.Contains(stream.Scheme, StringComparer.OrdinalIgnoreCase))
             {
-                var channelName = string.IsNullOrWhiteSpace(name) ? $"Kanal {channels.Count + 1}" : name;
+                var channelName = string.IsNullOrWhiteSpace(name) ? Lang.F($"Kanal {channels.Count + 1}") : name;
                 var channelGroup = string.IsNullOrWhiteSpace(group) ? "Genel" : group;
                 channels.Add(new Channel(Id(source, $"{channelName}\n{channelGroup}\n{stream.AbsoluteUri}"),
                     source.Id, channelName, channelGroup, stream, userAgent, referrer, guideId, guideName,
@@ -186,11 +186,11 @@ internal sealed partial class CatalogLoader : IDisposable
         if (account.RootElement.ValueKind != JsonValueKind.Object ||
             !account.RootElement.TryGetProperty("user_info", out var userInfo) ||
             Value(userInfo, "auth") is not ("1" or "true"))
-            throw new SourceException("Xtream girişi doğrulanamadı. Kullanıcı adını ve şifreyi kontrol et.");
+            throw new SourceException(Lang.T("Xtream girişi doğrulanamadı. Kullanıcı adını ve şifreyi kontrol et."));
 
         var status = Value(userInfo, "status");
         if (!string.IsNullOrEmpty(status) && !status.Equals("Active", StringComparison.OrdinalIgnoreCase))
-            throw new SourceException("Xtream hesabı etkin değil.");
+            throw new SourceException(Lang.T("Xtream hesabı etkin değil."));
         var accountInfo = AccountInfo.Parse(userInfo, DateTimeOffset.UtcNow);
 
         var groupsTask = LoadGroupsAsync($"{api}&action=get_live_categories", cancellationToken);
@@ -201,7 +201,7 @@ internal sealed partial class CatalogLoader : IDisposable
             var groups = await groupsTask.ConfigureAwait(false);
             var streams = (await streamsTask.ConfigureAwait(false)).RootElement;
             if (streams.ValueKind != JsonValueKind.Array)
-                throw new SourceException("Xtream sunucusu geçerli bir canlı kanal listesi göndermedi.");
+                throw new SourceException(Lang.T("Xtream sunucusu geçerli bir canlı kanal listesi göndermedi."));
 
             var extension = userInfo.TryGetProperty("allowed_output_formats", out var formats) &&
                 formats.ValueKind == JsonValueKind.Array &&
@@ -223,7 +223,7 @@ internal sealed partial class CatalogLoader : IDisposable
                     ? Math.Max(1, int.TryParse(Value(item, "tv_archive_duration"), NumberStyles.None, CultureInfo.InvariantCulture, out var days) ? days : 1)
                     : 0;
                 channels.Add(new Channel(Id(source, numericId.ToString(CultureInfo.InvariantCulture)), source.Id,
-                    string.IsNullOrWhiteSpace(name) ? $"Kanal {numericId}" : name, group, stream,
+                    string.IsNullOrWhiteSpace(name) ? Lang.F($"Kanal {numericId}") : name, group, stream,
                     GuideId: Value(item, "epg_channel_id"), Logo: NullIfBlank(Value(item, "stream_icon")), CatchupDays: archive));
             }
 
@@ -245,7 +245,7 @@ internal sealed partial class CatalogLoader : IDisposable
             .ConfigureAwait(false);
         if (account.RootElement.ValueKind != JsonValueKind.Object || !account.RootElement.TryGetProperty("user_info", out var userInfo) ||
             Value(userInfo, "auth") is not ("1" or "true"))
-            throw new SourceException("Xtream girişi doğrulanamadı. Kullanıcı adını ve şifreyi kontrol et.");
+            throw new SourceException(Lang.T("Xtream girişi doğrulanamadı. Kullanıcı adını ve şifreyi kontrol et."));
         return AccountInfo.Parse(userInfo, DateTimeOffset.UtcNow);
     }
 

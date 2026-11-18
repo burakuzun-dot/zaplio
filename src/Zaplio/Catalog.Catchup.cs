@@ -22,7 +22,7 @@ internal sealed partial class CatalogLoader
         var stamp = serverStart.ToString("yyyy-MM-dd:HH-mm", CultureInfo.InvariantCulture);
         var stream = new Uri($"{connection.Root}/timeshift/{connection.Username}/{connection.Password}/" +
                              $"{minutes.ToString(CultureInfo.InvariantCulture)}/{stamp}/{streamId.ToString(CultureInfo.InvariantCulture)}.ts");
-        var label = start.LocalDateTime.ToString("d MMM HH:mm", CultureInfo.GetCultureInfo("tr-TR"));
+        var label = start.LocalDateTime.ToString("d MMM HH:mm", Lang.Culture);
         return channel with
         {
             Id = $"{channel.Id}:archive:{start.UtcDateTime:yyyyMMddHHmm}",

@@ -28,7 +28,10 @@ Köke kod dosyası koyma.
 - **Hukuk:** örnek, test ve belge metinlerinde gerçek yayıncı/kanal/marka adı kullanma (`Kanal A`, `Belgesel 1`); "IPTV" ve "Xtream Codes"
   yerine "medya oynatıcı" ve "Xtream API" yaz; spor/ücretli içerik çağrışımı yapma; varsayılan kaynak ya da liste ekleme.
   Bkz. [docs/legal.md](docs/legal.md).
-- Kullanıcıya görünen tüm metinler Türkçedir; mevcut üslubu ("sen" dili, kısa cümleler) koru.
+- Kullanıcıya görünen metinler Türkçe yazılır; mevcut üslubu ("sen" dili, kısa cümleler) koru. Arayüz İngilizce de
+  olabildiği için koddaki her görünen metni `Lang.T("…")` (değer içeriyorsa `Lang.F($"…")`) ile sar ve İngilizcesini
+  `src/Zaplio/Lang.English.cs` içine ekle; XAML metinleri kendiliğinden çevrilir ama İngilizceleri de oraya yazılır.
+  Eksik çeviriyi `LangTests` yakalar. Günlük (`AppLog`) metinleri çevrilmez.
 - Uzun işler UI iş parçacığını kilitlememeli (`Task.Run`, `async`); kapanışta `_lifetime` iptal belirteci kullanılır.
 - Yeni mantık için `tests/Zaplio.Tests` altına test ekle; testler kullanıcının gerçek klasörlerine dokunmamalı.
 - **Arayüze dokunan her değişiklikten sonra öz denetimi çalıştır.** Uygulamayı ekran dışında, geçici bir veri klasörü ve yerel bir demo

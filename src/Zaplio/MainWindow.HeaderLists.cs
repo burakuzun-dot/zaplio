@@ -62,9 +62,9 @@ public partial class MainWindow
         HeaderWatchlistButton.Visibility = vod is null ? Visibility.Collapsed : Visibility.Visible;
         if (vod is null) return;
         var later = _state.VodWatchlist.Contains(vod.Key);
-        var whole = channel?.SeriesId > 0 ? "Diziyi " : "";
-        var tooltip = later ? $"{whole}izleme listemden çıkar" : $"{whole}sonra izlemek için ekle";
-        HeaderWatchlistText.Text = later ? "Listemde" : "Sonra izle";
+        var whole = channel?.SeriesId > 0 ? Lang.T("Diziyi ") : "";
+        var tooltip = later ? Lang.F($"{whole}izleme listemden çıkar") : Lang.F($"{whole}sonra izlemek için ekle");
+        HeaderWatchlistText.Text = later ? Lang.T("Listemde") : Lang.T("Sonra izle");
         HeaderWatchlistButton.SetResourceReference(ForegroundProperty, later ? "Accent" : "Text");
         HeaderWatchlistButton.SetResourceReference(BackgroundProperty, later ? "Active" : "Surface");
         HeaderWatchlistButton.SetResourceReference(BorderBrushProperty, later ? "ActiveLine" : "Line");
@@ -76,7 +76,7 @@ public partial class MainWindow
     {
         if (PlayingVodTarget(DisplayedChannel) is { } vod)
         {
-            await ToggleVodKeyAsync(_state.VodFavorites, vod.Key, vod.Title, "favorilere eklendi.", "favorilerden çıkarıldı.");
+            await ToggleVodKeyAsync(_state.VodFavorites, vod.Key, vod.Title, "favorilere eklendi.", Lang.T("favorilerden çıkarıldı."));
             return;
         }
         OnFavorite(this, new RoutedEventArgs());
@@ -85,7 +85,7 @@ public partial class MainWindow
     private async void OnHeaderWatchlist(object sender, RoutedEventArgs e)
     {
         if (PlayingVodTarget(DisplayedChannel) is { } vod)
-            await ToggleVodKeyAsync(_state.VodWatchlist, vod.Key, vod.Title, "izleme listene eklendi.", "izleme listenden çıkarıldı.");
+            await ToggleVodKeyAsync(_state.VodWatchlist, vod.Key, vod.Title, "izleme listene eklendi.", Lang.T("izleme listenden çıkarıldı."));
     }
 
     private Task ToggleVodKeyAsync(HashSet<string> list, string key, string title, string added, string removed)

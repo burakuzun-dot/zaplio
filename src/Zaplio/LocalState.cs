@@ -29,6 +29,10 @@ internal sealed class LocalState
     public PlaybackSettings Settings { get; set; } = new();
     public int Volume { get; set; } = 75;
     public ChildProfile Child { get; set; } = new();
+    /// <summary>Live channels that would not open lately (channel id → when), see <see cref="ChannelFailures"/>.</summary>
+    public Dictionary<string, DateTimeOffset> FailedChannels { get; set; } = [];
+    /// <summary>The TV chosen last time in "Televizyonda aç" (its UPnP device id), selected again when found.</summary>
+    public string? LastCastDevice { get; set; }
 }
 
 internal sealed record WatchEntry(Channel Channel, DateTimeOffset WatchedAt);
@@ -52,6 +56,14 @@ internal sealed record PlaybackSettings
     public AppTheme Theme { get; init; } = AppTheme.Dark;
     /// <summary>A <see cref="ThemePalette.Accents"/> key; unknown or missing means the original purple.</summary>
     public string Accent { get; init; } = "purple";
+    public SubtitleSize SubtitleSize { get; init; } = SubtitleSize.Normal;
+    /// <summary>A dark see-through box behind subtitles.</summary>
+    public bool SubtitleBackground { get; init; }
+    /// <summary>Evens out loud adverts and quiet channels (VLC's volume normaliser).</summary>
+    public bool NormalizeVolume { get; init; }
+    public PictureAdjust Picture { get; init; } = PictureAdjust.Neutral;
+    /// <summary>Interface language; "System" is Turkish on a Turkish Windows and English elsewhere.</summary>
+    public AppLanguage Language { get; init; } = AppLanguage.System;
 }
 
 internal sealed class LocalStateStore

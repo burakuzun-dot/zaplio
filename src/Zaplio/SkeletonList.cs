@@ -18,7 +18,7 @@ internal sealed class SkeletonList : StackPanel
     private bool _running;
 
     public static readonly DependencyProperty TextProperty = DependencyProperty.Register(
-        nameof(Text), typeof(string), typeof(SkeletonList), new PropertyMetadata("Yükleniyor…", (d, e) => ((SkeletonList)d)._label.Text = (string)e.NewValue));
+        nameof(Text), typeof(string), typeof(SkeletonList), new PropertyMetadata(Lang.T("Yükleniyor…"), (d, e) => ((SkeletonList)d)._label.Text = (string)e.NewValue));
 
     /// <summary>Rows shaped like posters (tall) instead of channel logos (square).</summary>
     public static readonly DependencyProperty PostersProperty = DependencyProperty.Register(

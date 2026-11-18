@@ -15,6 +15,7 @@ public partial class MainWindow
     private void InitializeStateScreens()
     {
         ChannelFavoriteConverter.Lookup = IsFavorite;
+        ChannelFailedConverter.Lookup = FailedRecently;
         NetworkChange.NetworkAvailabilityChanged += OnNetworkAvailabilityChanged;
     }
 
@@ -38,7 +39,7 @@ public partial class MainWindow
             return;
         }
         _customizationVersion++;
-        SetFooter(IsFavorite(channel) ? $"{channel.Name} favorilere eklendi." : $"{channel.Name} favorilerden çıkarıldı.");
+        SetFooter(IsFavorite(channel) ? Lang.F($"{channel.Name} favorilere eklendi.") : Lang.F($"{channel.Name} favorilerden çıkarıldı."));
         // Rebuilding the list now would cut the bolt animation short; the favourites group has to drop the row at once.
         if (added && SystemParameters.ClientAreaAnimation && GroupList.SelectedItem is GroupEntry { Key: not "favorites" })
             await Task.Delay(700);
@@ -69,6 +70,7 @@ public partial class MainWindow
         SleepingView.ChannelName = channel.Name;
         SleepingView.AutoRetrySeconds = StateScreenPolicy.NextAutoRetrySeconds(0);
         SleepingView.Visibility = Visibility.Visible;
+        UpdateVideoOverlay();
     }
 
     private void HideSleeping()
@@ -77,6 +79,7 @@ public partial class MainWindow
         _sleepingChannel = null;
         _sleepingFailures = 0;
         SleepingView.Visibility = Visibility.Collapsed;
+        UpdateVideoOverlay();
     }
 
     private async void OnSleepingRetry(object? sender, EventArgs e)
@@ -102,7 +105,7 @@ public partial class MainWindow
             if (_closing || NetworkInterface.GetIsNetworkAvailable() || OfflineView.IsVisible) return;
             if (_playingChannel is not { } channel) return;
             _offlineResume = channel;
-            await StopPlaybackAsync("İnternet bağlantısı yok");
+            await StopPlaybackAsync(Lang.T("İnternet bağlantısı yok"));
             if (!_closing) OfflineView.Visibility = Visibility.Visible;
         });
     }

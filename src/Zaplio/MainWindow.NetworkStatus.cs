@@ -118,12 +118,12 @@ public partial class MainWindow
 
         if (_reconnecting || (_playStartedAt == 0 && _reconnectAttempts > 0))
         {
-            SetStability("Error", "Bağlantı kesildi", $"Yayın yeniden bağlanıyor ({_reconnectAttempts}/{MaxReconnects}).");
+            SetStability("Error", Lang.T("Bağlantı kesildi"), Lang.F($"Yayın yeniden bağlanıyor ({_reconnectAttempts}/{MaxReconnects})."));
             return;
         }
         if (_playStartedAt == 0)
         {
-            SetStability("Muted", "Bağlanıyor…", "Yayın sunucusuna bağlanılıyor.");
+            SetStability("Muted", Lang.T("Bağlanıyor…"), Lang.T("Yayın sunucusuna bağlanılıyor."));
             return;
         }
         if (player.State == VLCState.Paused) return;
@@ -139,16 +139,16 @@ public partial class MainWindow
         var report = _streamHealth.Evaluate(now);
         if (report.Level == HealthLevel.Measuring)
         {
-            SetStability("Muted", "Ölçülüyor…", "Bağlantı birkaç saniye izlendikten sonra değerlendirilir.");
+            SetStability("Muted", Lang.T("Ölçülüyor…"), Lang.T("Bağlantı birkaç saniye izlendikten sonra değerlendirilir."));
             return;
         }
-        var detail = $"Yayın hızı: {FormatBits(report.BitsPerSecond)}\nSon {report.Samples} sn: {report.StallSeconds} sn takılma, " +
-                     $"{report.DamagedSeconds} sn bozuk görüntü" + (report.RecentReconnect ? "\nSon 1 dakikada yeniden bağlanıldı." : "");
+        var detail = Lang.F($"Yayın hızı: {FormatBits(report.BitsPerSecond)}\nSon {report.Samples} sn: {report.StallSeconds} sn takılma, ") +
+                     Lang.F($"{report.DamagedSeconds} sn bozuk görüntü") + (report.RecentReconnect ? Lang.T("\nSon 1 dakikada yeniden bağlanıldı.") : "");
         switch (report.Level)
         {
-            case HealthLevel.Weak: SetStability("Error", "Zayıf bağlantı", detail); break;
-            case HealthLevel.Unsteady: SetStability("Warning", "Dalgalı", detail); break;
-            default: SetStability("LiveColor", "Stabil", detail); break;
+            case HealthLevel.Weak: SetStability("Error", Lang.T("Zayıf bağlantı"), detail); break;
+            case HealthLevel.Unsteady: SetStability("Warning", Lang.T("Dalgalı"), detail); break;
+            default: SetStability("LiveColor", Lang.T("Stabil"), detail); break;
         }
     }
 

@@ -66,7 +66,7 @@ public partial class MainWindow
                     chosen.GuideName ?? chosen.Name, chosen.IsOnDemand, chosen.SeriesId, chosen.EpisodeId,
                     chosen.Logo ?? group.Channels.Select(channel => channel.Logo).FirstOrDefault(logo => logo is not null),
                     group.Channels.Max(channel => channel.CatchupDays),
-                    Badge: $"{(label.Length > 0 ? label + " · " : "")}{group.Channels.Count} seçenek");
+                    Badge: Lang.F($"{(label.Length > 0 ? label + " · " : "")}{group.Channels.Count} seçenek"));
                 foreach (var channel in group.Channels) groups[channel.Id] = group;
             }
             else if (renamed is not null)
@@ -164,23 +164,23 @@ public partial class MainWindow
             var key = GroupKey(sourceId, entry.Label);
             Add(menu.Items, $"“{entry.Label}” grubunu gizle", () => ChangeCustomization(
                 () => _state.HiddenGroups.Add(key), () => _state.HiddenGroups.Remove(key),
-                $"“{entry.Label}” gizlendi. Sağ tıklayıp “Gizlenen gruplar” menüsünden geri getirebilirsin."));
+                Lang.F($"“{entry.Label}” gizlendi. Sağ tıklayıp “Gizlenen gruplar” menüsünden geri getirebilirsin.")));
         }
 
         var hidden = HiddenGroupsOfActiveSource();
         if (hidden.Length > 0 && _activeSourceId is Guid activeId)
         {
-            var restore = new MenuItem { Header = $"Gizlenen gruplar ({hidden.Length})" };
+            var restore = new MenuItem { Header = Lang.F($"Gizlenen gruplar ({hidden.Length})") };
             foreach (var group in hidden)
             {
                 var key = GroupKey(activeId, group);
                 Add(restore.Items, group, () => ChangeCustomization(
-                    () => _state.HiddenGroups.Remove(key), () => _state.HiddenGroups.Add(key), $"“{group}” yeniden gösteriliyor."));
+                    () => _state.HiddenGroups.Remove(key), () => _state.HiddenGroups.Add(key), Lang.F($"“{group}” yeniden gösteriliyor.")));
             }
             restore.Items.Add(new Separator());
             var keys = hidden.Select(group => GroupKey(activeId, group)).ToArray();
-            Add(restore.Items, "Tümünü göster", () => ChangeCustomization(
-                () => _state.HiddenGroups.ExceptWith(keys), () => _state.HiddenGroups.UnionWith(keys), "Tüm gruplar yeniden gösteriliyor."));
+            Add(restore.Items, Lang.T("Tümünü göster"), () => ChangeCustomization(
+                () => _state.HiddenGroups.ExceptWith(keys), () => _state.HiddenGroups.UnionWith(keys), Lang.T("Tüm gruplar yeniden gösteriliyor.")));
             menu.Items.Add(restore);
         }
 
@@ -199,24 +199,24 @@ public partial class MainWindow
         }
         ChannelList.SelectedItem = channel;
 
-        Add(menu.Items, "Oynat", () => _ = PlayChannelAsync(channel));
+        Add(menu.Items, Lang.T("Oynat"), () => _ = PlayChannelAsync(channel));
         if (BuildQualityMenu(channel) is { } quality) menu.Items.Add(quality);
-        Add(menu.Items, IsFavorite(channel) ? "Favorilerden çıkar" : "Favorilere ekle", () =>
+        Add(menu.Items, IsFavorite(channel) ? Lang.T("Favorilerden çıkar") : Lang.T("Favorilere ekle"), () =>
         {
             Action? undo = null;
             ChangeCustomization(() => undo = ToggleFavorite(channel), () => undo?.Invoke());
         });
         menu.Items.Add(new Separator());
-        Add(menu.Items, "Yeniden adlandır…", () => RenameChannel(channel));
+        Add(menu.Items, Lang.T("Yeniden adlandır…"), () => RenameChannel(channel));
         var renamed = VariantsOf(channel).Append(channel).Where(variant => _state.ChannelNames.ContainsKey(variant.Id))
             .Select(variant => variant.Id).Distinct().ToArray();
         if (renamed.Length > 0)
         {
             var names = renamed.ToDictionary(id => id, id => _state.ChannelNames[id]);
-            Add(menu.Items, "Özgün adı geri yükle", () => ChangeCustomization(
+            Add(menu.Items, Lang.T("Özgün adı geri yükle"), () => ChangeCustomization(
                 () => { foreach (var id in renamed) _state.ChannelNames.Remove(id); },
                 () => { foreach (var (id, name) in names) _state.ChannelNames[id] = name; },
-                "Kanalın özgün adı geri yüklendi."));
+                Lang.T("Kanalın özgün adı geri yüklendi.")));
         }
 
         if ((GroupList.SelectedItem as GroupEntry)?.Key == "favorites")
@@ -224,9 +224,9 @@ public partial class MainWindow
             menu.Items.Add(new Separator());
             var visible = VisibleChannels;
             var index = visible.FindIndex(item => item.Id == channel.Id);
-            Add(menu.Items, "Yukarı taşı", () => MoveFavorite(visible, index, -1), index > 0);
-            Add(menu.Items, "Aşağı taşı", () => MoveFavorite(visible, index, 1), index >= 0 && index < visible.Count - 1);
-            Add(menu.Items, "En üste taşı", () => MoveFavorite(visible, index, -index), index > 0);
+            Add(menu.Items, Lang.T("Yukarı taşı"), () => MoveFavorite(visible, index, -1), index > 0);
+            Add(menu.Items, Lang.T("Aşağı taşı"), () => MoveFavorite(visible, index, 1), index >= 0 && index < visible.Count - 1);
+            Add(menu.Items, Lang.T("En üste taşı"), () => MoveFavorite(visible, index, -index), index > 0);
         }
     }
 
@@ -260,7 +260,7 @@ public partial class MainWindow
         var original = variants.Count > 1
             ? ChannelVariants.DisplayName(variants[0].Name)
             : _catalog.GetValueOrDefault(channel.SourceId)?.Channels.FirstOrDefault(item => item.Id == channel.Id)?.Name ?? channel.Name;
-        var dialog = new TextPromptWindow("Kanalı yeniden adlandır", $"Özgün ad: {original}", channel.Name) { Owner = this };
+        var dialog = new TextPromptWindow(Lang.T("Kanalı yeniden adlandır"), Lang.F($"Özgün ad: {original}"), channel.Name) { Owner = this };
         if (dialog.ShowDialog() != true) return;
         var name = dialog.Value.Trim();
         // A merged row keeps one custom name, stored on the variant it currently shows.
@@ -276,7 +276,7 @@ public partial class MainWindow
         {
             foreach (var id in previous.Keys) _state.ChannelNames.Remove(id);
             if (name.Length > 0 && name != original) _state.ChannelNames[channel.Id] = name;
-        }, Restore, name.Length == 0 || name == original ? "Kanalın özgün adı geri yüklendi." : $"Kanal adı “{name}” olarak değiştirildi.");
+        }, Restore, name.Length == 0 || name == original ? Lang.T("Kanalın özgün adı geri yüklendi.") : Lang.F($"Kanal adı “{name}” olarak değiştirildi."));
         if (RowId(_playingChannel?.Id) == channel.Id) UpdateSelection();
     }
 
@@ -287,16 +287,16 @@ public partial class MainWindow
         var key = VariantPreferenceKey(row.SourceId, group.Key);
         var pinned = _state.PreferredVariants.GetValueOrDefault(key);
         var playing = _playingChannel?.Id;
-        var menu = new MenuItem { Header = "Kalite / yayın" };
+        var menu = new MenuItem { Header = Lang.T("Kalite / yayın") };
 
-        var automatic = new MenuItem { Header = "Otomatik (bağlantıya göre)", IsCheckable = true, IsChecked = pinned is null };
+        var automatic = new MenuItem { Header = Lang.T("Otomatik (bağlantıya göre)"), IsCheckable = true, IsChecked = pinned is null };
         automatic.Click += (_, _) => PinVariant(row, group, null);
         menu.Items.Add(automatic);
         menu.Items.Add(new Separator());
         foreach (var variant in group.Channels)
         {
             var label = ChannelVariants.Quality(variant.Name).Label;
-            var header = $"{(label.Length > 0 ? label : "Standart")}  ·  {variant.Name}" + (variant.Id == playing ? "  ▶" : "");
+            var header = $"{(label.Length > 0 ? label : Lang.T("Standart"))}  ·  {variant.Name}" + (variant.Id == playing ? "  ▶" : "");
             var item = new MenuItem { Header = header, IsCheckable = true, IsChecked = pinned == variant.Id };
             item.Click += (_, _) => PinVariant(row, group, variant.Id);
             menu.Items.Add(item);
@@ -318,7 +318,7 @@ public partial class MainWindow
         {
             if (hadPin) _state.PreferredVariants[key] = previous!;
             else _state.PreferredVariants.Remove(key);
-        }, variantId is null ? "Kalite otomatik seçilecek." : "Kalite tercihi kaydedildi.");
+        }, variantId is null ? Lang.T("Kalite otomatik seçilecek.") : "Kalite tercihi kaydedildi.");
         if (!changed || !wasPlaying) return;
         var target = ActiveChannels.FirstOrDefault(channel => channel.Id == RowId(group.Channels[0].Id));
         if (target is not null && target.Id != _playingChannel?.Id) _ = PlayChannelAsync(target);

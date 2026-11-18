@@ -22,7 +22,7 @@ public partial class LegalNoticeWindow : Window
             });
         }
         More.Text = LegalNotice.MoreInfo;
-        AcceptText.Text = requireAcceptance ? "Anladım, devam et" : "Kapat";
+        AcceptText.Text = requireAcceptance ? Lang.T("Anladım, devam et") : Lang.T("Kapat");
         CancelButton.Visibility = requireAcceptance ? Visibility.Visible : Visibility.Collapsed;
     }
 

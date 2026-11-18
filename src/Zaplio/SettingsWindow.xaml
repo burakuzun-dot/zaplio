@@ -229,6 +229,32 @@
                             </Grid>
                             <Grid Style="{StaticResource SettingRow}">
                                 <StackPanel Margin="0,0,60,0">
+                                    <TextBlock Text="Sesi dengele" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Kanal değiştirince ya da reklama geçince sesin birden yükselmesini ya da düşmesini yumuşatır." Style="{StaticResource SettingHint}" />
+                                </StackPanel>
+                                <CheckBox x:Name="NormalizeVolume" Style="{StaticResource SettingsSwitch}" AutomationProperties.Name="Sesi dengele" />
+                            </Grid>
+                            <Grid Style="{StaticResource SettingRow}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,0,16,0">
+                                    <TextBlock Text="Altyazı boyutu" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Televizyona uzaktan bakarken büyük altyazı daha rahat okunur." Style="{StaticResource SettingHint}" />
+                                </StackPanel>
+                                <ComboBox x:Name="SubtitleSizePicker" Grid.Column="1" Width="170" DisplayMemberPath="Label" VerticalAlignment="Center"
+                                          Style="{StaticResource LibraryPicker}" AutomationProperties.Name="Altyazı boyutu" />
+                            </Grid>
+                            <Grid Style="{StaticResource SettingRow}">
+                                <StackPanel Margin="0,0,60,0">
+                                    <TextBlock Text="Altyazının arkasına koyu kutu" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Açık renkli sahnelerde de altyazı okunur." Style="{StaticResource SettingHint}" />
+                                </StackPanel>
+                                <CheckBox x:Name="SubtitleBackground" Style="{StaticResource SettingsSwitch}" AutomationProperties.Name="Altyazının arkasına koyu kutu" />
+                            </Grid>
+                            <Grid Style="{StaticResource SettingRow}">
+                                <StackPanel Margin="0,0,60,0">
                                     <TextBlock Text="Kaldığım yeri hatırla" Style="{StaticResource SettingTitle}" />
                                     <TextBlock Text="Film ve dizilerde yarıda bıraktığın yerden devam eder." Style="{StaticResource SettingHint}" />
                                 </StackPanel>
@@ -273,6 +299,15 @@
                             <TextBlock Text="Görünüm" Style="{StaticResource PageTitle}" />
                             <TextBlock Style="{StaticResource PageIntro}" Text="Uygulamanın nasıl görüneceği." />
 
+                            <!-- Named in both languages so it can be found whichever one is on screen. -->
+                            <Grid Style="{StaticResource SettingRow}">
+                                <StackPanel Margin="0,0,180,0">
+                                    <TextBlock Text="Dil / Language" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Arayüzün dili. Değişiklik Zaplio yeniden açılınca uygulanır." Style="{StaticResource SettingHint}" />
+                                </StackPanel>
+                                <ComboBox x:Name="LanguagePicker" Style="{StaticResource LibraryPicker}" Width="160" HorizontalAlignment="Right"
+                                          DisplayMemberPath="Label" AutomationProperties.Name="Dil / Language" />
+                            </Grid>
                             <Grid Style="{StaticResource SettingRow}">
                                 <StackPanel Margin="0,0,180,0">
                                     <TextBlock Text="Tema" Style="{StaticResource SettingTitle}" />

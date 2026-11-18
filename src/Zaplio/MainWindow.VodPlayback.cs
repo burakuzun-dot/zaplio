@@ -47,7 +47,7 @@ public partial class MainWindow
         if (player != _player || revision != _playbackRevision || _closing) return;
         if (_seekingVod) return; // the timeline pauses the picture while you drag; that is not a pause to report
         UpdatePlayState(); // only the button: rebuilding the whole player area here made pausing feel slow
-        SetPlaybackStatus("Duraklatıldı");
+        SetPlaybackStatus(Lang.T("Duraklatıldı"));
         // The position is written to disk once the pause has lasted a moment, not on every quick pause and resume.
         _pauseSave ??= new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
         _pauseSave.Stop();
@@ -130,7 +130,7 @@ public partial class MainWindow
         }
     }
 
-    private async void OnVodStop(object sender, RoutedEventArgs e) => await StopPlaybackAsync("Durduruldu");
+    private async void OnVodStop(object sender, RoutedEventArgs e) => await StopPlaybackAsync(Lang.T("Durduruldu"));
 
 
 }

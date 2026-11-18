@@ -24,7 +24,7 @@ public partial class WatchHistoryWindow : Window
         _rows = entries.Select(entry =>
         {
             var position = resumeEnabled ? positions.GetValueOrDefault(entry.Channel.Id) : 0;
-            var date = entry.WatchedAt.ToLocalTime().ToString("dd MMM yyyy · HH:mm", CultureInfo.GetCultureInfo("tr-TR"));
+            var date = entry.WatchedAt.ToLocalTime().ToString("dd MMM yyyy · HH:mm", Lang.Culture);
             var progress = position > 0 ? $" · {TimeSpan.FromMilliseconds(position):h\\:mm\\:ss} konumunda" : "";
             return new HistoryRow(entry.Channel, $"{date}{progress}", entry.Channel.IsOnDemand && position > 0);
         }).ToArray();
@@ -39,14 +39,14 @@ public partial class WatchHistoryWindow : Window
         Entries.SelectedIndex = rows.Count > 0 ? 0 : -1;
         PlayHistoryButton.Visibility = rows.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         EmptyHistory.Visibility = rows.Count > 0 ? Visibility.Collapsed : Visibility.Visible;
-        EmptyMessage.Text = resume ? "Devam edilecek film veya bölüm yok." : "Bu kaynakta izleme geçmişi henüz boş.";
+        EmptyMessage.Text = resume ? Lang.T("Devam edilecek film veya bölüm yok.") : Lang.T("Bu kaynakta izleme geçmişi henüz boş.");
     }
 
     private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         var selected = Entries.SelectedItem as HistoryRow;
         PlayHistoryButton.IsEnabled = selected is not null;
-        PlayHistoryText.Text = selected?.CanResume == true ? "Devam et" : "Oynat";
+        PlayHistoryText.Text = selected?.CanResume == true ? Lang.T("Devam et") : Lang.T("Oynat");
     }
 
     private void OnTitleMouseDown(object sender, MouseButtonEventArgs e) => DragMove();

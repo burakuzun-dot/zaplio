@@ -11,10 +11,10 @@ namespace Zaplio;
 
 public partial class MainWindow
 {
-    private static readonly (string? Value, string Label)[] AspectRatios =
-        [(null, "Otomatik"), ("16:9", "16:9"), ("4:3", "4:3"), ("21:9", "21:9"), ("16:10", "16:10"), ("1:1", "1:1")];
-    private static readonly (string? Value, string Label)[] CropModes =
-        [(null, "Kırpma yok"), ("16:9", "16:9"), ("4:3", "4:3"), ("21:9", "21:9"), ("2.35:1", "2.35:1")];
+    private static (string? Value, string Label)[] AspectRatios =>
+        [(null, Lang.T("Otomatik")), ("16:9", "16:9"), ("4:3", "4:3"), ("21:9", "21:9"), ("16:10", "16:10"), ("1:1", "1:1")];
+    private static (string? Value, string Label)[] CropModes =>
+        [(null, Lang.T("Kırpma yok")), ("16:9", "16:9"), ("4:3", "4:3"), ("21:9", "21:9"), ("2.35:1", "2.35:1")];
     private const long DelayStep = 100_000; // LibVLC delays are in microseconds.
 
     private Channel? _finishedEpisode;
@@ -29,7 +29,7 @@ public partial class MainWindow
         CinemaButton.IsEnabled = _player is not null || _cinema;
         SecondScreenButton.Visibility = HasSecondMonitor || IsSecondScreenActive ? Visibility.Visible : Visibility.Collapsed;
         SecondScreenButton.IsEnabled = _player is not null || IsSecondScreenActive;
-        SecondScreenText.Text = IsSecondScreenActive ? "Geri al" : "2. ekran";
+        SecondScreenText.Text = IsSecondScreenActive ? Lang.T("Geri al") : Lang.T("2. ekran");
         NextEpisodeButton.Visibility = (_playingChannel ?? _finishedEpisode) is { SeriesId: > 0 } episode &&
             episode.SourceId == _activeSourceId ? Visibility.Visible : Visibility.Collapsed;
     }
@@ -52,7 +52,7 @@ public partial class MainWindow
                 var index = Array.FindIndex(AspectRatios, item => item.Value == _aspectRatio);
                 var next = AspectRatios[(index + 1) % AspectRatios.Length];
                 SetAspectRatio(player, next.Value);
-                ShowOsd("Görüntü oranı", next.Label);
+                ShowOsd(Lang.T("Görüntü oranı"), next.Label);
                 return true;
             case Key.P:
                 TogglePip();
@@ -71,7 +71,7 @@ public partial class MainWindow
                 return true;
             case Key.M:
                 OnMute(this, new RoutedEventArgs());
-                ShowOsd(_muted || VolumeSlider.Value == 0 ? "Ses kapalı" : "Ses açık", "");
+                ShowOsd(_muted || VolumeSlider.Value == 0 ? Lang.T("Ses kapalı") : Lang.T("Ses açık"), "");
                 return true;
             case Key.S:
                 _ = TakeSnapshotAsync(player);
@@ -86,38 +86,47 @@ public partial class MainWindow
         if (_player is not { } player) return;
         var button = (Button)sender;
         var menu = new ContextMenu { PlacementTarget = button, Placement = PlacementMode.Top };
-        menu.Items.Add(BuildTracks("Ses", player.AudioTrackDescription, player.AudioTrack, id => player.SetAudioTrack(id)));
-        menu.Items.Add(BuildTracks("Altyazı", player.SpuDescription, player.Spu, id => player.SetSpu(id), subtitles: true));
+        menu.Items.Add(BuildTracks(Lang.T("Ses"), player.AudioTrackDescription, player.AudioTrack, id => player.SetAudioTrack(id)));
+        menu.Items.Add(BuildTracks(Lang.T("Altyazı"), player.SpuDescription, player.Spu, id => player.SetSpu(id), subtitles: true));
         if (_playingChannel is { IsOnDemand: false } live &&
             ActiveChannels.FirstOrDefault(channel => channel.Id == RowId(live.Id)) is { } row && BuildQualityMenu(row) is { } quality)
             menu.Items.Add(quality);
         menu.Items.Add(new Separator());
-        menu.Items.Add(BuildChoice("Görüntü oranı  (A)", AspectRatios, _aspectRatio, value => SetAspectRatio(player, value)));
-        menu.Items.Add(BuildChoice("Kırpma", CropModes, _cropGeometry, value =>
+        menu.Items.Add(BuildChoice(Lang.T("Görüntü oranı  (A)"), AspectRatios, _aspectRatio, value => SetAspectRatio(player, value)));
+        menu.Items.Add(BuildChoice(Lang.T("Kırpma"), CropModes, _cropGeometry, value =>
         {
             _cropGeometry = value;
             if (ReferenceEquals(player, _player)) player.CropGeometry = value;
         }));
-        menu.Items.Add(BuildDelay("Ses gecikmesi", player.AudioDelay, delay => player.SetAudioDelay(delay)));
-        menu.Items.Add(BuildDelay("Altyazı gecikmesi", player.SpuDelay, delay => player.SetSpuDelay(delay)));
+        menu.Items.Add(BuildSubtitleLook());
+        menu.Items.Add(BuildPicture(player));
+        var level = new MenuItem { Header = Lang.T("Sesi dengele"), IsCheckable = true, IsChecked = _state.Settings.NormalizeVolume };
+        level.Click += async (_, _) => await ChangeEngineSettingAsync(_state.Settings with { NormalizeVolume = level.IsChecked });
+        menu.Items.Add(level);
+        menu.Items.Add(BuildDelay(Lang.T("Ses gecikmesi"), player.AudioDelay, delay => player.SetAudioDelay(delay)));
+        menu.Items.Add(BuildDelay(Lang.T("Altyazı gecikmesi"), player.SpuDelay, delay => player.SetSpuDelay(delay)));
         if (_playingChannel?.IsOnDemand == true)
         {
             var rates = PlaybackSpeed.Ladder.Select(rate => ((string?)rate.ToString(CultureInfo.InvariantCulture),
-                rate == 1f ? "Normal" : $"{rate.ToString("0.##", Turkish)}×")).ToArray();
-            menu.Items.Add(BuildChoice("Oynatma hızı  ( , / . )", rates, _playbackRate.ToString(CultureInfo.InvariantCulture), value =>
+                rate == 1f ? Lang.T("Normal") : $"{rate.ToString("0.##", Lang.Culture)}×")).ToArray();
+            menu.Items.Add(BuildChoice(Lang.T("Oynatma hızı  ( , / . )"), rates, _playbackRate.ToString(CultureInfo.InvariantCulture), value =>
             {
                 if (ReferenceEquals(player, _player) && float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var rate))
                     SetSpeed(rate);
             }));
         }
         menu.Items.Add(new Separator());
-        var ambientLight = new MenuItem { Header = "Ortam ışığı", IsCheckable = true, IsChecked = _state.Settings.AmbientLight };
+        var ambientLight = new MenuItem { Header = Lang.T("Ortam ışığı"), IsCheckable = true, IsChecked = _state.Settings.AmbientLight };
         ambientLight.Click += (_, _) => SetAmbientLightEnabled(ambientLight.IsChecked);
         menu.Items.Add(ambientLight);
-        var record = new MenuItem { Header = IsRecording ? "Kaydı durdur  (R)" : "Kaydet  (R)" };
+        menu.Items.Add(BuildSleepMenu());
+        var cast = new MenuItem { Header = Lang.T("Televizyonda aç…") };
+        cast.Click += async (_, _) => await StartCastAsync();
+        menu.Items.Add(cast);
+        var record = new MenuItem { Header = IsRecording ? Lang.T("Kaydı durdur  (R)") : Lang.T("Kaydet  (R)") };
         record.Click += async (_, _) => await ToggleRecordingAsync();
         menu.Items.Add(record);
-        var snapshot = new MenuItem { Header = "Ekran görüntüsü al  (S)" };
+        var snapshot = new MenuItem { Header = Lang.T("Ekran görüntüsü al  (S)") };
         snapshot.Click += async (_, _) => await TakeSnapshotAsync(player);
         menu.Items.Add(snapshot);
         menu.IsOpen = true;
@@ -125,8 +134,8 @@ public partial class MainWindow
         MenuItem BuildTracks(string label, TrackDescription[]? tracks, int current, Func<int, bool> select, bool subtitles = false)
         {
             var group = new MenuItem { Header = label };
-            if (subtitles && !(tracks ?? []).Any(track => track.Id == -1)) Add(-1, "Kapalı");
-            foreach (var track in tracks ?? []) Add(track.Id, track.Id == -1 ? "Kapalı" : track.Name);
+            if (subtitles && !(tracks ?? []).Any(track => track.Id == -1)) Add(-1, Lang.T("Kapalı"));
+            foreach (var track in tracks ?? []) Add(track.Id, track.Id == -1 ? Lang.T("Kapalı") : track.Name);
             if (group.Items.Count == 0) group.IsEnabled = false;
             return group;
 
@@ -136,7 +145,7 @@ public partial class MainWindow
                 item.Click += (_, _) =>
                 {
                     if (ReferenceEquals(player, _player) && !select(id))
-                        SetFooter("Parça değiştirilemedi.", isError: true);
+                        SetFooter(Lang.T("Parça değiştirilemedi."), isError: true);
                 };
                 group.Items.Add(item);
             }
@@ -161,7 +170,7 @@ public partial class MainWindow
             Add("−100 ms", current - DelayStep);
             Add("+500 ms", current + 5 * DelayStep);
             Add("−500 ms", current - 5 * DelayStep);
-            Add("Sıfırla", 0);
+            Add(Lang.T("Sıfırla"), 0);
             return group;
 
             void Add(string text, long value)
@@ -171,7 +180,7 @@ public partial class MainWindow
                 {
                     if (!ReferenceEquals(player, _player)) return;
                     if (apply(value)) ShowOsd(label, DelayLabel(value));
-                    else SetFooter($"{label} değiştirilemedi.", isError: true);
+                    else SetFooter(Lang.F($"{label} değiştirilemedi."), isError: true);
                 };
                 group.Items.Add(item);
             }
@@ -179,7 +188,7 @@ public partial class MainWindow
     }
 
     private static string DelayLabel(long microseconds) =>
-        $"{(microseconds > 0 ? "+" : "")}{(microseconds / 1000).ToString("N0", Turkish)} ms";
+        $"{(microseconds > 0 ? "+" : "")}{(microseconds / 1000).ToString("N0", Lang.Culture)} ms";
 
     private void SetAspectRatio(MediaPlayer player, string? value)
     {
@@ -211,10 +220,10 @@ public partial class MainWindow
         if (_closing) return;
         if (saved)
         {
-            ShowOsd("Ekran görüntüsü kaydedildi", Path.GetFileName(file));
-            SetFooter($"Ekran görüntüsü kaydedildi: {file}");
+            ShowOsd(Lang.T("Ekran görüntüsü kaydedildi"), Path.GetFileName(file));
+            SetFooter(Lang.F($"Ekran görüntüsü kaydedildi: {file}"));
         }
-        else SetFooter("Ekran görüntüsü alınamadı.", isError: true);
+        else SetFooter(Lang.T("Ekran görüntüsü alınamadı."), isError: true);
     }
 
     private async void OnNextEpisode(object sender, RoutedEventArgs e)
@@ -227,7 +236,7 @@ public partial class MainWindow
             var episodes = await _loader.LoadEpisodesAsync(source, new VodItem(episode.SeriesId, title, "", "", null), _lifetime.Token);
             if (_closing || _activeSourceId != source.Id || (_playingChannel ?? _finishedEpisode)?.Id != episode.Id) return;
             var next = episodes.SkipWhile(item => item.ProviderId != episode.EpisodeId).Skip(1).FirstOrDefault()?.Playable;
-            if (next is null) SetFooter("Bu dizide sonraki bölüm bulunamadı.");
+            if (next is null) SetFooter(Lang.T("Bu dizide sonraki bölüm bulunamadı."));
             else await PlayChannelAsync(next);
         }
         catch (Exception exception)

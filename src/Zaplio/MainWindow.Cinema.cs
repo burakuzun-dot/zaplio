@@ -36,9 +36,9 @@ public partial class MainWindow
         Fade(AmbientLightPanel, on ? 0.95 : 0.6, duration); // the glow is the only light left in the room
         CinemaShade.Visibility = Visibility.Visible;
         CinemaIcon.Text = on ? IconGlyphs.LightbulbOn : IconGlyphs.Lightbulb;
-        CinemaButton.ToolTip = on ? "Işıkları aç (C)" : "Sinema modu: çevreyi karart (C)";
-        System.Windows.Automation.AutomationProperties.SetName(CinemaButton, on ? "Işıkları aç" : "Sinema modu");
-        if (on) ShowOsd("Sinema modu", "Işıkları açmak için C ya da Esc");
+        CinemaButton.ToolTip = on ? Lang.T("Işıkları aç (C)") : Lang.T("Sinema modu: çevreyi karart (C)");
+        System.Windows.Automation.AutomationProperties.SetName(CinemaButton, on ? Lang.T("Işıkları aç") : Lang.T("Sinema modu"));
+        if (on) ShowOsd(Lang.T("Sinema modu"), Lang.T("Işıkları açmak için C ya da Esc"));
     }
 
     private static void Fade(UIElement element, double to, TimeSpan duration)

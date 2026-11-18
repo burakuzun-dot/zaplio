@@ -32,6 +32,14 @@
 - *2. ekran* düğmesi ya da `Shift`+`F11`: yayın diğer monitörde tam ekran açılır; ana pencerede liste ve rehber kullanılabilir.
 - Kanal değiştirme kısayolları her iki ekranda da çalışır. `Esc` ya da çift tık videoyu ana pencereye geri alır.
 
+## Televizyonda aç
+- *Seçenekler › Televizyonda aç…*: ev ağındaki DLNA televizyonlarına (ör. Samsung) gönderir; bu bilgisayarda oynatma durur.
+- Yayın Zaplio üzerinden aktarılır: televizyon sağlayıcı adresini (kullanıcı adı ve şifreyi) görmez, sağlayıcıya tek bağlantı gider.
+  Aktarım adresi rastgele ve gizlidir, yalnızca seçilen televizyonun IP adresine açıktır.
+- Kumanda: duraklat / devam (Boşluk), filmlerde ±30 sn ve konum, durdur, bilgisayarda kaldığı yerden devam.
+- Desteklenen: MPEG-TS canlı yayınlar, MP4 / MKV / AVI filmler. Henüz değil: HLS (`.m3u8`), bilgisayardaki videolar.
+- İlk kullanımda Windows Güvenlik Duvarı sorabilir; televizyonun bağlanabilmesi için Zaplio'ya *özel ağ* izni verilmeli.
+
 ## Yayın rehberi
 - XMLTV (`.xml`, `.xml.gz`) — kaynağın bildirdiği ya da elle girilen adres/dosya.
 - Şimdi / sırada özeti, 7 günlük program listesi, program açıklamaları.
@@ -47,6 +55,9 @@
 ## Oynatma
 - VLC 3 motoru; açılışta arka planda hazırlanır ve eklenti önbelleği sayesinde ilk oynatma bekletmez.
 - *Seçenekler* menüsü: ses ve altyazı parçası, görüntü oranı, kırpma, ses/altyazı gecikmesi, oynatma hızı (film/dizi), ekran görüntüsü.
+- **Altyazı görünümü** (4 boyut, koyu arka plan kutusu), **görüntü ayarı** (parlaklık, kontrast, renk) ve **sesi dengele**:
+  *Seçenekler* menüsünden ya da Ayarlar › Oynatma'dan; hepsi hatırlanır.
+- **Uyku zamanlayıcısı** (*Seçenekler* menüsü): 15 dk – 2 saat, film/dizi bitince ya da canlıda program bitince; ses son 30 saniyede kısılır.
 - Tam ekran, mini pencere (her zaman üstte, sürüklenebilir, tekerlekle boyutlanır).
 - Ses düzeyi ve sessiz, otomatik oynatma seçenekleri.
 
@@ -54,8 +65,11 @@
 - Kopan canlı yayına 3 kez artan aralıklarla otomatik yeniden bağlanma. Sunucunun en baştan reddettiği yayın tekrar denenmez.
 - Alt çubukta **bağlantı durumu** (Stabil / Dalgalı / Zayıf) ve bilgisayarın anlık **indirme / yükleme hızı**.
 - 401 / 403 / 429 gibi sağlayıcı yanıtları için anlaşılır mesajlar (ör. VPN uyarısı).
+- Xtream'de yayın açılamazsa ve hesabın bütün bağlantıları kullanımdaysa bu açıkça söylenir (abonelik en çok 2 dakikada bir sorulur).
+- Açılamayan canlı kanallar 24 saat listede soluk görünür; açılınca işaret kalkar. Kanallar yoklanmaz, yalnızca senin denemelerinden öğrenilir.
 
 ## Görünüm
+- Arayüz dili: Türkçe ya da English (Ayarlar › Görünüm › *Dil / Language*; varsayılan Windows'un dili).
 - Koyu, açık ya da Windows'u izleyen tema; altı vurgu rengi. Değişiklik hemen uygulanır, video alanı her temada koyu kalır.
 
 ## Çocuk profili

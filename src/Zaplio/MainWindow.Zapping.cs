@@ -69,7 +69,7 @@ public partial class MainWindow
         {
             if (_numberEntry.Length >= 5) _numberEntry = "";
             _numberEntry += digit.ToString(CultureInfo.InvariantCulture);
-            ShowOsd(_numberEntry + "_", "Kanal numarası", sticky: true);
+            ShowOsd(_numberEntry + "_", Lang.T("Kanal numarası"), sticky: true);
             _numberEntryTimer.Stop();
             _numberEntryTimer.Start();
             return true;
@@ -99,7 +99,7 @@ public partial class MainWindow
         var channels = VisibleChannels;
         if (number < 1 || number > channels.Count)
         {
-            ShowOsd(entry, "Bu numarada kanal yok");
+            ShowOsd(entry, Lang.T("Bu numarada kanal yok"));
             return;
         }
         await ZapToAsync(channels[number - 1]);
@@ -109,7 +109,7 @@ public partial class MainWindow
     {
         var channels = VisibleChannels;
         if (channels.Count == 0) return;
-        var anchor = _zapTarget ?? _playingChannel ?? ChannelList.SelectedItem as Channel;
+        var anchor = _zapTarget ?? _playingChannel ?? _cast?.Channel ?? ChannelList.SelectedItem as Channel; // on the TV too
         var anchorId = RowId(anchor?.Id);
         var index = anchorId is null ? -1 : channels.FindIndex(channel => channel.Id == anchorId);
         var next = index < 0
@@ -133,7 +133,7 @@ public partial class MainWindow
         var programme = _guideRequests.GetValueOrDefault(channel.SourceId)?.Guide?.ForChannel(channel)
             .LastOrDefault(item => item.IsOnAir(now))?.Title;
         ShowOsd(index >= 0 ? $"{index + 1}  {channel.Name}" : channel.Name,
-            string.IsNullOrWhiteSpace(programme) ? channel.GroupLabel : $"Şimdi: {programme}");
+            string.IsNullOrWhiteSpace(programme) ? channel.GroupLabel : Lang.F($"Şimdi: {programme}"));
         _zapTarget = channel;
         _zapDelay.Stop();
         _zapDelay.Start();

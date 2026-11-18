@@ -25,7 +25,7 @@ internal sealed partial class CatalogLoader
             await Task.WhenAll(groups, items).ConfigureAwait(false);
             var root = items.Result.RootElement;
             if (root.ValueKind != JsonValueKind.Array)
-                throw new SourceException("Xtream sunucusu geçerli bir içerik listesi göndermedi.");
+                throw new SourceException(Lang.T("Xtream sunucusu geçerli bir içerik listesi göndermedi."));
 
             var result = new List<VodItem>();
             foreach (var item in root.EnumerateArray())
@@ -56,7 +56,7 @@ internal sealed partial class CatalogLoader
         using var response = await ReadJsonAsync($"{api}&action=get_series_info&series_id={seriesId}", token).ConfigureAwait(false);
         if (response.RootElement.ValueKind != JsonValueKind.Object ||
             !response.RootElement.TryGetProperty("episodes", out var episodes))
-            throw new SourceException("Bu dizi için bölüm listesi alınamadı.");
+            throw new SourceException(Lang.T("Bu dizi için bölüm listesi alınamadı."));
 
         var seriesFacts = response.RootElement.TryGetProperty("info", out var info) ? VodFacts.Read(info) : null;
         return ParseEpisodes(source, series, connection, episodes, seriesFacts);
@@ -82,7 +82,7 @@ internal sealed partial class CatalogLoader
         }
         else if (episodes.ValueKind != JsonValueKind.Null)
         {
-            throw new SourceException("Xtream sunucusu geçerli bir bölüm listesi göndermedi.");
+            throw new SourceException(Lang.T("Xtream sunucusu geçerli bir bölüm listesi göndermedi."));
         }
 
         return result.DistinctBy(item => item.ProviderId).OrderBy(item => item.Season).ThenBy(item => item.Episode).ToList();
@@ -99,9 +99,9 @@ internal sealed partial class CatalogLoader
             season = Value(entry, "season") is string number ? Number(number) : season;
             var episode = Number(Value(entry, "episode_num"));
             var title = Value(entry, "title")?.Trim();
-            if (string.IsNullOrEmpty(title)) title = episode > 0 ? $"Bölüm {episode}" : "Bölüm";
-            var category = season > 0 ? $"{season}. Sezon" : "Özel bölümler";
-            var detail = episode > 0 ? $"{episode}. Bölüm" : category;
+            if (string.IsNullOrEmpty(title)) title = episode > 0 ? Lang.F($"Bölüm {episode}") : Lang.T("Bölüm");
+            var category = season > 0 ? Lang.F($"{season}. Sezon") : Lang.T("Özel bölümler");
+            var detail = episode > 0 ? Lang.F($"{episode}. Bölüm") : category;
             var media = VodMedia(source, connection, "series", id, $"{series.Title} · {title}",
                 $"{category} · {detail}", Value(entry, "container_extension")) with { SeriesId = series.ProviderId, EpisodeId = id };
             var summary = entry.TryGetProperty("info", out var info)
