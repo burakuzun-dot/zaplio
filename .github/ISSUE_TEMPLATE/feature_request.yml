@@ -1,25 +1,25 @@
-name: Özellik önerisi
-description: Zaplio'ya bir fikir öner
+name: Feature idea / Özellik önerisi
+description: Suggest an idea for Zaplio / Zaplio'ya bir fikir öner
 labels: ["enhancement"]
 body:
   - type: textarea
     id: problem
     attributes:
-      label: Hangi sorunu çözüyor?
-      description: Bugün neyi yapamıyorsun ya da ne zor geliyor?
+      label: What problem does it solve? / Hangi sorunu çözüyor?
+      description: What can't you do today, or what is hard? / Bugün neyi yapamıyorsun ya da ne zor geliyor?
     validations:
       required: true
   - type: textarea
     id: idea
     attributes:
-      label: Önerin
-      description: Nasıl çalışmasını hayal ediyorsun? Varsa başka bir uygulamadaki örneği de yaz.
+      label: Your idea / Önerin
+      description: How would it work? An example from another app helps. / Nasıl çalışmasını hayal ediyorsun? Varsa başka bir uygulamadaki örneği de yaz.
     validations:
       required: true
   - type: checkboxes
     id: checks
     attributes:
-      label: Kontrol
+      label: Check / Kontrol
       options:
-        - label: Açık önerilerde aynısı olmadığına baktım.
+        - label: I checked that the same idea is not already open. / Açık önerilerde aynısı olmadığına baktım.
           required: true

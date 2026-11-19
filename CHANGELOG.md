@@ -5,6 +5,10 @@ Sürüm numaraları [Anlamsal Sürümleme](https://semver.org/lang/tr/) kurallar
 
 ## Yayınlanmamış
 
+### İyileştirmeler
+- Kurulum programı Windows'un diline göre Türkçe ya da İngilizce açılır.
+- Hata ve öneri formları, PR şablonu, katkı ve güvenlik belgeleri artık İngilizce ve Türkçe.
+
 ## 0.14.1 — 2026-11-19
 
 ### Düzeltmeler

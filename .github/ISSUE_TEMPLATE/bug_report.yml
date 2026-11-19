@@ -1,62 +1,66 @@
-name: Hata bildirimi
-description: Zaplio'da bir şey beklendiği gibi çalışmıyor
+name: Bug report / Hata bildirimi
+description: Something in Zaplio does not work as expected / Zaplio'da bir şey beklendiği gibi çalışmıyor
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
+        Thanks! Please **do not share usernames, passwords or playlist addresses**. Zaplio provides no content; requests for
+        channels or playlists are closed. You can write in English or Turkish.
+
         Teşekkürler! Lütfen **kullanıcı adı, şifre ya da liste adresi paylaşma**. Zaplio içerik sağlamaz; kanal veya liste
-        bulma talepleri kapatılır.
+        bulma talepleri kapatılır. İngilizce ya da Türkçe yazabilirsin.
   - type: input
     id: version
     attributes:
-      label: Zaplio sürümü
-      description: Günlük dosyasındaki "Zaplio … başlatıldı" satırında ya da indirdiğin dosyanın adında yazar.
+      label: Zaplio version / Zaplio sürümü
+      description: In the log line "Zaplio … started/başlatıldı", or in the name of the file you downloaded.
       placeholder: "0.14.1"
     validations:
       required: true
   - type: dropdown
     id: area
     attributes:
-      label: Hangi bölümde?
+      label: Which part? / Hangi bölümde?
       options:
-        - Canlı TV
-        - Yayın rehberi / arşiv
-        - Filmler / diziler
-        - Oynatma (görüntü, ses, altyazı)
-        - Kaynak ekleme / yükleme
-        - Kurulum / açılış
-        - Diğer
+        - Live TV / Canlı TV
+        - TV guide, archive / Yayın rehberi, arşiv
+        - Movies, series / Filmler, diziler
+        - Playback (picture, sound, subtitles) / Oynatma (görüntü, ses, altyazı)
+        - Play on TV / Televizyonda aç
+        - Adding or loading sources / Kaynak ekleme, yükleme
+        - Install, start-up / Kurulum, açılış
+        - Other / Diğer
     validations:
       required: true
   - type: dropdown
     id: source
     attributes:
-      label: Kaynak türü
+      label: Source type / Kaynak türü
       options:
-        - M3U dosyası
-        - M3U bağlantısı
+        - M3U file / M3U dosyası
+        - M3U link / M3U bağlantısı
         - Xtream API
-        - Fark etmiyor
+        - Does not matter / Fark etmiyor
   - type: textarea
     id: steps
     attributes:
-      label: Ne yaptın, ne oldu?
-      description: Adım adım yaz; beklediğin ile gördüğünü belirt.
+      label: What did you do, what happened? / Ne yaptın, ne oldu?
+      description: Step by step; what you expected and what you saw. / Adım adım; beklediğin ve gördüğün.
       placeholder: |
-        1. Rehberi açtım
-        2. Dünkü bir programa çift tıkladım
-        3. "Yayın açılamadı" yazdı
+        1. Opened the guide / Rehberi açtım
+        2. Double-clicked yesterday's programme / Dünkü bir programa çift tıkladım
+        3. "The stream could not be opened" / "Yayın açılamadı"
     validations:
       required: true
   - type: textarea
     id: log
     attributes:
-      label: Günlük
-      description: Ayarlar → Günlük klasörünü aç. O günün .log dosyasından ilgili satırları yapıştır (şifreler zaten gizlenmiştir).
+      label: Log / Günlük
+      description: Settings → Open log folder; paste the related lines of that day's .log file (passwords and server addresses are already hidden). / Ayarlar → Günlük klasörünü aç; o günün .log dosyasından ilgili satırları yapıştır (şifreler ve sunucu adresleri zaten gizlenmiştir).
       render: text
   - type: input
     id: windows
     attributes:
-      label: Windows sürümü
+      label: Windows version / Windows sürümü
       placeholder: "Windows 11 24H2"

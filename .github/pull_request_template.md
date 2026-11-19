@@ -1,15 +1,15 @@
-## Ne değişti?
+## What changed? / Ne değişti?
 
-<!-- Kısaca: hangi sorunu çözüyor, kullanıcı ne fark edecek? İlgili issue: #... -->
+<!-- Briefly: what does it fix, what will users notice? Related issue: #... / Kısaca: hangi sorunu çözüyor, kullanıcı ne fark edecek? -->
 
-## Nasıl denendi?
+## How was it tested? / Nasıl denendi?
 
-- [ ] `dotnet build` uyarısız
-- [ ] `dotnet test` geçiyor
-- [ ] Uygulamada elle denendi (hangi senaryo?)
+- [ ] `dotnet build` has no warnings / uyarısız
+- [ ] `dotnet test` passes / geçiyor
+- [ ] Tried in the app (which scenario?) / Uygulamada elle denendi (hangi senaryo?)
 
-## Kontrol
+## Checklist / Kontrol
 
-- [ ] Kullanıcı adı, şifre, liste adresi ya da kişisel veri commit edilmedi / günlüğe yazılmıyor
-- [ ] Kullanıcıya görünen metinler Türkçe ve mevcut üslupla uyumlu
-- [ ] Gerekiyorsa `CHANGELOG.md` → *Yayınlanmamış* güncellendi
+- [ ] No usernames, passwords, playlist addresses or personal data committed or logged / Gizli ya da kişisel veri commit edilmedi, günlüğe yazılmıyor
+- [ ] Visible text is Turkish in the existing tone and wrapped in `Lang.T` / `Lang.F` with its English in `Lang.English.cs` / Görünen metinler Türkçe, `Lang.T` / `Lang.F` ile sarılı, İngilizcesi eklendi
+- [ ] `CHANGELOG.md` → *Yayınlanmamış* updated if needed / gerekiyorsa güncellendi

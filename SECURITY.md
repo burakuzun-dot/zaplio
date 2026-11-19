@@ -1,3 +1,22 @@
+# Security policy
+
+*Türkçesi aşağıda.*
+
+## Supported versions
+Security fixes are released for the [latest version](https://github.com/burakuzun-dot/zaplio/releases/latest) only.
+
+## Reporting a vulnerability
+**Do not open a public issue for a vulnerability.** Use GitHub's private form instead: the repository's **Security** tab →
+**Report a vulnerability**. Include the affected Zaplio and Windows versions, what the issue is with steps to reproduce, and
+its possible impact. I aim to answer within 7 days and to fix confirmed issues in a patch release as soon as possible.
+
+## Scope
+Especially: source details (username, password, playlist address) exposed on disk, in the log or on screen; a malicious
+M3U / XMLTV / Xtream response running code in or crashing the app; the update check being sent to a wrong release.
+Problems in the providers' own systems are out of scope.
+
+---
+
 # Güvenlik politikası
 
 ## Desteklenen sürümler

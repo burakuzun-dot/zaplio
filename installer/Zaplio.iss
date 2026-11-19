@@ -18,6 +18,7 @@
 #define PublishDir "..\artifacts\Zaplio-" + AppVersion + "-win-x64"
 
 [Setup]
+ShowLanguageDialog=auto
 AppId={{C2FB3293-BBD3-4B83-9C3D-B0E6008461BB}
 AppName={#AppName}
 AppVersion={#AppVersion}
@@ -41,6 +42,7 @@ CloseApplications=yes
 
 [Languages]
 Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
+Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
